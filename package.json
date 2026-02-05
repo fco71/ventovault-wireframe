@@ -10,11 +10,18 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
+    "date-fns": "^3.3.1",
+    "firebase": "^10.8.0",
+    "framer-motion": "^12.33.0",
+    "lucide-react": "^0.563.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.6.0",
+    "react-loading-skeleton": "^3.5.0",
     "react-router-dom": "^6.22.0",
-    "firebase": "^10.8.0",
-    "date-fns": "^3.3.1"
+    "recharts": "^3.7.0",
+    "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.55",

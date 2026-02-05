@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Wallet } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -37,8 +38,8 @@ export default function Login() {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 to-primary-800 p-12 flex-col justify-between">
         <div>
           <div className="flex items-center gap-2 text-white">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
-              <span className="text-2xl">💸</span>
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+              <Wallet className="w-6 h-6 text-primary-600" />
             </div>
             <span className="text-2xl font-bold">VentoVault</span>
           </div>
@@ -69,8 +70,8 @@ export default function Login() {
         <div className="w-full max-w-md animate-slide-up">
           {/* Mobile logo */}
           <div className="lg:hidden mb-8 flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
-              <span className="text-2xl">💸</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl flex items-center justify-center shadow-md">
+              <Wallet className="w-6 h-6 text-white" />
             </div>
             <span className="text-2xl font-bold text-gray-900">VentoVault</span>
           </div>

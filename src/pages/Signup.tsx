@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Wallet, Zap, Lock } from 'lucide-react';
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -51,8 +52,8 @@ export default function Signup() {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 to-primary-800 p-12 flex-col justify-between">
         <div>
           <div className="flex items-center gap-2 text-white">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
-              <span className="text-2xl">💸</span>
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+              <Wallet className="w-6 h-6 text-primary-600" />
             </div>
             <span className="text-2xl font-bold">VentoVault</span>
           </div>
@@ -63,13 +64,17 @@ export default function Signup() {
             Join thousands<br />sending money<br />worldwide
           </h1>
           <div className="grid grid-cols-2 gap-6 pt-8">
-            <div className="bg-white/10 backdrop-blur rounded-2xl p-6">
-              <div className="text-3xl mb-2">⚡</div>
+            <div className="bg-white/10 backdrop-blur rounded-2xl p-6 hover:bg-white/15 transition-all">
+              <div className="w-10 h-10 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center mb-2">
+                <Zap className="w-6 h-6 text-white" />
+              </div>
               <div className="text-white font-semibold">Instant transfers</div>
               <div className="text-primary-100 text-sm">Within minutes</div>
             </div>
-            <div className="bg-white/10 backdrop-blur rounded-2xl p-6">
-              <div className="text-3xl mb-2">🔒</div>
+            <div className="bg-white/10 backdrop-blur rounded-2xl p-6 hover:bg-white/15 transition-all">
+              <div className="w-10 h-10 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center mb-2">
+                <Lock className="w-6 h-6 text-white" />
+              </div>
               <div className="text-white font-semibold">Bank-level security</div>
               <div className="text-primary-100 text-sm">Your money is safe</div>
             </div>
@@ -81,8 +86,8 @@ export default function Signup() {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md animate-slide-up">
           <div className="lg:hidden mb-8 flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
-              <span className="text-2xl">💸</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl flex items-center justify-center shadow-md">
+              <Wallet className="w-6 h-6 text-white" />
             </div>
             <span className="text-2xl font-bold text-gray-900">VentoVault</span>
           </div>

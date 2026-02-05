@@ -1,9 +1,19 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { Wallet, Home, ArrowUpRight, ArrowDownLeft, BarChart3, Bell, Settings, LogOut } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
+
+const iconComponents = {
+  Home,
+  ArrowUpRight,
+  ArrowDownLeft,
+  BarChart3,
+  Bell,
+  Settings,
+};
 
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
@@ -11,12 +21,12 @@ export default function Layout({ children }: LayoutProps) {
   const { currentUser, logout } = useAuth();
 
   const navItems = [
-    { path: '/dashboard', label: 'Home', icon: '🏠' },
-    { path: '/send', label: 'Send', icon: '↗️' },
-    { path: '/receive', label: 'Receive', icon: '↙️' },
-    { path: '/transactions', label: 'Activity', icon: '📊' },
-    { path: '/notifications', label: 'Alerts', icon: '🔔' },
-    { path: '/settings', label: 'Settings', icon: '⚙️' },
+    { path: '/dashboard', label: 'Home', icon: 'Home' as const },
+    { path: '/send', label: 'Send', icon: 'ArrowUpRight' as const },
+    { path: '/receive', label: 'Receive', icon: 'ArrowDownLeft' as const },
+    { path: '/transactions', label: 'Activity', icon: 'BarChart3' as const },
+    { path: '/notifications', label: 'Alerts', icon: 'Bell' as const },
+    { path: '/settings', label: 'Settings', icon: 'Settings' as const },
   ];
 
   const handleLogout = async () => {
@@ -32,8 +42,8 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link to="/dashboard" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                <span className="text-lg">💸</span>
+              <div className="w-8 h-8 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center">
+                <Wallet className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900">VentoVault</span>
             </Link>
@@ -42,17 +52,18 @@ export default function Layout({ children }: LayoutProps) {
             <div className="hidden md:flex items-center gap-1">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
+                const IconComponent = iconComponents[item.icon];
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                       isActive
                         ? 'bg-primary-50 text-primary-700'
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
-                    <span className="mr-2">{item.icon}</span>
+                    <IconComponent className="w-4 h-4" />
                     {item.label}
                   </Link>
                 );
@@ -69,9 +80,10 @@ export default function Layout({ children }: LayoutProps) {
               </div>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
               >
-                Logout
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           </div>
@@ -84,10 +96,11 @@ export default function Layout({ children }: LayoutProps) {
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg">
         <div className="flex justify-around items-center h-16">
           {navItems.slice(0, 5).map((item) => {
             const isActive = location.pathname === item.path;
+            const IconComponent = iconComponents[item.icon];
             return (
               <Link
                 key={item.path}
@@ -96,7 +109,7 @@ export default function Layout({ children }: LayoutProps) {
                   isActive ? 'text-primary-600' : 'text-gray-500'
                 }`}
               >
-                <span className="text-xl">{item.icon}</span>
+                <IconComponent className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
                 <span className="text-xs mt-1 font-medium">{item.label}</span>
               </Link>
             );
