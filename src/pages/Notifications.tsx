@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import Layout from '../components/common/Layout';
+import Toggle from '../components/ui/Toggle';
 
 export default function Notifications() {
+  const [signalOnly, setSignalOnly] = useState(false);
   const notifications = [
     {
       id: '1',
@@ -39,22 +42,38 @@ export default function Notifications() {
       read: true
     },
   ];
+  const visibleNotifications = signalOnly
+    ? notifications.filter((notification) => notification.type !== 'promotion')
+    : notifications;
 
   return (
     <Layout>
       <div className="max-w-3xl mx-auto pb-20 md:pb-6">
         <div className="mb-6 animate-slide-up">
-          <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
-          <p className="text-gray-600 mt-1">Stay updated with your account activity</p>
+          <h1 className="text-3xl font-semibold text-gray-900 font-display">Notifications</h1>
+          <p className="text-gray-600 mt-2">Stay updated with your account activity.</p>
+        </div>
+
+        <div className="card mb-6 animate-slide-up" style={{ animationDelay: '0.05s' }}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Signal Mode</div>
+              <div className="font-semibold text-gray-900 font-display mt-1">Focus on high-signal alerts</div>
+              <p className="text-sm text-gray-600 mt-2">
+                Prioritize security, transfers, and real-time FX changes. Hide low-impact promos.
+              </p>
+            </div>
+            <Toggle checked={signalOnly} onChange={setSignalOnly} />
+          </div>
         </div>
 
         {/* Unread Count */}
-        {notifications.filter(n => !n.read).length > 0 && (
-          <div className="card bg-primary-50 border border-primary-200 mb-6 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        {visibleNotifications.filter(n => !n.read).length > 0 && (
+          <div className="card bg-primary-50/80 border border-primary-200/40 mb-6 animate-slide-up" style={{ animationDelay: '0.1s' }}>
             <div className="flex items-center justify-between">
               <div>
                 <div className="font-semibold text-primary-900">
-                  You have {notifications.filter(n => !n.read).length} unread notifications
+                  You have {visibleNotifications.filter(n => !n.read).length} unread notifications
                 </div>
                 <div className="text-sm text-primary-700">Stay on top of your account</div>
               </div>
@@ -68,11 +87,11 @@ export default function Notifications() {
         {/* Notifications List */}
         <div className="card animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <div className="space-y-1">
-            {notifications.map((notification, index) => (
+            {visibleNotifications.map((notification, index) => (
               <div
                 key={notification.id}
                 className={`p-4 rounded-xl transition-all cursor-pointer ${
-                  !notification.read ? 'bg-primary-50 hover:bg-primary-100' : 'hover:bg-gray-50'
+                  !notification.read ? 'bg-primary-50/80 hover:bg-primary-100/80' : 'hover:bg-white/70'
                 }`}
                 style={{ animationDelay: `${0.3 + index * 0.05}s` }}
               >

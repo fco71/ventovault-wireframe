@@ -47,13 +47,13 @@ export default function Card({
     y.set(0);
   };
 
-  const baseStyles = 'rounded-2xl p-6 transition-all duration-200';
+  const baseStyles = 'card';
 
   const variantStyles = {
-    default: 'bg-white shadow-soft',
-    elevated: 'bg-white shadow-soft hover:shadow-xl hover:-translate-y-1',
-    glass: 'backdrop-blur-xl bg-white/80 border border-white/20 shadow-xl',
-    interactive: 'bg-white shadow-soft hover:shadow-xl cursor-pointer',
+    default: '',
+    elevated: 'hover:shadow-[0_30px_70px_-45px_rgba(15,23,42,0.55)] hover:-translate-y-1',
+    glass: 'bg-white/60 border-white/40 backdrop-blur-2xl',
+    interactive: 'cursor-pointer hover:shadow-[0_30px_70px_-45px_rgba(15,23,42,0.55)]',
   };
 
   const glowStyle = glow ? 'hover:shadow-glow' : '';

@@ -47,151 +47,164 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen grid lg:grid-cols-[1.1fr_0.9fr]">
       {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 to-primary-800 p-12 flex-col justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-white">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
-              <Wallet className="w-6 h-6 text-primary-600" />
-            </div>
-            <span className="text-2xl font-bold">VentoVault</span>
+      <div className="relative hidden lg:flex flex-col justify-between p-12 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-white via-primary-50 to-accent-50" />
+        <div className="absolute -top-28 right-0 w-72 h-72 bg-primary-200/40 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-accent-200/35 blur-3xl" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-11 h-11 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-glow">
+            <Wallet className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <div className="text-2xl font-semibold text-gray-900 font-display">VentoVault</div>
+            <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Future of Remittance</div>
           </div>
         </div>
 
-        <div className="space-y-8">
-          <h1 className="text-5xl font-bold text-white leading-tight">
-            Join thousands<br />sending money<br />worldwide
+        <div className="relative z-10 space-y-8">
+          <h1 className="text-5xl font-semibold text-gray-900 leading-tight font-display">
+            Join the<br />global money grid
           </h1>
-          <div className="grid grid-cols-2 gap-6 pt-8">
-            <div className="bg-white/10 backdrop-blur rounded-2xl p-6 hover:bg-white/15 transition-all">
-              <div className="w-10 h-10 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center mb-2">
-                <Zap className="w-6 h-6 text-white" />
+          <p className="text-lg text-gray-600 max-w-lg">
+            Create your vault and unlock instant payouts, smart routing, and a multi-currency wallet built for the next decade.
+          </p>
+          <div className="grid grid-cols-2 gap-4 pt-4">
+            {[
+              { icon: Zap, label: 'Instant transfers', desc: 'Minutes, not days' },
+              { icon: Lock, label: 'Bank-level security', desc: 'Encrypted end-to-end' },
+              { icon: Zap, label: 'Transparent fees', desc: 'No hidden margins' },
+              { icon: Lock, label: 'Smart routing', desc: 'Optimized paths' },
+            ].map((feature, index) => (
+              <div key={`${feature.label}-${index}`} className="card p-4">
+                <div className="w-10 h-10 rounded-xl bg-primary-50 text-primary-700 flex items-center justify-center mb-3">
+                  <feature.icon className="w-5 h-5" />
+                </div>
+                <div className="font-semibold text-gray-900">{feature.label}</div>
+                <div className="text-sm text-gray-600">{feature.desc}</div>
               </div>
-              <div className="text-white font-semibold">Instant transfers</div>
-              <div className="text-primary-100 text-sm">Within minutes</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur rounded-2xl p-6 hover:bg-white/15 transition-all">
-              <div className="w-10 h-10 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center mb-2">
-                <Lock className="w-6 h-6 text-white" />
-              </div>
-              <div className="text-white font-semibold">Bank-level security</div>
-              <div className="text-primary-100 text-sm">Your money is safe</div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Right side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md animate-slide-up">
-          <div className="lg:hidden mb-8 flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl flex items-center justify-center shadow-md">
+          <div className="lg:hidden mb-8 flex items-center gap-3">
+            <div className="w-11 h-11 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-glow">
               <Wallet className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-gray-900">VentoVault</span>
+            <div>
+              <div className="text-2xl font-semibold text-gray-900 font-display">VentoVault</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Global Wallet</div>
+            </div>
           </div>
 
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">Create account</h2>
-            <p className="text-gray-600 mt-2">Start sending money in minutes</p>
-          </div>
-
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
-              </label>
-              <input
-                type="text"
-                name="displayName"
-                value={formData.displayName}
-                onChange={handleChange}
-                className="input"
-                placeholder="John Doe"
-                required
-              />
+          <div className="card p-8">
+            <div className="mb-6">
+              <h2 className="text-3xl font-semibold text-gray-900 font-display">Create account</h2>
+              <p className="text-gray-600 mt-2">Start sending money in minutes.</p>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="input"
-                placeholder="you@example.com"
-                required
-              />
+            {error && (
+              <div className="mb-6 p-4 bg-error-50 border border-error-500/20 rounded-xl text-error-600 text-sm">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="displayName"
+                  value={formData.displayName}
+                  onChange={handleChange}
+                  className="input"
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="input"
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="input"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="input"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+
+              <div className="flex items-start">
+                <input type="checkbox" required className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-400" />
+                <span className="ml-2 text-sm text-gray-600">
+                  I agree to the{' '}
+                  <button type="button" className="text-primary-700 hover:text-primary-800 font-semibold">
+                    Terms of Service
+                  </button>{' '}
+                  and{' '}
+                  <button type="button" className="text-primary-700 hover:text-primary-800 font-semibold">
+                    Privacy Policy
+                  </button>
+                </span>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full btn btn-primary py-3 text-lg disabled:opacity-50"
+              >
+                {loading ? 'Creating account...' : 'Create account'}
+              </button>
+            </form>
+
+            <div className="mt-8 text-center text-sm text-gray-600">
+              Already have an account?{' '}
+              <Link to="/login" className="text-primary-700 hover:text-primary-800 font-semibold">
+                Log in
+              </Link>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="input"
-                placeholder="••••••••"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="input"
-                placeholder="••••••••"
-                required
-              />
-            </div>
-
-            <div className="flex items-start">
-              <input type="checkbox" required className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-              <span className="ml-2 text-sm text-gray-600">
-                I agree to the{' '}
-                <button type="button" className="text-primary-600 hover:text-primary-700 font-medium">
-                  Terms of Service
-                </button>{' '}
-                and{' '}
-                <button type="button" className="text-primary-600 hover:text-primary-700 font-medium">
-                  Privacy Policy
-                </button>
-              </span>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full btn btn-primary py-3 text-lg disabled:opacity-50"
-            >
-              {loading ? 'Creating account...' : 'Create account'}
-            </button>
-          </form>
-
-          <div className="mt-8 text-center text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
-              Log in
-            </Link>
           </div>
         </div>
       </div>

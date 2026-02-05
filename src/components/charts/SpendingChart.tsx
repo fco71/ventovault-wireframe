@@ -2,11 +2,11 @@ import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 const data = [
-  { name: 'Food & Dining', value: 450, color: '#6172f3' },
-  { name: 'Shopping', value: 320, color: '#8299f8' },
-  { name: 'Transport', value: 180, color: '#a5bbfc' },
-  { name: 'Bills', value: 250, color: '#c7d7fe' },
-  { name: 'Entertainment', value: 120, color: '#e0e9ff' },
+  { name: 'Food & Dining', value: 450, color: '#06b6d4' },
+  { name: 'Shopping', value: 320, color: '#22d3ee' },
+  { name: 'Transport', value: 180, color: '#67e8f9' },
+  { name: 'Bills', value: 250, color: '#a5f3fc' },
+  { name: 'Entertainment', value: 120, color: '#fdba74' },
 ];
 
 const COLORS = data.map((item) => item.color);
@@ -41,12 +41,12 @@ export default function SpendingChart() {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(0, 0, 0, 0.05)',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.6)',
                 borderRadius: '12px',
                 padding: '8px 12px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                boxShadow: '0 12px 30px rgba(15, 23, 42, 0.18)',
               }}
               formatter={(value: number) => `$${value.toFixed(2)}`}
             />

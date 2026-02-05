@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../components/common/Layout';
-import { ArrowUpRight, ArrowDownLeft, Download, Search, Filter } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Download, Search, Filter, Sparkles } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
+import Timeline from '../components/ui/Timeline';
 
 export default function Transactions() {
   const [filter, setFilter] = useState<'all' | 'send' | 'receive'>('all');
@@ -19,6 +20,11 @@ export default function Transactions() {
   ];
 
   const filtered = filter === 'all' ? transactions : transactions.filter(t => t.type === filter);
+  const detailTimeline = [
+    { title: 'Transfer initiated', subtitle: 'Recipient confirmed', time: '09:12', tone: 'primary' as const },
+    { title: 'Compliance check', subtitle: 'Auto-approved', time: '09:12', tone: 'success' as const },
+    { title: 'Payout in progress', subtitle: 'Estimated arrival: 2 min', time: 'Live', tone: 'warning' as const },
+  ];
 
   return (
     <Layout>
@@ -29,8 +35,32 @@ export default function Transactions() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl font-bold text-gray-900">Transaction History</h1>
-          <p className="text-gray-600 mt-1">View all your money transfers</p>
+          <h1 className="text-3xl font-semibold text-gray-900 font-display">Transaction History</h1>
+          <p className="text-gray-600 mt-2">View all your money transfers.</p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.05 }}
+        >
+          <Card className="p-5">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-primary-50 text-primary-700 flex items-center justify-center">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Smart Summary</div>
+                  <div className="text-lg font-semibold text-gray-900 font-display mt-1">Net outflow stabilized</div>
+                  <p className="text-sm text-gray-600 mt-2">
+                    AI detected a consistent sending pattern. Batch transfers could reduce fees by ~12%.
+                  </p>
+                </div>
+              </div>
+              <button className="btn btn-secondary">Review Insights</button>
+            </div>
+          </Card>
         </motion.div>
 
         {/* Search & Filter Bar */}
@@ -44,7 +74,7 @@ export default function Transactions() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search transactions..."
+              placeholder="Search by name, amount, or purpose..."
               className="input pl-12"
             />
           </div>
@@ -61,7 +91,7 @@ export default function Transactions() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="flex gap-2 bg-white p-2 rounded-xl shadow-sm"
+          className="flex gap-2 bg-white/70 p-2 rounded-2xl border border-white/60 shadow-sm"
         >
           {[
             { value: 'all', label: 'All' },
@@ -74,7 +104,7 @@ export default function Transactions() {
               className={`flex-1 px-6 py-2.5 rounded-lg font-medium transition-all relative ${
                 filter === tab.value
                   ? 'text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  : 'text-gray-600 hover:bg-white/70'
               }`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -108,22 +138,22 @@ export default function Transactions() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
-                    className="p-4 hover:bg-gray-50 rounded-xl transition-all cursor-pointer group"
-                    whileHover={{ scale: 1.01 }}
-                  >
+                  className="p-4 hover:bg-white rounded-xl transition-all cursor-pointer group border border-white/60 bg-white/70"
+                  whileHover={{ scale: 1.01 }}
+                >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <motion.div
                           className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${
-                            transaction.type === 'send' ? 'bg-red-100' : 'bg-green-100'
+                            transaction.type === 'send' ? 'bg-error-50' : 'bg-success-50'
                           }`}
                           whileHover={{ rotate: 360 }}
                           transition={{ duration: 0.6 }}
                         >
                           {transaction.type === 'send' ? (
-                            <ArrowUpRight className="w-5 h-5 text-red-600" />
+                            <ArrowUpRight className="w-5 h-5 text-error-600" />
                           ) : (
-                            <ArrowDownLeft className="w-5 h-5 text-green-600" />
+                            <ArrowDownLeft className="w-5 h-5 text-success-600" />
                           )}
                         </motion.div>
                         <div>
@@ -142,7 +172,7 @@ export default function Transactions() {
                       </div>
                       <div className="text-right">
                         <div className={`font-bold text-lg ${
-                          transaction.type === 'send' ? 'text-red-600' : 'text-green-600'
+                          transaction.type === 'send' ? 'text-error-600' : 'text-success-600'
                         }`}>
                           {transaction.type === 'send' ? '-' : '+'}${transaction.amount.toFixed(2)}
                         </div>
@@ -161,6 +191,26 @@ export default function Transactions() {
           </motion.div>
         </AnimatePresence>
 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+        >
+          <Card className="p-5">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Transfer Detail</div>
+                <div className="text-lg font-semibold text-gray-900 font-display mt-1">Maria Rodriguez · $250</div>
+                <p className="text-sm text-gray-600 mt-2">Fastest rail selected. All checks passed.</p>
+              </div>
+              <span className="badge badge-success">On time</span>
+            </div>
+            <div className="bg-white/70 border border-white/60 rounded-2xl p-4">
+              <Timeline items={detailTimeline} />
+            </div>
+          </Card>
+        </motion.div>
+
         {/* Summary Stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -169,8 +219,8 @@ export default function Transactions() {
           className="grid grid-cols-3 gap-4"
         >
           {[
-            { label: 'Total Sent', value: '$1,150', color: 'text-red-600' },
-            { label: 'Total Received', value: '$350', color: 'text-green-600' },
+            { label: 'Total Sent', value: '$1,150', color: 'text-error-600' },
+            { label: 'Total Received', value: '$350', color: 'text-success-600' },
             { label: 'Net Balance', value: '-$800', color: 'text-gray-900' },
           ].map((stat, index) => (
             <motion.div

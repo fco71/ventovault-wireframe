@@ -12,7 +12,7 @@ export default function Skeleton({
   variant = 'text',
   animation = 'wave'
 }: SkeletonProps) {
-  const baseStyles = 'bg-gray-200 rounded-lg relative overflow-hidden';
+  const baseStyles = 'bg-gray-200/70 rounded-lg relative overflow-hidden';
 
   const variantStyles = {
     text: 'h-4 w-full',
@@ -54,7 +54,7 @@ export default function Skeleton({
 
 export function TransactionSkeleton() {
   return (
-    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+    <div className="flex items-center justify-between p-4 bg-white/70 border border-white/60 rounded-xl">
       <div className="flex items-center gap-4 flex-1">
         <Skeleton variant="circular" className="w-12 h-12" />
         <div className="flex-1 space-y-2">

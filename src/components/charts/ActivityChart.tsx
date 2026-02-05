@@ -36,30 +36,30 @@ export default function ActivityChart() {
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis
               dataKey="day"
-              tick={{ fill: '#737373', fontSize: 12 }}
-              axisLine={{ stroke: '#e5e5e5' }}
+              tick={{ fill: '#64748b', fontSize: 12 }}
+              axisLine={{ stroke: '#e2e8f0' }}
             />
             <YAxis
-              tick={{ fill: '#737373', fontSize: 12 }}
-              axisLine={{ stroke: '#e5e5e5' }}
+              tick={{ fill: '#64748b', fontSize: 12 }}
+              axisLine={{ stroke: '#e2e8f0' }}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(0, 0, 0, 0.05)',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.6)',
                 borderRadius: '12px',
                 padding: '8px 12px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                boxShadow: '0 12px 30px rgba(15, 23, 42, 0.18)',
               }}
               formatter={(value: number) => `$${value}`}
             />
             <Bar
               dataKey="sent"
-              fill="#6172f3"
+              fill="#06b6d4"
               radius={[8, 8, 0, 0]}
               animationDuration={800}
             />

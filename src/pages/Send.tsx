@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/common/Layout';
+import Toggle from '../components/ui/Toggle';
+import FxTicker from '../components/ui/FxTicker';
 
 type Step = 'recipient' | 'amount' | 'review' | 'success';
 
@@ -12,6 +14,7 @@ export default function Send() {
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [sending, setSending] = useState(false);
+  const [fxShield, setFxShield] = useState(true);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -22,6 +25,7 @@ export default function Send() {
   ];
 
   const selectedCountry = countries.find(c => c.code === country);
+  const currencyCode = selectedCountry?.code === 'DR' ? 'DOP' : selectedCountry?.code === 'MX' ? 'MXN' : 'GTQ';
   const fees = parseFloat(amount || '0') * 0.02; // 2% fee
   const totalAmount = parseFloat(amount || '0') + fees;
   const receivedAmount = parseFloat(amount || '0') * (selectedCountry?.rate || 1);
@@ -42,10 +46,10 @@ export default function Send() {
           <div className="flex items-center justify-between mb-2">
             {['recipient', 'amount', 'review'].map((s, i) => (
               <div key={s} className="flex items-center flex-1">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-semibold transition-all ${
                   step === s || (step === 'success' && i < 3)
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-gray-200 text-gray-600'
+                    ? 'bg-primary-600 text-white shadow-glow'
+                    : 'bg-white/70 text-gray-600 border border-white/70'
                 }`}>
                   {i + 1}
                 </div>
@@ -53,7 +57,7 @@ export default function Send() {
                   <div className={`flex-1 h-1 mx-2 transition-all ${
                     (step === 'amount' && i === 0) || (step === 'review' && i < 2) || step === 'success'
                       ? 'bg-primary-600'
-                      : 'bg-gray-200'
+                      : 'bg-white/60'
                   }`} />
                 )}
               </div>
@@ -85,6 +89,19 @@ export default function Send() {
                 />
               </div>
 
+              <div className="bg-white/70 border border-white/60 rounded-2xl p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Recipient Intelligence</div>
+                    <div className="font-semibold text-gray-900 mt-1">Auto-verify identity</div>
+                  </div>
+                  <span className="badge badge-success">Trusted</span>
+                </div>
+                <div className="mt-3 text-sm text-gray-600">
+                  VentoVault checks name, account history, and payout rails to reduce failed deliveries.
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Destination Country
@@ -94,10 +111,10 @@ export default function Send() {
                     <button
                       key={c.code}
                       onClick={() => setCountry(c.code)}
-                      className={`p-4 rounded-xl border-2 transition-all text-left ${
+                      className={`p-4 rounded-2xl border-2 transition-all text-left ${
                         country === c.code
-                          ? 'border-primary-600 bg-primary-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? 'border-primary-500 bg-primary-50/80'
+                          : 'border-white/70 bg-white/70 hover:border-white/90'
                       }`}
                     >
                       <div className="flex items-center justify-between">
@@ -115,6 +132,10 @@ export default function Send() {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              <div className="bg-accent-50/70 border border-accent-200/40 rounded-2xl p-4 text-sm text-accent-800">
+                Compliance note: Transfers above $500 may require instant ID verification at checkout.
               </div>
 
               <button
@@ -165,7 +186,7 @@ export default function Send() {
                   <button
                     key={a}
                     onClick={() => setAmount(a.toString())}
-                    className="py-2 px-3 rounded-lg border-2 border-gray-200 hover:border-primary-600 hover:bg-primary-50 transition-all font-semibold text-gray-900"
+                    className="py-2 px-3 rounded-xl border border-white/70 bg-white/60 hover:border-primary-400 hover:bg-primary-50/80 transition-all font-semibold text-gray-900"
                   >
                     ${a}
                   </button>
@@ -174,7 +195,7 @@ export default function Send() {
 
               {/* Exchange Rate Info */}
               {amount && parseFloat(amount) > 0 && (
-                <div className="bg-primary-50 rounded-xl p-4 space-y-2">
+                <div className="bg-white/70 border border-white/60 rounded-2xl p-4 space-y-2 shadow-sm">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">You send</span>
                     <span className="font-semibold text-gray-900">${parseFloat(amount).toFixed(2)}</span>
@@ -183,20 +204,59 @@ export default function Send() {
                     <span className="text-gray-600">Fees (2%)</span>
                     <span className="font-semibold text-gray-900">${fees.toFixed(2)}</span>
                   </div>
-                  <div className="h-px bg-primary-200" />
+                  <div className="h-px bg-white/60" />
                   <div className="flex justify-between">
                     <span className="font-medium text-gray-900">Total deducted</span>
                     <span className="font-bold text-lg text-gray-900">${totalAmount.toFixed(2)}</span>
                   </div>
-                  <div className="h-px bg-primary-200" />
+                  <div className="h-px bg-white/60" />
                   <div className="flex justify-between">
                     <span className="font-medium text-gray-900">They receive</span>
                     <span className="font-bold text-lg text-primary-700">
-                      {selectedCountry?.flag} {receivedAmount.toFixed(2)} {selectedCountry?.code === 'DR' ? 'DOP' : selectedCountry?.code === 'MX' ? 'MXN' : 'GTQ'}
+                      {selectedCountry?.flag} {receivedAmount.toFixed(2)} {currencyCode}
                     </span>
                   </div>
                 </div>
               )}
+
+              {selectedCountry && (
+                <FxTicker
+                  pair={`USD → ${currencyCode}`}
+                  baseRate={selectedCountry.rate}
+                  label="Live FX"
+                  className="mt-4"
+                />
+              )}
+
+              <div className="bg-white/70 border border-white/60 rounded-2xl p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Neural Route</div>
+                    <div className="font-semibold text-gray-900">Fastest payout path</div>
+                    <div className="text-sm text-gray-600">Estimated delivery: 2 minutes</div>
+                  </div>
+                  <span className="badge badge-success">Auto</span>
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-4">
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                    <span className="inline-flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-success-500" />
+                      99.4% success
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-primary-500" />
+                      Best FX spread
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500">FX Shield</span>
+                    <Toggle checked={fxShield} onChange={setFxShield} />
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500 mt-3">
+                  {fxShield ? 'Locking best rate for 10 minutes.' : 'FX Shield off. Rate may shift with market moves.'}
+                </div>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -235,7 +295,7 @@ export default function Send() {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Review and confirm</h2>
 
             <div className="space-y-6">
-              <div className="bg-gray-50 rounded-xl p-5 space-y-4">
+              <div className="bg-white/70 border border-white/60 rounded-2xl p-5 space-y-4">
                 <div>
                   <div className="text-sm text-gray-600 mb-1">Sending to</div>
                   <div className="flex items-center gap-2">
@@ -244,7 +304,7 @@ export default function Send() {
                   </div>
                 </div>
 
-                <div className="h-px bg-gray-200" />
+                <div className="h-px bg-white/60" />
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -253,13 +313,19 @@ export default function Send() {
                   </div>
                   <div>
                     <div className="text-sm text-gray-600 mb-1">They receive</div>
-                    <div className="font-semibold text-xl text-primary-700">{receivedAmount.toFixed(2)} {selectedCountry?.code === 'DR' ? 'DOP' : selectedCountry?.code === 'MX' ? 'MXN' : 'GTQ'}</div>
+                    <div className="font-semibold text-xl text-primary-700">{receivedAmount.toFixed(2)} {currencyCode}</div>
                   </div>
+                </div>
+
+                <div className="h-px bg-white/60" />
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">FX Shield</span>
+                  <span className="font-semibold text-gray-900">{fxShield ? 'Locked (10 min)' : 'Off'}</span>
                 </div>
 
                 {note && (
                   <>
-                    <div className="h-px bg-gray-200" />
+                    <div className="h-px bg-white/60" />
                     <div>
                       <div className="text-sm text-gray-600 mb-1">Note</div>
                       <div className="text-gray-900">{note}</div>
@@ -268,11 +334,21 @@ export default function Send() {
                 )}
               </div>
 
-              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex gap-3">
+              <div className="bg-accent-50/80 border border-accent-200/40 rounded-2xl p-4 flex gap-3">
                 <span className="text-xl">⚠️</span>
-                <div className="text-sm text-yellow-800">
+                <div className="text-sm text-accent-800">
                   <div className="font-semibold mb-1">Double-check the details</div>
                   <div>Make sure the recipient information is correct. Transactions cannot be reversed.</div>
+                </div>
+              </div>
+
+              <div className="bg-white/70 border border-white/60 rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="font-semibold text-gray-900">Transfer protection</div>
+                  <span className="badge badge-info">Enabled</span>
+                </div>
+                <div className="text-sm text-gray-600">
+                  Smart routing, FX Shield, and compliance checks are active for this transfer.
                 </div>
               </div>
 
@@ -302,19 +378,23 @@ export default function Send() {
               Your money is on its way to {recipient}
             </p>
 
-            <div className="bg-gray-50 rounded-xl p-5 space-y-3 mb-6">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Amount sent</span>
-                <span className="font-semibold text-gray-900">${parseFloat(amount).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Fees</span>
-                <span className="font-semibold text-gray-900">${fees.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">They receive</span>
-                <span className="font-semibold text-primary-700">{receivedAmount.toFixed(2)} {selectedCountry?.code === 'DR' ? 'DOP' : selectedCountry?.code === 'MX' ? 'MXN' : 'GTQ'}</span>
-              </div>
+              <div className="bg-white/70 border border-white/60 rounded-2xl p-5 space-y-3 mb-6">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Amount sent</span>
+                  <span className="font-semibold text-gray-900">${parseFloat(amount).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Fees</span>
+                  <span className="font-semibold text-gray-900">${fees.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">FX Shield</span>
+                  <span className="font-semibold text-gray-900">{fxShield ? 'Locked' : 'Off'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">They receive</span>
+                  <span className="font-semibold text-primary-700">{receivedAmount.toFixed(2)} {currencyCode}</span>
+                </div>
             </div>
 
             <div className="flex gap-3">

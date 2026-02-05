@@ -31,18 +31,19 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles = cn(
-      'inline-flex items-center justify-center gap-2 font-medium rounded-xl',
+      'inline-flex items-center justify-center gap-2 font-semibold rounded-xl',
       'transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2',
       'disabled:opacity-50 disabled:cursor-not-allowed',
-      'relative overflow-hidden'
+      'relative overflow-hidden shadow-[0_10px_30px_-18px_rgba(15,23,42,0.5)]',
+      'hover:-translate-y-0.5 active:scale-[0.98]'
     );
 
     const variantStyles = {
-      primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-md hover:shadow-lg',
-      secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500 shadow-sm hover:shadow-md',
-      outline: 'border-2 border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500',
-      ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
-      danger: 'bg-error-500 text-white hover:bg-error-600 focus:ring-error-500 shadow-md hover:shadow-lg',
+      primary: 'bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 text-white hover:shadow-[0_16px_40px_-16px_rgba(6,182,212,0.7)] focus:ring-primary-400',
+      secondary: 'bg-white/70 text-gray-900 border border-white/70 backdrop-blur hover:bg-white focus:ring-gray-400',
+      outline: 'border-2 border-primary-400/60 text-primary-700 hover:bg-primary-50/80 focus:ring-primary-400',
+      ghost: 'text-gray-700 hover:bg-white/70 focus:ring-gray-400',
+      danger: 'bg-gradient-to-r from-error-500 to-error-600 text-white hover:shadow-lg focus:ring-error-500',
     };
 
     const sizeStyles = {
@@ -66,9 +67,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {/* Ripple effect background */}
         <motion.span
-          className="absolute inset-0 bg-white/20"
+          className="absolute inset-0 bg-white/25"
           initial={{ scale: 0, opacity: 0 }}
-          whileTap={{ scale: 2, opacity: [0, 0.3, 0] }}
+          whileTap={{ scale: 2, opacity: [0, 0.35, 0] }}
           transition={{ duration: 0.5 }}
         />
 

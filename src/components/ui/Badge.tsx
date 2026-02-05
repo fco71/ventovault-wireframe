@@ -19,14 +19,14 @@ export default function Badge({
   children,
   className,
 }: BadgeProps) {
-  const baseStyles = 'inline-flex items-center gap-1 rounded-full font-medium';
+  const baseStyles = 'inline-flex items-center gap-1 rounded-full font-semibold tracking-tight';
 
   const variantStyles = {
     success: 'bg-success-50 text-success-700',
     warning: 'bg-warning-50 text-warning-700',
     error: 'bg-error-50 text-error-700',
     info: 'bg-primary-50 text-primary-700',
-    default: 'bg-gray-100 text-gray-700',
+    default: 'bg-white/80 text-gray-700 border border-white/70',
   };
 
   const sizeStyles = {

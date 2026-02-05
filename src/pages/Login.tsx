@@ -33,121 +33,143 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen grid lg:grid-cols-[1.1fr_0.9fr]">
       {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 to-primary-800 p-12 flex-col justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-white">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
-              <Wallet className="w-6 h-6 text-primary-600" />
-            </div>
-            <span className="text-2xl font-bold">VentoVault</span>
+      <div className="relative hidden lg:flex flex-col justify-between p-12 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-white via-primary-50 to-accent-50" />
+        <div className="absolute -top-28 right-0 w-72 h-72 bg-primary-200/40 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-accent-200/35 blur-3xl" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-11 h-11 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-glow">
+            <Wallet className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <div className="text-2xl font-semibold text-gray-900 font-display">VentoVault</div>
+            <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Future of Remittance</div>
           </div>
         </div>
 
-        <div className="space-y-8">
-          <h1 className="text-5xl font-bold text-white leading-tight">
-            Send money<br />effortlessly
+        <div className="relative z-10 space-y-8">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/70 border border-white/60 px-4 py-2 text-xs font-semibold text-gray-700 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+            Live rails and real-time FX
+          </div>
+          <h1 className="text-5xl font-semibold text-gray-900 leading-tight font-display">
+            Move money<br />at the speed of trust
           </h1>
-          <p className="text-xl text-primary-100">
-            Fast, secure, and transparent international transfers
+          <p className="text-lg text-gray-600 max-w-lg">
+            Instant transfers, transparent pricing, and global reach designed for modern families and teams.
           </p>
-          <div className="flex gap-8 pt-8">
-            <div>
-              <div className="text-4xl font-bold text-white">$10.2B</div>
-              <div className="text-primary-200">Annual Volume</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-white">98%</div>
-              <div className="text-primary-200">Success Rate</div>
-            </div>
+          <div className="grid grid-cols-2 gap-4 pt-4">
+            {[
+              { label: 'Annual Volume', value: '$10.2B' },
+              { label: 'Success Rate', value: '98%' },
+              { label: 'Avg. Delivery', value: '2 min' },
+              { label: 'Supported Markets', value: '120+' },
+            ].map((stat) => (
+              <div key={stat.label} className="card p-4">
+                <div className="text-2xl font-semibold text-gray-900">{stat.value}</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-gray-500 mt-2">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Right side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md animate-slide-up">
           {/* Mobile logo */}
-          <div className="lg:hidden mb-8 flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl flex items-center justify-center shadow-md">
+          <div className="lg:hidden mb-8 flex items-center gap-3">
+            <div className="w-11 h-11 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-glow">
               <Wallet className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-gray-900">VentoVault</span>
+            <div>
+              <div className="text-2xl font-semibold text-gray-900 font-display">VentoVault</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Global Wallet</div>
+            </div>
           </div>
 
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
-            <p className="text-gray-600 mt-2">Log in to your account to continue</p>
-          </div>
-
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input"
-                placeholder="you@example.com"
-                required
-              />
+          <div className="card p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-3xl font-semibold text-gray-900 font-display">Welcome back</h2>
+                <p className="text-gray-600 mt-2">Log in to continue your money flow.</p>
+              </div>
+              <div className="hidden sm:flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
+                Secure
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input"
-                placeholder="••••••••"
-                required
-              />
-            </div>
+            {error && (
+              <div className="mb-6 p-4 bg-error-50 border border-error-500/20 rounded-xl text-error-600 text-sm">
+                {error}
+              </div>
+            )}
 
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center">
-                <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-                <span className="ml-2 text-gray-600">Remember me</span>
-              </label>
-              <button type="button" className="text-primary-600 hover:text-primary-700 font-medium">
-                Forgot password?
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input"
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <label className="flex items-center">
+                  <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-400" />
+                  <span className="ml-2 text-gray-600">Remember me</span>
+                </label>
+                <button type="button" className="text-primary-700 hover:text-primary-800 font-semibold">
+                  Forgot password?
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full btn btn-primary py-3 text-lg disabled:opacity-50"
+              >
+                {loading ? 'Logging in...' : 'Log in'}
               </button>
+
+              <button
+                type="button"
+                onClick={fillDemoCredentials}
+                className="w-full btn btn-secondary py-3 text-sm"
+              >
+                Fill Demo Credentials
+              </button>
+            </form>
+
+            <div className="mt-8 text-center text-sm text-gray-600">
+              Don't have an account?{' '}
+              <Link to="/signup" className="text-primary-700 hover:text-primary-800 font-semibold">
+                Sign up
+              </Link>
             </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full btn btn-primary py-3 text-lg disabled:opacity-50"
-            >
-              {loading ? 'Logging in...' : 'Log in'}
-            </button>
-
-            <button
-              type="button"
-              onClick={fillDemoCredentials}
-              className="w-full btn btn-secondary py-3 text-sm"
-            >
-              Fill Demo Credentials
-            </button>
-          </form>
-
-          <div className="mt-8 text-center text-sm text-gray-600">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-primary-600 hover:text-primary-700 font-medium">
-              Sign up
-            </Link>
           </div>
         </div>
       </div>

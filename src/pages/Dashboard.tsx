@@ -1,13 +1,15 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/common/Layout';
-import { Eye, EyeOff, ArrowUpRight, ArrowDownLeft, BarChart3, Settings, Gift, TrendingUp } from 'lucide-react';
+import { Eye, EyeOff, ArrowUpRight, ArrowDownLeft, BarChart3, Settings, Gift, TrendingUp, Sparkles, ShieldCheck, Zap, CheckCircle2, Shield, Fingerprint } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useCountUp } from '../hooks/useCountUp';
 import SpendingChart from '../components/charts/SpendingChart';
 import ActivityChart from '../components/charts/ActivityChart';
 import Card from '../components/ui/Card';
+import FxTicker from '../components/ui/FxTicker';
+import Timeline from '../components/ui/Timeline';
 
 export default function Dashboard() {
   const { currentUser } = useAuth();
@@ -15,11 +17,84 @@ export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
 
   const balance = currentUser?.balance || 1000;
+  const firstName = currentUser?.displayName?.split(' ')[0] || 'there';
   const animatedBalance = useCountUp(mounted ? balance : 0, 1500, 100);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const smartSignals = [
+    {
+      title: 'Route Optimizer',
+      value: 'Active',
+      desc: 'Neural routing selects the fastest rail automatically.',
+      icon: Sparkles,
+      tone: 'primary',
+      badge: 'Live',
+    },
+    {
+      title: 'FX Shield',
+      value: 'Locked 10m',
+      desc: 'Best rate reserved while you complete the transfer.',
+      icon: ShieldCheck,
+      tone: 'accent',
+      badge: 'Protected',
+    },
+    {
+      title: 'Autopilot',
+      value: 'Smart Suggestions',
+      desc: 'Predicts recipients and amounts based on history.',
+      icon: Zap,
+      tone: 'success',
+      badge: 'Adaptive',
+    },
+  ];
+
+  const toneStyles: Record<string, string> = {
+    primary: 'bg-primary-50 text-primary-700',
+    accent: 'bg-accent-50 text-accent-700',
+    success: 'bg-success-50 text-success-700',
+  };
+
+  const pipeline = [
+    {
+      title: 'Transfer initiated',
+      subtitle: 'Maria Rodriguez · $250 · Dominican Republic',
+      time: '2 min ago',
+      tone: 'success',
+    },
+    {
+      title: 'Compliance checks passed',
+      subtitle: 'Auto-verified recipient and source of funds',
+      time: '1 min ago',
+      tone: 'primary',
+    },
+    {
+      title: 'Payout in progress',
+      subtitle: 'Estimated arrival in 90 seconds',
+      time: 'Live',
+      tone: 'warning',
+    },
+  ];
+
+  const trustSignals = [
+    {
+      icon: Shield,
+      label: 'Account protected',
+      value: '2FA + device lock',
+    },
+    {
+      icon: Fingerprint,
+      label: 'Biometric ready',
+      value: 'Face ID enrolled',
+    },
+    {
+      icon: CheckCircle2,
+      label: 'Compliance cleared',
+      value: 'KYC verified',
+    },
+  ];
 
   // Mock data for demo
   const recentTransactions = [
@@ -61,10 +136,10 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {currentUser?.displayName?.split(' ')[0]}!
+          <h1 className="text-4xl font-semibold text-gray-900 font-display">
+            Welcome back, <span className="gradient-text">{firstName}</span>!
           </h1>
-          <p className="text-gray-600 mt-1">Here's what's happening with your account</p>
+          <p className="text-gray-600 mt-2">Here's what's happening with your account today.</p>
         </motion.div>
 
         {/* Balance Card */}
@@ -75,11 +150,11 @@ export default function Dashboard() {
           className="relative overflow-hidden"
         >
           {/* Animated gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 animate-gradient" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-accent-500 animate-gradient" />
 
           {/* Floating orbs */}
           <motion.div
-            className="absolute top-0 right-0 w-64 h-64 bg-primary-400/30 rounded-full blur-3xl"
+            className="absolute top-0 right-0 w-64 h-64 bg-primary-300/30 rounded-full blur-3xl"
             animate={{
               scale: [1, 1.2, 1],
               opacity: [0.3, 0.5, 0.3],
@@ -91,14 +166,14 @@ export default function Dashboard() {
             }}
           />
 
-          <div className="card relative bg-transparent text-white shadow-glow border-0">
+          <div className="relative rounded-3xl p-8 text-white shadow-[0_25px_70px_-40px_rgba(6,182,212,0.65)] border border-white/10 backdrop-blur">
             <div className="flex justify-between items-start mb-4">
               <div className="flex-1">
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="text-primary-100 text-sm flex items-center gap-2"
+                  className="text-primary-100 text-sm flex items-center gap-2 uppercase tracking-[0.2em]"
                 >
                   Available Balance
                   <motion.span
@@ -106,11 +181,11 @@ export default function Dashboard() {
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.5, type: "spring" }}
                   >
-                    <TrendingUp className="w-4 h-4 text-success-400" />
+                    <TrendingUp className="w-4 h-4 text-success-500" />
                   </motion.span>
                 </motion.p>
                 <motion.h2
-                  className="text-5xl font-bold mt-2 transition-all"
+                  className="text-5xl font-semibold mt-2 transition-all font-display"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
@@ -127,14 +202,14 @@ export default function Dashboard() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6 }}
-                  className="text-primary-200 text-sm mt-2"
+                  className="text-primary-100 text-sm mt-2"
                 >
                   +$120.50 this week
                 </motion.p>
               </div>
               <motion.button
                 onClick={() => setBalanceVisible(!balanceVisible)}
-                className="p-3 bg-white/10 backdrop-blur rounded-xl hover:bg-white/20 transition-all"
+                className="p-3 bg-white/10 backdrop-blur rounded-2xl hover:bg-white/20 transition-all"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -155,7 +230,7 @@ export default function Dashboard() {
             <div className="flex gap-3 mt-8">
               <Link to="/send" className="flex-1">
                 <motion.div
-                  className="bg-white text-primary-700 py-3.5 px-4 rounded-xl font-semibold text-center hover:shadow-xl transition-all"
+                  className="bg-white text-primary-700 py-3.5 px-4 rounded-2xl font-semibold text-center hover:shadow-xl transition-all"
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -164,7 +239,7 @@ export default function Dashboard() {
               </Link>
               <Link to="/receive" className="flex-1">
                 <motion.div
-                  className="bg-white/10 backdrop-blur text-white py-3.5 px-4 rounded-xl font-semibold text-center hover:bg-white/20 transition-all border border-white/20"
+                  className="bg-white/10 backdrop-blur text-white py-3.5 px-4 rounded-2xl font-semibold text-center hover:bg-white/20 transition-all border border-white/20"
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -175,12 +250,90 @@ export default function Dashboard() {
           </div>
         </motion.div>
 
+        {/* Smart Signals */}
+        <div className="grid md:grid-cols-3 gap-4">
+          {smartSignals.map((signal, index) => {
+            const Icon = signal.icon;
+            return (
+              <motion.div
+                key={signal.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.2 + index * 0.05 }}
+              >
+                <Card className="p-5">
+                  <div className="flex items-start justify-between">
+                    <div className={`w-12 h-12 rounded-2xl ${toneStyles[signal.tone]} flex items-center justify-center`}>
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <span className="badge badge-info">{signal.badge}</span>
+                  </div>
+                  <div className="mt-4">
+                    <div className="text-xs uppercase tracking-[0.2em] text-gray-500">{signal.title}</div>
+                    <div className="text-lg font-semibold text-gray-900 font-display mt-2">{signal.value}</div>
+                    <p className="text-sm text-gray-600 mt-2">{signal.desc}</p>
+                  </div>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Transfer Pipeline + Trust */}
+        <div className="grid md:grid-cols-[1.2fr_0.8fr] gap-6">
+          <Card className="p-6">
+            <div className="flex items-start justify-between mb-5">
+              <div>
+                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Transfer Pipeline</div>
+                <h3 className="text-xl font-semibold text-gray-900 font-display mt-2">Live payout timeline</h3>
+                <p className="text-sm text-gray-600 mt-2">Real-time status for your latest transfer.</p>
+              </div>
+              <span className="badge badge-success">Live</span>
+            </div>
+            <div className="bg-white/70 border border-white/60 rounded-2xl p-5">
+              <Timeline items={pipeline} />
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Trust Center</div>
+            <h3 className="text-xl font-semibold text-gray-900 font-display mt-2">Security posture</h3>
+            <p className="text-sm text-gray-600 mt-2">Always-on protection for every transfer.</p>
+            <div className="mt-5 space-y-3">
+              {trustSignals.map((signal) => {
+                const Icon = signal.icon;
+                return (
+                  <div key={signal.label} className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-white/70 border border-white/60">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-primary-50 text-primary-700 flex items-center justify-center">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900">{signal.label}</div>
+                        <div className="text-sm text-gray-600">{signal.value}</div>
+                      </div>
+                    </div>
+                    <span className="text-xs text-gray-500">Manage</span>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        </div>
+
+        {/* Live FX */}
+        <div className="grid md:grid-cols-3 gap-4">
+          <FxTicker pair="USD → DOP" baseRate={58.52} label="Live FX" />
+          <FxTicker pair="USD → MXN" baseRate={17.18} label="Live FX" />
+          <FxTicker pair="USD → GTQ" baseRate={7.82} label="Live FX" />
+        </div>
+
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { to: '/send', icon: ArrowUpRight, label: 'Send Money', desc: 'Transfer funds', gradient: 'from-primary-500 to-primary-700' },
             { to: '/receive', icon: ArrowDownLeft, label: 'Receive', desc: 'Request payment', gradient: 'from-success-500 to-success-700' },
-            { to: '/transactions', icon: BarChart3, label: 'Activity', desc: 'View history', gradient: 'from-purple-500 to-purple-700' },
+            { to: '/transactions', icon: BarChart3, label: 'Activity', desc: 'View history', gradient: 'from-accent-400 to-accent-600' },
             { to: '/settings', icon: Settings, label: 'Settings', desc: 'Manage account', gradient: 'from-gray-600 to-gray-800' },
           ].map((action, index) => (
             <Link key={action.to} to={action.to}>
@@ -226,7 +379,7 @@ export default function Dashboard() {
             >
               <Card className="text-center group hover:border-primary-200 border border-transparent transition-all">
                 <motion.div
-                  className="text-3xl font-bold text-gray-900"
+                  className="text-3xl font-semibold text-gray-900 font-display"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", delay: stat.delay + 0.1 }}
@@ -267,21 +420,21 @@ export default function Dashboard() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all cursor-pointer group"
+                  className="flex items-center justify-between p-4 bg-white/70 rounded-xl hover:bg-white hover:shadow-md transition-all cursor-pointer group border border-white/60"
                   whileHover={{ scale: 1.01 }}
                 >
                   <div className="flex items-center gap-4">
                     <motion.div
                       className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${
-                        transaction.type === 'send' ? 'bg-red-100' : 'bg-green-100'
+                        transaction.type === 'send' ? 'bg-error-50' : 'bg-success-50'
                       }`}
                       whileHover={{ rotate: 360 }}
                       transition={{ duration: 0.6 }}
                     >
                       {transaction.type === 'send' ? (
-                        <ArrowUpRight className="w-5 h-5 text-red-600" />
+                        <ArrowUpRight className="w-5 h-5 text-error-600" />
                       ) : (
-                        <ArrowDownLeft className="w-5 h-5 text-green-600" />
+                        <ArrowDownLeft className="w-5 h-5 text-success-600" />
                       )}
                     </motion.div>
                     <div>
@@ -294,7 +447,7 @@ export default function Dashboard() {
                   </div>
                   <div className="text-right">
                     <div className={`font-bold ${
-                      transaction.type === 'send' ? 'text-red-600' : 'text-green-600'
+                      transaction.type === 'send' ? 'text-error-600' : 'text-success-600'
                     }`}>
                       {transaction.type === 'send' ? '-' : '+'}${transaction.amount.toFixed(2)}
                     </div>
@@ -310,13 +463,36 @@ export default function Dashboard() {
           </Card>
         </motion.div>
 
+        {/* Concierge Support */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.6 }}
+        >
+          <Card className="p-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Concierge</div>
+                <h3 className="text-xl font-semibold text-gray-900 font-display mt-2">24/7 transfer support</h3>
+                <p className="text-sm text-gray-600 mt-2">
+                  Resolve payout issues instantly with a dedicated specialist.
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <button className="btn btn-secondary">Open Help Center</button>
+                <button className="btn btn-primary">Chat with Agent</button>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
         {/* Promotional Banner */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.7 }}
         >
-          <Card className="relative overflow-hidden bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 shadow-xl">
+          <Card className="relative overflow-hidden bg-gradient-to-r from-primary-600 via-primary-500 to-accent-500 text-white border-0 shadow-xl card-no-shine">
             <motion.div
               className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"
               animate={{
@@ -340,11 +516,11 @@ export default function Dashboard() {
                 </motion.div>
                 <div>
                   <h3 className="text-lg font-bold mb-1">Invite friends, earn rewards!</h3>
-                  <p className="text-purple-100 text-sm">Get $25 for every friend who signs up</p>
+                  <p className="text-white/80 text-sm">Get $25 for every friend who signs up</p>
                 </div>
               </div>
               <motion.button
-                className="bg-white text-purple-600 px-6 py-3 rounded-xl font-semibold hover:shadow-xl transition-all whitespace-nowrap"
+                className="bg-white text-primary-700 px-6 py-3 rounded-2xl font-semibold hover:shadow-xl transition-all whitespace-nowrap"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >

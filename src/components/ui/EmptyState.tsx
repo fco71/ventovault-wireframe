@@ -33,16 +33,16 @@ export default function EmptyState({
           damping: 20,
           delay: 0.1
         }}
-        className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-6"
+        className="w-20 h-20 rounded-2xl bg-white/70 border border-white/70 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.45)] flex items-center justify-center mb-6"
       >
-        <Icon className="w-10 h-10 text-gray-400" />
+        <Icon className="w-10 h-10 text-primary-600" />
       </motion.div>
 
       <motion.h3
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="text-xl font-semibold text-gray-900 mb-2"
+        className="text-xl font-semibold text-gray-900 mb-2 font-display"
       >
         {title}
       </motion.h3>
