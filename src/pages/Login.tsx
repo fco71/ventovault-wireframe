@@ -103,46 +103,61 @@ export default function Login() {
             </div>
 
             {error && (
-              <div className="mb-6 p-4 bg-error-50 border border-error-500/20 rounded-xl text-error-600 text-sm">
+              <div
+                id="login-error"
+                role="alert"
+                aria-live="assertive"
+                className="mb-6 p-4 bg-error-50 border border-error-500/20 rounded-xl text-error-600 text-sm"
+              >
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5" aria-describedby={error ? 'login-error' : undefined}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-2">
                   Email
                 </label>
                 <input
+                  id="login-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="input"
                   placeholder="you@example.com"
+                  autoComplete="email"
+                  aria-invalid={!!error}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 mb-2">
                   Password
                 </label>
                 <input
+                  id="login-password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="input"
                   placeholder="••••••••"
+                  autoComplete="current-password"
+                  aria-invalid={!!error}
                   required
                 />
               </div>
 
               <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center">
-                  <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-400" />
+                <label className="flex items-center" htmlFor="remember-me">
+                  <input
+                    id="remember-me"
+                    type="checkbox"
+                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-400"
+                  />
                   <span className="ml-2 text-gray-600">Remember me</span>
                 </label>
-                <button type="button" className="text-primary-700 hover:text-primary-800 font-semibold">
+                <button type="button" className="text-primary-700 hover:text-primary-800 font-semibold" aria-label="Recover account password">
                   Forgot password?
                 </button>
               </div>
@@ -150,6 +165,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
+                aria-busy={loading}
                 className="w-full btn btn-primary py-3 text-lg disabled:opacity-50"
               >
                 {loading ? 'Logging in...' : 'Log in'}

@@ -1,10 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/common/Layout';
 import Toggle from '../components/ui/Toggle';
+import { toast } from '../components/ui/Toast';
 
 export default function Settings() {
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
   const [autoRoute, setAutoRoute] = useState(true);
   const [autoShield, setAutoShield] = useState(true);
   const [priorityAlerts, setPriorityAlerts] = useState(false);
@@ -43,6 +46,12 @@ export default function Settings() {
       ]
     }
   ];
+
+  const handleLogout = async () => {
+    await logout();
+    toast.success('Signed out');
+    navigate('/login');
+  };
 
   return (
     <Layout>
@@ -164,6 +173,7 @@ export default function Settings() {
 
         {/* Logout Button */}
         <button
+          onClick={handleLogout}
           className="w-full btn bg-error-50 text-error-600 hover:bg-error-50/80 py-3 animate-slide-up"
           style={{ animationDelay: '0.6s' }}
         >

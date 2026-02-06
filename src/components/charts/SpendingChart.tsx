@@ -35,7 +35,7 @@ export default function SpendingChart() {
               animationBegin={0}
               animationDuration={800}
             >
-              {data.map((entry, index) => (
+              {data.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
@@ -48,7 +48,7 @@ export default function SpendingChart() {
                 padding: '8px 12px',
                 boxShadow: '0 12px 30px rgba(15, 23, 42, 0.18)',
               }}
-              formatter={(value: number) => `$${value.toFixed(2)}`}
+              formatter={(value: number | string | undefined) => `$${Number(value ?? 0).toFixed(2)}`}
             />
           </PieChart>
         </ResponsiveContainer>

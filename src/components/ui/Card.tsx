@@ -1,8 +1,8 @@
-import { ReactNode, HTMLAttributes } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { ReactNode } from 'react';
+import { HTMLMotionProps, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { cn } from '../../utils/cn';
 
-interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
+interface CardProps extends Omit<HTMLMotionProps<'div'>, 'className'> {
   variant?: 'default' | 'elevated' | 'glass' | 'interactive';
   hover3d?: boolean;
   glow?: boolean;
@@ -61,7 +61,7 @@ export default function Card({
   return (
     <motion.div
       className={cn(baseStyles, variantStyles[variant], glowStyle, className)}
-      style={hover3d ? { rotateX, rotateY, transformStyle: 'preserve-3d' } : {}}
+      style={hover3d ? { rotateX, rotateY, transformStyle: 'preserve-3d' } : undefined}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       whileHover={variant === 'interactive' ? { scale: 1.02 } : undefined}

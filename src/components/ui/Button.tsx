@@ -1,9 +1,9 @@
-import { ButtonHTMLAttributes, ReactNode, forwardRef } from 'react';
-import { motion } from 'framer-motion';
+import { ReactNode, forwardRef } from 'react';
+import { HTMLMotionProps, motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
-interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {
+interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'className'> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'gradient';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;

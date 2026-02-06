@@ -1,11 +1,13 @@
 import { ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 
 interface PageTransitionProps {
   children: ReactNode;
 }
 
-const pageVariants = {
+const smoothEase: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+const pageVariants: Variants = {
   initial: {
     opacity: 0,
     y: 20,
@@ -17,7 +19,7 @@ const pageVariants = {
     scale: 1,
     transition: {
       duration: 0.4,
-      ease: [0.16, 1, 0.3, 1],
+      ease: smoothEase,
       staggerChildren: 0.1,
     },
   },
@@ -27,7 +29,7 @@ const pageVariants = {
     scale: 0.98,
     transition: {
       duration: 0.3,
-      ease: [0.16, 1, 0.3, 1],
+      ease: smoothEase,
     },
   },
 };
@@ -45,7 +47,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
   );
 }
 
-export const staggerContainer = {
+export const staggerContainer: Variants = {
   animate: {
     transition: {
       staggerChildren: 0.1,
@@ -53,14 +55,14 @@ export const staggerContainer = {
   },
 };
 
-export const fadeInUp = {
+export const fadeInUp: Variants = {
   initial: { opacity: 0, y: 20 },
   animate: {
     opacity: 1,
     y: 0,
     transition: {
       duration: 0.4,
-      ease: [0.16, 1, 0.3, 1],
+      ease: smoothEase,
     },
   },
 };

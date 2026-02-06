@@ -55,7 +55,7 @@ export default function ActivityChart() {
                 padding: '8px 12px',
                 boxShadow: '0 12px 30px rgba(15, 23, 42, 0.18)',
               }}
-              formatter={(value: number) => `$${value}`}
+              formatter={(value: number | string | undefined) => `$${Number(value ?? 0).toFixed(2)}`}
             />
             <Bar
               dataKey="sent"

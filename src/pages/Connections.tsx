@@ -1,62 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/common/Layout';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Send, Star, X, Check, UserPlus } from 'lucide-react';
+import { Plus, Search, Send, Star, X, Check, UserPlus, Lock } from 'lucide-react';
+import { Recipient } from '../types';
+import { recipientService } from '../services';
+import { useAuth } from '../contexts/AuthContext';
+import { shortTimeAgo, toCurrency } from '../services/mock/utils';
+import { toast } from '../components/ui/Toast';
 
 const smoothEase: [number, number, number, number] = [0.16, 1, 0.3, 1];
-
-interface Connection {
-  id: number;
-  name: string;
-  email: string;
-  country: string;
-  countryFlag: string;
-  lastSent: string;
-  totalSent: string;
-  favorite: boolean;
-  avatar: string;
-  status: 'verified' | 'pending';
-}
-
-const mockConnections: Connection[] = [
-  {
-    id: 1, name: 'Maria Rodriguez', email: 'maria.r@email.com',
-    country: 'Dominican Republic', countryFlag: '\u{1F1E9}\u{1F1F4}',
-    lastSent: '2 days ago', totalSent: '$2,450', favorite: true,
-    avatar: 'MR', status: 'verified',
-  },
-  {
-    id: 2, name: 'Carlos Mendez', email: 'carlos.m@email.com',
-    country: 'Mexico', countryFlag: '\u{1F1F2}\u{1F1FD}',
-    lastSent: '1 week ago', totalSent: '$1,820', favorite: true,
-    avatar: 'CM', status: 'verified',
-  },
-  {
-    id: 3, name: 'Ana Garcia', email: 'ana.garcia@email.com',
-    country: 'Guatemala', countryFlag: '\u{1F1EC}\u{1F1F9}',
-    lastSent: '3 days ago', totalSent: '$675', favorite: false,
-    avatar: 'AG', status: 'verified',
-  },
-  {
-    id: 4, name: 'Luis Martinez', email: 'luis.mtz@email.com',
-    country: 'Dominican Republic', countryFlag: '\u{1F1E9}\u{1F1F4}',
-    lastSent: '2 weeks ago', totalSent: '$1,100', favorite: false,
-    avatar: 'LM', status: 'verified',
-  },
-  {
-    id: 5, name: 'Sofia Lopez', email: 'sofia.l@email.com',
-    country: 'Mexico', countryFlag: '\u{1F1F2}\u{1F1FD}',
-    lastSent: '1 month ago', totalSent: '$3,200', favorite: false,
-    avatar: 'SL', status: 'verified',
-  },
-  {
-    id: 6, name: 'Pedro Ramirez', email: 'pedro.r@email.com',
-    country: 'Honduras', countryFlag: '\u{1F1ED}\u{1F1F3}',
-    lastSent: 'Never', totalSent: '$0', favorite: false,
-    avatar: 'PR', status: 'pending',
-  },
-];
 
 const avatarColors = [
   'from-primary-400 to-primary-600',
@@ -67,54 +20,119 @@ const avatarColors = [
   'from-sky-400 to-sky-600',
 ];
 
+function stateLabel(recipient: Recipient): { label: string; className: string; sendBlocked: boolean } {
+  if (recipient.state === 'flagged') {
+    return { label: 'Flagged', className: 'text-[10px] font-medium text-error-700 bg-error-50 px-1.5 py-0.5 rounded-full', sendBlocked: true };
+  }
+
+  if (recipient.state === 'pending_validation') {
+    return { label: 'Validating', className: 'text-[10px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-full', sendBlocked: true };
+  }
+
+  if (recipient.state === 'validated_new') {
+    const coolingActive = recipient.coolingOffEndsAt ? recipient.coolingOffEndsAt.getTime() > Date.now() : false;
+    return {
+      label: coolingActive ? 'Cooling Off' : 'Newly Validated',
+      className: 'text-[10px] font-medium text-primary-700 bg-primary-50 px-1.5 py-0.5 rounded-full',
+      sendBlocked: coolingActive,
+    };
+  }
+
+  return { label: 'Verified', className: 'text-[10px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full', sendBlocked: false };
+}
+
 export default function Connections() {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'favorites'>('all');
   const [showAddForm, setShowAddForm] = useState(false);
-  const [connections, setConnections] = useState(mockConnections);
+  const [connections, setConnections] = useState<Recipient[]>([]);
+  const [loading, setLoading] = useState(true);
   const [newConnection, setNewConnection] = useState({
-    name: '', email: '', country: '',
+    name: '',
+    email: '',
+    country: '',
   });
 
-  const filteredConnections = connections.filter((c) => {
-    const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.email.toLowerCase().includes(search.toLowerCase()) ||
-      c.country.toLowerCase().includes(search.toLowerCase());
-    const matchesFilter = filter === 'all' || c.favorite;
-    return matchesSearch && matchesFilter;
-  });
+  useEffect(() => {
+    let mounted = true;
 
-  const toggleFavorite = (id: number) => {
-    setConnections(prev => prev.map(c =>
-      c.id === id ? { ...c, favorite: !c.favorite } : c
-    ));
+    async function loadRecipients() {
+      if (!currentUser) {
+        return;
+      }
+
+      const result = await recipientService.listRecipients(currentUser.id);
+      if (mounted && result.ok && result.data) {
+        setConnections(result.data);
+      }
+      if (mounted) {
+        setLoading(false);
+      }
+    }
+
+    void loadRecipients();
+
+    return () => {
+      mounted = false;
+    };
+  }, [currentUser]);
+
+  const filteredConnections = useMemo(
+    () =>
+      connections.filter((connection) => {
+        const matchesSearch =
+          connection.name.toLowerCase().includes(search.toLowerCase()) ||
+          connection.email.toLowerCase().includes(search.toLowerCase()) ||
+          connection.country.toLowerCase().includes(search.toLowerCase());
+        const matchesFilter = filter === 'all' || connection.isFavorite;
+        return matchesSearch && matchesFilter;
+      }),
+    [connections, filter, search]
+  );
+
+  const toggleFavorite = async (id: string) => {
+    if (!currentUser) {
+      return;
+    }
+
+    const result = await recipientService.toggleFavorite(currentUser.id, id);
+    if (result.ok && result.data) {
+      setConnections((prev) => prev.map((item) => (item.id === id ? result.data! : item)));
+    }
   };
 
-  const handleAddConnection = () => {
-    if (!newConnection.name || !newConnection.email) return;
-    const newConn: Connection = {
-      id: Date.now(),
+  const handleAddConnection = async () => {
+    if (!currentUser) {
+      return;
+    }
+
+    if (!newConnection.name || !newConnection.email) {
+      toast.error('Name and email are required');
+      return;
+    }
+
+    const result = await recipientService.addRecipient(currentUser.id, {
       name: newConnection.name,
       email: newConnection.email,
-      country: newConnection.country || 'Unknown',
-      countryFlag: '\u{1F30D}',
-      lastSent: 'Never',
-      totalSent: '$0',
-      favorite: false,
-      avatar: newConnection.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
-      status: 'pending',
-    };
-    setConnections(prev => [newConn, ...prev]);
+      country: newConnection.country || 'Dominican Republic',
+    });
+
+    if (!result.ok || !result.data) {
+      toast.error(result.error?.message || 'Unable to add recipient');
+      return;
+    }
+
+    setConnections((prev) => [result.data!, ...prev]);
     setNewConnection({ name: '', email: '', country: '' });
     setShowAddForm(false);
+    toast.success('Recipient added');
   };
 
   return (
     <Layout>
       <div className="max-w-4xl mx-auto pb-20 md:pb-6">
-
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -122,11 +140,9 @@ export default function Connections() {
           className="flex items-center justify-between mb-8"
         >
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-950 font-display tracking-tight">
-              People
-            </h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-950 font-display tracking-tight">People</h1>
             <p className="text-sm text-gray-500 mt-1">
-              {connections.length} connections &middot; {connections.filter(c => c.favorite).length} favorites
+              {connections.length} connections · {connections.filter((item) => item.isFavorite).length} favorites
             </p>
           </div>
           <motion.button
@@ -140,7 +156,6 @@ export default function Connections() {
           </motion.button>
         </motion.div>
 
-        {/* Add Connection Form — slides in */}
         <AnimatePresence>
           {showAddForm && (
             <motion.div
@@ -157,6 +172,7 @@ export default function Connections() {
                     <h3 className="text-sm font-semibold text-gray-900">New Connection</h3>
                   </div>
                   <button
+                    type="button"
                     onClick={() => setShowAddForm(false)}
                     className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                   >
@@ -168,14 +184,14 @@ export default function Connections() {
                     type="text"
                     placeholder="Full name"
                     value={newConnection.name}
-                    onChange={(e) => setNewConnection(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(event) => setNewConnection((prev) => ({ ...prev, name: event.target.value }))}
                     className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50/50 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-300 focus:ring-1 focus:ring-gray-300 focus:bg-white transition-all outline-none"
                   />
                   <input
                     type="email"
                     placeholder="Email address"
                     value={newConnection.email}
-                    onChange={(e) => setNewConnection(prev => ({ ...prev, email: e.target.value }))}
+                    onChange={(event) => setNewConnection((prev) => ({ ...prev, email: event.target.value }))}
                     className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50/50 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-300 focus:ring-1 focus:ring-gray-300 focus:bg-white transition-all outline-none"
                   />
                   <div className="flex gap-2">
@@ -183,11 +199,12 @@ export default function Connections() {
                       type="text"
                       placeholder="Country"
                       value={newConnection.country}
-                      onChange={(e) => setNewConnection(prev => ({ ...prev, country: e.target.value }))}
+                      onChange={(event) => setNewConnection((prev) => ({ ...prev, country: event.target.value }))}
                       className="flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-gray-50/50 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-300 focus:ring-1 focus:ring-gray-300 focus:bg-white transition-all outline-none"
                     />
                     <motion.button
-                      onClick={handleAddConnection}
+                      type="button"
+                      onClick={() => void handleAddConnection()}
                       className="px-4 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
@@ -201,7 +218,6 @@ export default function Connections() {
           )}
         </AnimatePresence>
 
-        {/* Search + Filter */}
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
@@ -214,27 +230,25 @@ export default function Connections() {
               type="text"
               placeholder="Search people..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(event) => setSearch(event.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200/60 bg-white/60 backdrop-blur-sm text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-300 focus:ring-1 focus:ring-gray-300 focus:bg-white transition-all outline-none"
             />
           </div>
           <div className="flex items-center gap-1 bg-gray-100/80 rounded-lg p-1">
             <button
+              type="button"
               onClick={() => setFilter('all')}
               className={`px-3 py-1.5 rounded-md text-[12px] font-semibold transition-colors ${
-                filter === 'all'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-400 hover:text-gray-600'
+                filter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400 hover:text-gray-600'
               }`}
             >
               All
             </button>
             <button
+              type="button"
               onClick={() => setFilter('favorites')}
               className={`px-3 py-1.5 rounded-md text-[12px] font-semibold transition-colors flex items-center gap-1 ${
-                filter === 'favorites'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-400 hover:text-gray-600'
+                filter === 'favorites' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400 hover:text-gray-600'
               }`}
             >
               <Star className="w-3 h-3" />
@@ -243,88 +257,103 @@ export default function Connections() {
           </div>
         </motion.div>
 
-        {/* Connections List */}
-        <div className="space-y-2">
-          {filteredConnections.map((connection, index) => (
-            <motion.div
-              key={connection.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.04 * index, ease: smoothEase }}
-              className="group rounded-2xl border border-gray-200/40 bg-white/60 backdrop-blur-sm hover:bg-white hover:border-gray-200 hover:shadow-md transition-all duration-300 p-4"
-            >
-              <div className="flex items-center gap-4">
-                {/* Avatar */}
-                <div className={`w-11 h-11 bg-gradient-to-br ${avatarColors[index % avatarColors.length]} rounded-xl flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0 shadow-sm`}>
-                  {connection.avatar}
-                </div>
+        {loading ? (
+          <div className="card text-sm text-gray-500">Loading recipients...</div>
+        ) : (
+          <div className="space-y-2">
+            {filteredConnections.map((connection, index) => {
+              const initial = connection.name
+                .split(' ')
+                .map((item) => item[0])
+                .join('')
+                .toUpperCase()
+                .slice(0, 2);
+              const badge = stateLabel(connection);
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-gray-900 truncate">{connection.name}</p>
-                    {connection.status === 'verified' && (
-                      <div className="w-4 h-4 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Check className="w-2.5 h-2.5 text-emerald-600" />
+              return (
+                <motion.div
+                  key={connection.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.04 * index, ease: smoothEase }}
+                  className="group rounded-2xl border border-gray-200/40 bg-white/60 backdrop-blur-sm hover:bg-white hover:border-gray-200 hover:shadow-md transition-all duration-300 p-4"
+                >
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-11 h-11 bg-gradient-to-br ${avatarColors[index % avatarColors.length]} rounded-xl flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0 shadow-sm`}
+                    >
+                      {initial}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{connection.name}</p>
+                        <span className={badge.className}>{badge.label}</span>
                       </div>
-                    )}
-                    {connection.status === 'pending' && (
-                      <span className="text-[10px] font-medium text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full">Pending</span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-gray-400">{connection.countryFlag} {connection.country}</span>
-                    <span className="text-gray-300">&middot;</span>
-                    <span className="text-xs text-gray-400">{connection.email}</span>
-                  </div>
-                </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs text-gray-400">
+                          {connection.countryFlag} {connection.country}
+                        </span>
+                        <span className="text-gray-300">·</span>
+                        <span className="text-xs text-gray-400">{connection.email}</span>
+                      </div>
+                      {connection.state === 'validated_new' && connection.coolingOffEndsAt && connection.coolingOffEndsAt.getTime() > Date.now() && (
+                        <div className="text-[11px] text-amber-700 mt-1">
+                          Cooling-off ends {connection.coolingOffEndsAt.toLocaleString()}
+                        </div>
+                      )}
+                    </div>
 
-                {/* Stats — visible on hover or always on mobile */}
-                <div className="hidden sm:flex items-center gap-6 text-right">
-                  <div>
-                    <p className="text-xs text-gray-400">Total sent</p>
-                    <p className="text-sm font-semibold text-gray-900">{connection.totalSent}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400">Last</p>
-                    <p className="text-sm font-medium text-gray-600">{connection.lastSent}</p>
-                  </div>
-                </div>
+                    <div className="hidden sm:flex items-center gap-6 text-right">
+                      <div>
+                        <p className="text-xs text-gray-400">Total sent</p>
+                        <p className="text-sm font-semibold text-gray-900">{toCurrency(connection.totalSentUsd || 0)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400">Last</p>
+                        <p className="text-sm font-medium text-gray-600">
+                          {connection.lastSentAt ? shortTimeAgo(connection.lastSentAt) : 'Never'}
+                        </p>
+                      </div>
+                    </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-1.5">
-                  <motion.button
-                    onClick={() => toggleFavorite(connection.id)}
-                    className={`p-2 rounded-lg transition-all ${
-                      connection.favorite
-                        ? 'text-amber-500 bg-amber-50'
-                        : 'text-gray-300 hover:text-amber-400 hover:bg-gray-50'
-                    }`}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <Star className={`w-4 h-4 ${connection.favorite ? 'fill-current' : ''}`} />
-                  </motion.button>
-                  <motion.button
-                    onClick={() => navigate('/send')}
-                    className="p-2 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-all opacity-0 group-hover:opacity-100"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Send className="w-4 h-4" />
-                  </motion.button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                    <div className="flex items-center gap-1.5">
+                      <motion.button
+                        type="button"
+                        onClick={() => void toggleFavorite(connection.id)}
+                        className={`p-2 rounded-lg transition-all ${
+                          connection.isFavorite
+                            ? 'text-amber-500 bg-amber-50'
+                            : 'text-gray-300 hover:text-amber-400 hover:bg-gray-50'
+                        }`}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <Star className={`w-4 h-4 ${connection.isFavorite ? 'fill-current' : ''}`} />
+                      </motion.button>
+                      <motion.button
+                        type="button"
+                        onClick={() => navigate('/send', { state: { recipientId: connection.id } })}
+                        disabled={badge.sendBlocked}
+                        className={`p-2 rounded-lg transition-all ${
+                          badge.sendBlocked
+                            ? 'text-gray-300 bg-gray-50 cursor-not-allowed'
+                            : 'text-gray-400 hover:text-gray-900 hover:bg-gray-100 opacity-0 group-hover:opacity-100'
+                        }`}
+                        whileHover={{ scale: badge.sendBlocked ? 1 : 1.05 }}
+                        whileTap={{ scale: badge.sendBlocked ? 1 : 0.95 }}
+                      >
+                        {badge.sendBlocked ? <Lock className="w-4 h-4" /> : <Send className="w-4 h-4" />}
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
 
-        {/* Empty state */}
-        {filteredConnections.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-16"
-          >
+        {filteredConnections.length === 0 && !loading && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
             <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Search className="w-5 h-5 text-gray-400" />
             </div>

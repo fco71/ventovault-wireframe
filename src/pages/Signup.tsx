@@ -110,74 +110,96 @@ export default function Signup() {
             </div>
 
             {error && (
-              <div className="mb-6 p-4 bg-error-50 border border-error-500/20 rounded-xl text-error-600 text-sm">
+              <div
+                id="signup-error"
+                role="alert"
+                aria-live="assertive"
+                className="mb-6 p-4 bg-error-50 border border-error-500/20 rounded-xl text-error-600 text-sm"
+              >
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5" aria-describedby={error ? 'signup-error' : undefined}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="signup-display-name" className="block text-sm font-medium text-gray-700 mb-2">
                   Full Name
                 </label>
                 <input
+                  id="signup-display-name"
                   type="text"
                   name="displayName"
                   value={formData.displayName}
                   onChange={handleChange}
                   className="input"
                   placeholder="John Doe"
+                  autoComplete="name"
+                  aria-invalid={!!error}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700 mb-2">
                   Email
                 </label>
                 <input
+                  id="signup-email"
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   className="input"
                   placeholder="you@example.com"
+                  autoComplete="email"
+                  aria-invalid={!!error}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700 mb-2">
                   Password
                 </label>
                 <input
+                  id="signup-password"
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   className="input"
                   placeholder="••••••••"
+                  autoComplete="new-password"
+                  aria-invalid={!!error}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="signup-confirm-password" className="block text-sm font-medium text-gray-700 mb-2">
                   Confirm Password
                 </label>
                 <input
+                  id="signup-confirm-password"
                   type="password"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   className="input"
                   placeholder="••••••••"
+                  autoComplete="new-password"
+                  aria-invalid={!!error}
                   required
                 />
               </div>
 
-              <div className="flex items-start">
-                <input type="checkbox" required className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-400" />
+              <label className="flex items-start" htmlFor="signup-terms">
+                <input
+                  id="signup-terms"
+                  type="checkbox"
+                  required
+                  className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-400"
+                />
                 <span className="ml-2 text-sm text-gray-600">
                   I agree to the{' '}
                   <button type="button" className="text-primary-700 hover:text-primary-800 font-semibold">
@@ -188,11 +210,12 @@ export default function Signup() {
                     Privacy Policy
                   </button>
                 </span>
-              </div>
+              </label>
 
               <button
                 type="submit"
                 disabled={loading}
+                aria-busy={loading}
                 className="w-full btn btn-primary py-3 text-lg disabled:opacity-50"
               >
                 {loading ? 'Creating account...' : 'Create account'}

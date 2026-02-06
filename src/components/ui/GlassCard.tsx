@@ -1,8 +1,8 @@
 import { ReactNode, forwardRef } from 'react';
-import { motion } from 'framer-motion';
+import { HTMLMotionProps, motion } from 'framer-motion';
 import { cn } from '../../utils/cn';
 
-interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface GlassCardProps extends Omit<HTMLMotionProps<'div'>, 'className'> {
   children: ReactNode;
   className?: string;
   variant?: 'default' | 'enhanced' | 'dark';
@@ -32,13 +32,8 @@ const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
         whileHover={hover ? { scale: 1.02 } : undefined}
         {...props}
       >
-        {/* Inner shine effect */}
         <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
-        
-        {/* Content */}
-        <div className="relative z-10">
-          {children}
-        </div>
+        <div className="relative z-10">{children}</div>
       </motion.div>
     );
   }

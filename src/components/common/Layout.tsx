@@ -66,6 +66,7 @@ export default function Layout({ children }: LayoutProps) {
                     <Link
                       key={item.path}
                       to={item.path}
+                      aria-current={isActive ? 'page' : undefined}
                       className={`group relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 ${
                         isActive
                           ? 'bg-gray-900 text-white shadow-sm'
@@ -83,6 +84,7 @@ export default function Layout({ children }: LayoutProps) {
               <div className="flex items-center gap-2">
                 <Link
                   to="/settings"
+                  aria-label="Open settings"
                   className={`p-2 rounded-xl transition-all duration-200 ${
                     location.pathname === '/settings'
                       ? 'bg-gray-900 text-white'
@@ -93,7 +95,9 @@ export default function Layout({ children }: LayoutProps) {
                 </Link>
                 <div className="w-px h-5 bg-gray-200/60 mx-1" />
                 <button
+                  type="button"
                   onClick={handleLogout}
+                  aria-label="Sign out"
                   className="flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100/60 transition-all duration-200"
                 >
                   <div className="w-6 h-6 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center text-[10px] font-bold text-white">
@@ -123,6 +127,8 @@ export default function Layout({ children }: LayoutProps) {
                 <Link
                   key={item.path}
                   to={item.path}
+                  aria-label={item.label}
+                  aria-current={isActive ? 'page' : undefined}
                   className={`flex flex-col items-center justify-center flex-1 h-full transition-all ${
                     isActive ? 'text-gray-900' : 'text-gray-400'
                   }`}
