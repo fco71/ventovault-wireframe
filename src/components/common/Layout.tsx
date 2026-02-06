@@ -40,8 +40,8 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen relative overflow-hidden">
       <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
-        <div className="absolute -top-48 right-[-10%] w-[520px] h-[520px] bg-primary-300/30 blur-3xl animate-float-slow" />
-        <div className="absolute top-1/3 -left-32 w-[420px] h-[420px] bg-accent-200/35 blur-3xl animate-float" />
+        <div className="absolute -top-48 right-[-10%] w-[520px] h-[520px] bg-primary-300/10 blur-3xl" />
+        <div className="absolute top-1/3 -left-32 w-[420px] h-[420px] bg-accent-200/8 blur-3xl" />
       </div>
 
       {/* Top Navbar */}
