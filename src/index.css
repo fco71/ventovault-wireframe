@@ -25,7 +25,8 @@
   h3,
   h4,
   .font-display {
-    @apply font-display tracking-tight;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    @apply tracking-tight;
   }
 
   /* Custom scrollbar */

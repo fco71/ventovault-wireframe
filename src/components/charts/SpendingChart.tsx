@@ -21,8 +21,8 @@ export default function SpendingChart() {
     >
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Spending Breakdown</h3>
 
-      <div className="h-64 relative">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="h-64 min-h-[240px] min-w-0 relative">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={240}>
           <PieChart>
             <Pie
               data={data}
