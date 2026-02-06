@@ -115,20 +115,29 @@ export default function Dashboard() {
             transition={{ duration: 0.4, delay: 0.2, ease: smoothEase }}
             className="focus-panel focus-panel-muted"
           >
-            <div className="grid grid-cols-3 gap-3 md:gap-4 rounded-2xl border border-white/70 bg-white/60 p-4">
-              {stats.map((stat) => (
-                <div
+            <div className="grid grid-cols-3 gap-3 md:gap-4 rounded-3xl border border-white/70 bg-gradient-to-br from-white/60 to-white/40 p-6 backdrop-blur-xl">
+              {stats.map((stat, index) => (
+                <motion.div
                   key={stat.label}
-                  className="rounded-xl border border-white/60 bg-white/70 p-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.1 * index }}
+                  className="rounded-2xl border border-white/60 bg-gradient-to-br from-white/80 to-white/60 p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
                 >
+                  <div className="flex items-center justify-between mb-3">
+                    <stat.icon className="w-5 h-5 text-primary-600" />
+                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                  </div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     {stat.label}
                   </p>
-                  <p className="text-lg md:text-xl font-bold text-gray-900 mt-1 font-display">
+                  <p className="text-xl md:text-2xl font-bold text-gray-900 mt-2 font-display text-gradient">
                     {stat.value}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">{stat.change}</p>
-                </div>
+                  <p className="text-xs text-gray-400 mt-1">{stat.change}</p>
+                </motion.div>
               ))}
             </div>
           </motion.section>

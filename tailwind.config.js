@@ -32,6 +32,23 @@ export default {
           800: '#9a3412',
           900: '#7c2d12',
         },
+        // Enhanced gradient colors
+        gradient: {
+          start: '#0891b2',
+          mid: '#06b6d4',
+          end: '#22d3ee',
+          accent: '#f97316',
+          purple: '#8b5cf6',
+          pink: '#ec4899',
+        },
+        // Dark mode colors
+        dark: {
+          bg: '#0f172a',
+          card: '#1e293b',
+          border: '#334155',
+          text: '#f1f5f9',
+          muted: '#64748b',
+        },
         success: {
           50: '#ecfdf5',
           500: '#10b981',
@@ -201,6 +218,9 @@ export default {
         'shimmer': 'linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)',
         'mesh': 'radial-gradient(at 15% 20%, rgba(34, 211, 238, 0.25) 0px, transparent 50%), radial-gradient(at 85% 10%, rgba(249, 115, 22, 0.18) 0px, transparent 55%), radial-gradient(at 10% 80%, rgba(56, 189, 248, 0.18) 0px, transparent 50%)',
         'grid': 'linear-gradient(to right, rgba(15, 23, 42, 0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(15, 23, 42, 0.06) 1px, transparent 1px)',
+        'gradient-hero': 'linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%)',
+        'gradient-accent': 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+        'gradient-purple': 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
       },
     },
   },

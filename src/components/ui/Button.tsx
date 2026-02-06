@@ -1,10 +1,10 @@
 import { ButtonHTMLAttributes, ReactNode, forwardRef } from 'react';
-import { motion, HTMLMotionProps } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'gradient';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   icon?: ReactNode;
@@ -35,7 +35,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       'transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2',
       'disabled:opacity-50 disabled:cursor-not-allowed',
       'relative overflow-hidden shadow-[0_10px_30px_-18px_rgba(15,23,42,0.5)]',
-      'hover:-translate-y-0.5 active:scale-[0.98]'
+      'hover:-translate-y-0.5 active:scale-[0.98] ripple-effect btn-enhanced'
     );
 
     const variantStyles = {
@@ -44,48 +44,35 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       outline: 'border-2 border-primary-400/60 text-primary-700 hover:bg-primary-50/80 focus:ring-primary-400',
       ghost: 'text-gray-700 hover:bg-white/70 focus:ring-gray-400',
       danger: 'bg-gradient-to-r from-error-500 to-error-600 text-white hover:shadow-lg focus:ring-error-500',
+      gradient: 'bg-gradient-to-r from-gradient-start via-gradient-mid to-gradient-end text-white hover:shadow-[0_16px_40px_-16px_rgba(6,182,212,0.7)] focus:ring-primary-400',
     };
 
     const sizeStyles = {
       sm: 'px-3 py-1.5 text-sm',
-      md: 'px-4 py-2.5 text-base',
-      lg: 'px-6 py-3 text-lg',
+      md: 'px-4 py-2 text-sm',
+      lg: 'px-6 py-3 text-base',
     };
 
-    const widthStyle = fullWidth ? 'w-full' : '';
-
-    const MotionButton = motion.button;
-
     return (
-      <MotionButton
+      <motion.button
         ref={ref}
-        className={cn(baseStyles, variantStyles[variant], sizeStyles[size], widthStyle, className)}
+        className={cn(
+          baseStyles,
+          variantStyles[variant],
+          sizeStyles[size],
+          fullWidth && 'w-full',
+          className
+        )}
         disabled={disabled || loading}
-        whileHover={{ scale: disabled || loading ? 1 : 1.02 }}
-        whileTap={{ scale: disabled || loading ? 1 : 0.98 }}
+        whileTap={{ scale: 0.98 }}
+        whileHover={{ y: -2 }}
         {...props}
       >
-        {/* Ripple effect background */}
-        <motion.span
-          className="absolute inset-0 bg-white/25"
-          initial={{ scale: 0, opacity: 0 }}
-          whileTap={{ scale: 2, opacity: [0, 0.35, 0] }}
-          transition={{ duration: 0.5 }}
-        />
-
-        {loading ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            <span>Loading...</span>
-          </>
-        ) : (
-          <>
-            {icon && iconPosition === 'left' && <span className="flex-shrink-0">{icon}</span>}
-            <span className="relative z-10">{children}</span>
-            {icon && iconPosition === 'right' && <span className="flex-shrink-0">{icon}</span>}
-          </>
-        )}
-      </MotionButton>
+        {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+        {!loading && icon && iconPosition === 'left' && icon}
+        {children}
+        {!loading && icon && iconPosition === 'right' && icon}
+      </motion.button>
     );
   }
 );
