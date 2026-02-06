@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { FocusEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/common/Layout';
 import HeroBrandStatement from '../components/dashboard/HeroBrandStatement';
 import HeroBalanceCard from '../components/dashboard/HeroBalanceCard';
@@ -9,11 +8,14 @@ import AnimatedCounter from '../components/common/AnimatedCounter';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp, Send, Users, BarChart3, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { cn } from '../utils/cn';
+
+type FocusPanelId = 'stats' | 'chart' | 'transactions' | 'notice';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
   const [showAllTransactions, setShowAllTransactions] = useState(false);
+  const [activePanel, setActivePanel] = useState<FocusPanelId | null>(null);
 
   const recentTransactions = [
     {
@@ -106,6 +108,27 @@ export default function Dashboard() {
     },
   ];
 
+  const panelClass = (panelId: FocusPanelId) =>
+    cn(
+      'focus-panel',
+      activePanel === panelId && 'focus-panel-active',
+      activePanel !== null && activePanel !== panelId && 'focus-panel-muted'
+    );
+
+  const handlePanelBlur = (event: FocusEvent<HTMLElement>) => {
+    const nextTarget = event.relatedTarget as Node | null;
+    if (!nextTarget || !event.currentTarget.contains(nextTarget)) {
+      setActivePanel(null);
+    }
+  };
+
+  const panelFocusProps = (panelId: FocusPanelId) => ({
+    onHoverStart: () => setActivePanel(panelId),
+    onHoverEnd: () => setActivePanel(null),
+    onFocusCapture: () => setActivePanel(panelId),
+    onBlurCapture: handlePanelBlur,
+  });
+
   return (
     <Layout>
       <div className="space-y-12 pb-20 md:pb-6">
@@ -120,10 +143,23 @@ export default function Dashboard() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2.5 }}
-          className="space-y-8"
+          className="focus-stage"
         >
+          <motion.div
+            initial={{ y: 12, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 2.55 }}
+            className="focus-intro"
+          >
+            <p className="text-xs uppercase tracking-[0.24em] text-gray-500">Secondary Intelligence</p>
+            <p className="text-sm text-gray-600 mt-1">Hover or interact with a module to bring it into full focus.</p>
+          </motion.div>
+
           {/* Stats Grid - Dimmed, Small, Hoverable */}
-          <div className="opacity-60 hover:opacity-100 transition-opacity duration-500">
+          <motion.div
+            {...panelFocusProps('stats')}
+            className={panelClass('stats')}
+          >
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -135,7 +171,7 @@ export default function Dashboard() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {stats.map((stat, index) => (
+                {stats.map((stat) => (
                   <motion.div
                     key={stat.label}
                     whileHover={{ scale: 1.05, y: -5 }}
@@ -174,14 +210,15 @@ export default function Dashboard() {
                 ))}
               </div>
             </motion.div>
-          </div>
+          </motion.div>
 
           {/* Collapsible Spending Chart */}
           <motion.div
+            {...panelFocusProps('chart')}
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 2.8 }}
-            className="opacity-60 hover:opacity-100 transition-opacity duration-500"
+            className={panelClass('chart')}
           >
             <CollapsibleSection
               title="Spending Overview"
@@ -230,10 +267,11 @@ export default function Dashboard() {
 
           {/* Recent Transactions - Show 2, Expand for More */}
           <motion.div
+            {...panelFocusProps('transactions')}
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 3 }}
-            className="opacity-60 hover:opacity-100 transition-opacity duration-500"
+            className={panelClass('transactions')}
           >
             <div className="card-glass p-6">
               <div className="flex items-center justify-between mb-6">
@@ -313,16 +351,17 @@ export default function Dashboard() {
 
           {/* Technical Agent Notice - Subtle */}
           <motion.div
+            {...panelFocusProps('notice')}
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 3.2 }}
-            className="opacity-50 hover:opacity-100 transition-opacity duration-500"
+            className={panelClass('notice')}
           >
             <div className="relative overflow-hidden rounded-2xl">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 opacity-5" />
-              <div className="relative bg-white/60 backdrop-blur-sm border border-blue-200 rounded-2xl p-5">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-accent-500 opacity-5" />
+              <div className="relative bg-white/60 backdrop-blur-sm border border-blue-200/70 rounded-2xl p-5">
                 <div className="flex gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white flex-shrink-0 text-lg">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-accent-500 rounded-xl flex items-center justify-center text-white flex-shrink-0 text-lg">
                     🔒
                   </div>
                   <div>

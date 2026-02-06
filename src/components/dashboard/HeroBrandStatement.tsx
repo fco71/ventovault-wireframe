@@ -15,16 +15,26 @@ export default function HeroBrandStatement() {
       transition={{ duration: 0.8, ease: 'easeOut' }}
       className="text-center mb-12"
     >
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/75 px-4 py-2 mb-5 shadow-sm"
+      >
+        <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+        <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gray-600">VentoVault</span>
+      </motion.div>
+
       {/* Main Headline */}
       <motion.h1
-        className="text-6xl md:text-7xl lg:text-8xl font-bold mb-4 leading-tight"
+        className="text-5xl md:text-7xl lg:text-8xl font-bold mb-4 leading-tight"
         initial={{ scale: 0.9 }}
         animate={{ scale: 1 }}
         transition={{ duration: 0.8, delay: 0.2 }}
       >
-        <span className="gradient-text">CROSS-BORDER PAYMENTS</span>
+        <span className="text-gray-900">VentoVault</span>
         <br />
-        <span className="text-gray-900">ORCHESTRATED</span>
+        <span className="gradient-text">Orchestrates Cross-Border Money</span>
       </motion.h1>
 
       {/* Tagline */}
@@ -34,7 +44,7 @@ export default function HeroBrandStatement() {
         transition={{ delay: 0.4 }}
         className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-8 font-medium"
       >
-        The world's first Technical Agent architecture for cross-border money movement
+        Brand-first technical agent architecture with zero-custody design and licensed payout partners.
       </motion.p>
 
       {/* Value Props Badges */}

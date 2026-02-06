@@ -109,6 +109,69 @@
     @apply backdrop-blur-2xl bg-white/70 border border-white/40 shadow-xl rounded-2xl;
   }
 
+  .focus-stage {
+    @apply relative space-y-8 rounded-[2rem] p-2;
+  }
+
+  .focus-stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 2rem;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(248, 250, 252, 0.1) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .focus-stage > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .focus-intro {
+    @apply inline-flex flex-col items-start rounded-2xl border border-white/70 bg-white/70 px-4 py-3 shadow-sm;
+  }
+
+  .focus-panel {
+    @apply relative isolate rounded-3xl transition-all duration-500 ease-out;
+    opacity: 0.58;
+    filter: saturate(0.72) blur(0.4px);
+    transform: translateY(0) scale(0.995);
+  }
+
+  .focus-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(14, 116, 144, 0.08);
+    pointer-events: none;
+  }
+
+  .focus-panel-active,
+  .focus-panel:hover,
+  .focus-panel:focus-within {
+    opacity: 1;
+    filter: saturate(1) blur(0);
+    transform: translateY(-2px) scale(1);
+  }
+
+  .focus-panel-muted {
+    opacity: 0.34;
+    filter: saturate(0.5) blur(1px);
+    transform: translateY(0) scale(0.985);
+  }
+
+  @media (hover: none) {
+    .focus-panel,
+    .focus-panel-muted,
+    .focus-panel-active {
+      opacity: 1;
+      filter: none;
+      transform: none;
+    }
+  }
+
   /* Enhanced Input Components */
   .input {
     @apply w-full px-4 py-3 rounded-xl border border-white/70 bg-white/70 text-gray-900 placeholder:text-gray-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] focus:border-primary-400 focus:ring-2 focus:ring-primary-400/40 focus:bg-white transition-all;
