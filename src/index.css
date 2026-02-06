@@ -11,8 +11,12 @@
     @apply text-gray-900 font-sans antialiased;
     background-color: #f8fafc;
     background-image:
-      radial-gradient(at 15% 20%, rgba(34, 211, 238, 0.08) 0px, transparent 55%),
-      radial-gradient(at 85% 10%, rgba(249, 115, 22, 0.05) 0px, transparent 50%);
+      radial-gradient(at 12% 18%, rgba(34, 211, 238, 0.12) 0px, transparent 50%),
+      radial-gradient(at 88% 8%, rgba(249, 115, 22, 0.07) 0px, transparent 45%),
+      radial-gradient(at 8% 85%, rgba(56, 189, 248, 0.09) 0px, transparent 50%),
+      linear-gradient(to right, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+    background-size: auto, auto, auto, 100px 100px, 100px 100px;
     background-attachment: fixed;
   }
 

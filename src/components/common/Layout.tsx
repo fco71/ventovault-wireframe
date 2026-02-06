@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Wallet, Home, ArrowUpRight, ArrowDownLeft, BarChart3, Bell, Settings, LogOut, Command } from 'lucide-react';
-import CommandPalette from './CommandPalette';
+import { Wallet, Home, ArrowUpRight, ArrowDownLeft, BarChart3, Users, Settings } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,7 +11,7 @@ const iconComponents = {
   ArrowUpRight,
   ArrowDownLeft,
   BarChart3,
-  Bell,
+  Users,
   Settings,
 };
 
@@ -21,15 +19,13 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
-  const [paletteOpen, setPaletteOpen] = useState(false);
 
   const navItems = [
     { path: '/dashboard', label: 'Home', icon: 'Home' as const },
     { path: '/send', label: 'Send', icon: 'ArrowUpRight' as const },
     { path: '/receive', label: 'Receive', icon: 'ArrowDownLeft' as const },
+    { path: '/connections', label: 'People', icon: 'Users' as const },
     { path: '/transactions', label: 'Activity', icon: 'BarChart3' as const },
-    { path: '/notifications', label: 'Alerts', icon: 'Bell' as const },
-    { path: '/settings', label: 'Settings', icon: 'Settings' as const },
   ];
 
   const handleLogout = async () => {
@@ -39,29 +35,30 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
+      {/* Ambient background */}
       <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
         <div className="absolute -top-48 right-[-10%] w-[520px] h-[520px] bg-primary-300/10 blur-3xl" />
         <div className="absolute top-1/3 -left-32 w-[420px] h-[420px] bg-accent-200/8 blur-3xl" />
       </div>
 
-      {/* Top Navbar */}
+      {/* ─── Top Navbar ─── Minimal, brand-forward ─── */}
       <nav className="sticky top-0 z-50">
-        <div className="bg-white/70 backdrop-blur-2xl border-b border-white/60 shadow-[0_12px_30px_-22px_rgba(15,23,42,0.5)]">
+        <div className="bg-white/70 backdrop-blur-2xl border-b border-gray-200/40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              {/* Logo */}
-              <Link to="/dashboard" className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-glow">
-                  <Wallet className="w-5 h-5 text-white" />
+            <div className="flex justify-between items-center h-14">
+
+              {/* Logo — clean, no subtitle */}
+              <Link to="/dashboard" className="flex items-center gap-2.5">
+                <div className="w-8 h-8 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center">
+                  <Wallet className="w-4 h-4 text-white" />
                 </div>
-                <div>
-                  <span className="text-lg font-semibold text-gray-900 font-display">VentoVault</span>
-                  <div className="text-[10px] uppercase tracking-[0.2em] text-gray-500">Global Wallet</div>
-                </div>
+                <span className="text-[15px] font-semibold text-gray-900 font-display tracking-tight">
+                  VentoVault
+                </span>
               </Link>
 
-              {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center gap-2">
+              {/* Desktop Navigation — icons only with tooltip-style labels */}
+              <div className="hidden md:flex items-center gap-1">
                 {navItems.map((item) => {
                   const isActive = location.pathname === item.path;
                   const IconComponent = iconComponents[item.icon];
@@ -69,43 +66,40 @@ export default function Layout({ children }: LayoutProps) {
                     <Link
                       key={item.path}
                       to={item.path}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                      className={`group relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 ${
                         isActive
-                          ? 'bg-primary-100/80 text-primary-700 shadow-[0_10px_25px_-16px_rgba(6,182,212,0.6)]'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-white/70'
+                          ? 'bg-gray-900 text-white shadow-sm'
+                          : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100/60'
                       }`}
                     >
                       <IconComponent className="w-4 h-4" />
-                      {item.label}
+                      <span className={isActive ? '' : 'hidden lg:inline'}>{item.label}</span>
                     </Link>
                   );
                 })}
               </div>
 
-              {/* User Menu */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setPaletteOpen(true)}
-                  className="hidden md:flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-gray-700 bg-white/70 border border-white/70 hover:bg-white transition-all"
+              {/* Right side — minimal: avatar + settings */}
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/settings"
+                  className={`p-2 rounded-xl transition-all duration-200 ${
+                    location.pathname === '/settings'
+                      ? 'bg-gray-900 text-white'
+                      : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100/60'
+                  }`}
                 >
-                  <Command className="w-4 h-4" />
-                  Command
-                  <span className="text-[10px] uppercase tracking-[0.2em] text-gray-500 border border-white/70 rounded-full px-2 py-1 bg-white/70">
-                    ⌘K
-                  </span>
-                </button>
-                <div className="hidden sm:block text-right">
-                  <div className="text-sm font-semibold text-gray-900">
-                    {currentUser?.displayName}
-                  </div>
-                  <div className="text-xs text-gray-500">{currentUser?.email}</div>
-                </div>
+                  <Settings className="w-4 h-4" />
+                </Link>
+                <div className="w-px h-5 bg-gray-200/60 mx-1" />
                 <button
                   onClick={handleLogout}
-                  className="btn btn-secondary flex items-center gap-2 px-4 py-2 text-sm"
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100/60 transition-all duration-200"
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">Logout</span>
+                  <div className="w-6 h-6 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center text-[10px] font-bold text-white">
+                    {currentUser?.displayName?.charAt(0)?.toUpperCase() || 'U'}
+                  </div>
+                  <span className="hidden sm:inline">{currentUser?.displayName?.split(' ')[0]}</span>
                 </button>
               </div>
             </div>
@@ -114,15 +108,15 @@ export default function Layout({ children }: LayoutProps) {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-24 md:pb-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
         {children}
       </main>
 
-      {/* Mobile Bottom Navigation */}
+      {/* ─── Mobile Bottom Nav ─── */}
       <nav className="md:hidden fixed bottom-4 left-0 right-0 z-50">
-        <div className="mx-4 bg-white/80 border border-white/70 backdrop-blur-2xl rounded-2xl shadow-[0_18px_40px_-25px_rgba(15,23,42,0.45)]">
-          <div className="flex justify-around items-center h-16">
-            {navItems.slice(0, 5).map((item) => {
+        <div className="mx-4 bg-white/90 border border-gray-200/60 backdrop-blur-2xl rounded-2xl shadow-[0_-4px_30px_-10px_rgba(15,23,42,0.12)]">
+          <div className="flex justify-around items-center h-14">
+            {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               const IconComponent = iconComponents[item.icon];
               return (
@@ -130,19 +124,19 @@ export default function Layout({ children }: LayoutProps) {
                   key={item.path}
                   to={item.path}
                   className={`flex flex-col items-center justify-center flex-1 h-full transition-all ${
-                    isActive ? 'text-primary-700' : 'text-gray-500'
+                    isActive ? 'text-gray-900' : 'text-gray-400'
                   }`}
                 >
                   <IconComponent className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
-                  <span className="text-[10px] mt-1 font-semibold tracking-wide">{item.label}</span>
+                  <span className={`text-[9px] mt-1 font-semibold tracking-wide ${isActive ? 'text-gray-900' : 'text-gray-400'}`}>
+                    {item.label}
+                  </span>
                 </Link>
               );
             })}
           </div>
         </div>
       </nav>
-
-      <CommandPalette open={paletteOpen} setOpen={setPaletteOpen} />
     </div>
   );
 }

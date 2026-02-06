@@ -87,7 +87,7 @@ export default function Login() {
             </div>
             <div>
               <div className="text-2xl font-semibold text-gray-900 font-display">VentoVault</div>
-              <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Global Wallet</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Remittance</div>
             </div>
           </div>
 

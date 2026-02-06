@@ -11,6 +11,7 @@ import Receive from './pages/Receive';
 import Transactions from './pages/Transactions';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
+import Connections from './pages/Connections';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { currentUser } = useAuth();
@@ -63,6 +64,13 @@ function AppRoutes() {
           <PrivateRoute>
             <PageTransition>
               <Receive />
+            </PageTransition>
+          </PrivateRoute>
+        } />
+        <Route path="/connections" element={
+          <PrivateRoute>
+            <PageTransition>
+              <Connections />
             </PageTransition>
           </PrivateRoute>
         } />
