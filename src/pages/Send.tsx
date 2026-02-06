@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/common/Layout';
 import Toggle from '../components/ui/Toggle';
@@ -350,50 +351,96 @@ export default function Send() {
     setStep('review');
   };
 
+  const progressSteps: Array<{ key: Exclude<Step, 'success'>; label: string }> = [
+    { key: 'recipient', label: 'Recipient' },
+    { key: 'amount', label: 'Amount' },
+    { key: 'review', label: 'Review' },
+  ];
+
+  const activeStepIndex =
+    step === 'success'
+      ? progressSteps.length
+      : progressSteps.findIndex((item) => item.key === step);
+
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto pb-20 md:pb-6">
-        <div className="mb-8 animate-slide-up">
-          <div className="flex items-center justify-between mb-2">
-            {['recipient', 'amount', 'review'].map((item, index) => (
-              <div key={item} className="flex items-center flex-1">
-                <div
-                  className={`w-10 h-10 rounded-2xl flex items-center justify-center font-semibold transition-all ${
-                    step === item || (step === 'success' && index < 3)
-                      ? 'bg-primary-600 text-white shadow-glow'
-                      : 'bg-white/70 text-gray-600 border border-white/70'
-                  }`}
-                >
-                  {index + 1}
-                </div>
-                {index < 2 && (
+      <div className="max-w-3xl mx-auto pb-20 md:pb-6 space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          className="vv-hero"
+        >
+          <div className="flex flex-wrap items-center gap-2.5 mb-5">
+            <span className="vv-chip vv-chip-hot">Live quote engine</span>
+            <span className="vv-chip">Tier {tier}</span>
+            <span className="vv-chip vv-chip-accent">
+              Balance ${(currentUser?.balance || 0).toFixed(2)}
+            </span>
+          </div>
+          <h1 className="text-3xl md:text-[2.2rem] font-bold text-gray-950 font-display leading-tight">
+            Send with deterministic confidence
+          </h1>
+          <p className="text-sm text-gray-600 mt-3 max-w-2xl">
+            Build the transfer, lock the quote, and push it through the full machine with
+            transparent state progression.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.05 }}
+          className="vv-flow-shell"
+        >
+          <div className="vv-flow-track mb-3">
+            {progressSteps.map((item, index) => {
+              const isComplete = activeStepIndex > index;
+              const isActive = activeStepIndex === index;
+              return (
+                <div key={item.key} className="flex items-center flex-1">
                   <div
-                    className={`flex-1 h-1 mx-2 transition-all ${
-                      (step === 'amount' && index === 0) || (step === 'review' && index < 2) || step === 'success'
-                        ? 'bg-primary-600'
-                        : 'bg-white/60'
+                    className={`vv-flow-node ${isComplete ? 'vv-flow-node-done' : ''} ${
+                      isActive ? 'vv-flow-node-active' : ''
                     }`}
-                  />
-                )}
-              </div>
+                  >
+                    {index + 1}
+                  </div>
+                  {index < progressSteps.length - 1 && (
+                    <div
+                      className={`vv-flow-link mx-2 ${
+                        activeStepIndex > index ? 'vv-flow-link-active' : ''
+                      }`}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex justify-between text-[11px] uppercase tracking-[0.14em] text-gray-500">
+            {progressSteps.map((item) => (
+              <span key={item.key}>{item.label}</span>
             ))}
           </div>
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>Recipient</span>
-            <span>Amount</span>
-            <span>Review</span>
-          </div>
-        </div>
+        </motion.div>
 
         {validationMessage && (
-          <div className="mb-4 p-3 text-sm rounded-xl border border-amber-200 bg-amber-50 text-amber-800">
+          <div className="vv-surface-soft border-amber-200 bg-amber-50/85 text-amber-800 text-sm">
             {validationMessage}
           </div>
         )}
 
         {step === 'recipient' && (
-          <div className="card animate-slide-up">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Who are you sending to?</h2>
+          <motion.div
+            key="send-recipient"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.32 }}
+            className="vv-panel"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 font-display">
+              Who are you sending to?
+            </h2>
 
             <div className="space-y-5">
               <div>
@@ -411,15 +458,13 @@ export default function Send() {
                 {filteredRecipients.map((recipient) => {
                   const blocked = canSendToRecipient(recipient);
                   return (
-                    <button
+                    <motion.button
                       type="button"
                       key={recipient.id}
                       onClick={() => setRecipientId(recipient.id)}
-                      className={`w-full p-4 rounded-2xl border-2 transition-all text-left ${
-                        recipientId === recipient.id
-                          ? 'border-primary-500 bg-primary-50/80'
-                          : 'border-white/70 bg-white/70 hover:border-white/90'
-                      }`}
+                      whileHover={{ scale: 1.005 }}
+                      whileTap={{ scale: 0.995 }}
+                      className={`vv-choice-card ${recipientId === recipient.id ? 'vv-choice-card-active' : ''}`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -437,14 +482,20 @@ export default function Send() {
                           {recipientId === recipient.id && <span className="text-primary-600 text-xl">✓</span>}
                         </div>
                       </div>
-                    </button>
+                    </motion.button>
                   );
                 })}
+                {filteredRecipients.length === 0 && (
+                  <div className="vv-surface-soft text-sm text-gray-500">
+                    No recipients match that search.
+                  </div>
+                )}
               </div>
 
-              <div className="bg-accent-50/70 border border-accent-200/40 rounded-2xl p-4 text-sm text-accent-800">
-                Tier: {tier} · Recipient limit: {limits.recipientLimit === 999 ? 'Unlimited' : limits.recipientLimit} ·
-                Cooling-off window: {limits.coolingOffHours}h
+              <div className="vv-surface-soft border-accent-200/40 bg-accent-50/80 text-sm text-accent-800">
+                Tier: {tier} · Recipient limit:{' '}
+                {limits.recipientLimit === 999 ? 'Unlimited' : limits.recipientLimit} · Cooling-off
+                window: {limits.coolingOffHours}h
               </div>
 
               <button
@@ -453,28 +504,38 @@ export default function Send() {
                 disabled={!canProceedRecipient}
                 className="w-full btn btn-primary py-3 text-lg disabled:opacity-50"
               >
-                Continue
+                Continue to Amount
               </button>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {step === 'amount' && (
-          <div className="card animate-slide-up">
-            <button type="button" onClick={() => setStep('recipient')} className="text-gray-600 hover:text-gray-900 mb-4 flex items-center gap-2">
+          <motion.div
+            key="send-amount"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.32 }}
+            className="vv-panel"
+          >
+            <button
+              type="button"
+              onClick={() => setStep('recipient')}
+              className="text-gray-600 hover:text-gray-900 mb-4 flex items-center gap-2 text-sm font-semibold"
+            >
               ← Back
             </button>
 
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Configure transfer</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 font-display">
+              Configure transfer
+            </h2>
 
             <div className="space-y-5">
-              <div className="flex items-center gap-2 bg-gray-100/80 rounded-xl p-1">
+              <div className="vv-segment">
                 <button
                   type="button"
                   onClick={() => setMode('send_exact')}
-                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold ${
-                    mode === 'send_exact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                  }`}
+                  className={`vv-segment-btn ${mode === 'send_exact' ? 'vv-segment-btn-active' : ''}`}
                 >
                   Send Exactly
                 </button>
@@ -482,9 +543,9 @@ export default function Send() {
                   type="button"
                   onClick={() => setMode('receive_exact')}
                   disabled={!limits.allowReceiveExact}
-                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold ${
-                    mode === 'receive_exact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                  } ${!limits.allowReceiveExact ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`vv-segment-btn ${mode === 'receive_exact' ? 'vv-segment-btn-active' : ''} ${
+                    !limits.allowReceiveExact ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
                   They Receive Exactly {!limits.allowReceiveExact && '🔒'}
                 </button>
@@ -516,7 +577,7 @@ export default function Send() {
 
               <div className="grid grid-cols-4 gap-2">
                 {[50, 100, 250, 500].map((value) => (
-                  <button
+                  <motion.button
                     type="button"
                     key={value}
                     onClick={() => {
@@ -526,14 +587,16 @@ export default function Send() {
                         setTargetAmount(value.toString());
                       }
                     }}
-                    className="py-2 px-3 rounded-xl border border-white/70 bg-white/60 hover:border-primary-400 hover:bg-primary-50/80 transition-all font-semibold text-gray-900"
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="vv-amount-pill"
                   >
                     ${value}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
 
-              <div className="bg-white/70 border border-white/60 rounded-2xl p-4 space-y-2 shadow-sm">
+              <div className="vv-surface-soft space-y-2">
                 {quoteLoading && <div className="text-sm text-gray-500">Calculating live quote...</div>}
                 {quoteError && <div className="text-sm text-error-600">{quoteError}</div>}
 
@@ -586,7 +649,7 @@ export default function Send() {
                 />
               )}
 
-              <div className="bg-white/70 border border-white/60 rounded-2xl p-4">
+              <div className="vv-surface-soft">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Funding Method</div>
@@ -597,8 +660,8 @@ export default function Send() {
                   <button
                     type="button"
                     onClick={() => setFundingMethod('ach')}
-                    className={`rounded-xl border p-3 text-left ${
-                      fundingMethod === 'ach' ? 'border-primary-400 bg-primary-50/70' : 'border-white/70 bg-white/70'
+                    className={`vv-choice-card ${
+                      fundingMethod === 'ach' ? 'vv-choice-card-active' : ''
                     }`}
                   >
                     <div className="font-semibold text-gray-900">ACH</div>
@@ -608,8 +671,8 @@ export default function Send() {
                     type="button"
                     onClick={() => limits.allowDebitCard && setFundingMethod('debit_card')}
                     disabled={!limits.allowDebitCard}
-                    className={`rounded-xl border p-3 text-left ${
-                      fundingMethod === 'debit_card' ? 'border-primary-400 bg-primary-50/70' : 'border-white/70 bg-white/70'
+                    className={`vv-choice-card ${
+                      fundingMethod === 'debit_card' ? 'vv-choice-card-active' : ''
                     } ${!limits.allowDebitCard ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <div className="font-semibold text-gray-900">Debit Card {!limits.allowDebitCard && '🔒'}</div>
@@ -636,7 +699,7 @@ export default function Send() {
                 />
               </div>
 
-              <div className="bg-accent-50/70 border border-accent-200/40 rounded-2xl p-4 text-sm text-accent-800">
+              <div className="vv-surface-soft border-accent-200/40 bg-accent-50/80 text-sm text-accent-800">
                 Remaining daily limit: ${(limits.daily - dailySent).toFixed(2)} · Remaining monthly limit: ${
                   (limits.monthly - monthlySent).toFixed(2)
                 }
@@ -651,19 +714,29 @@ export default function Send() {
                 {validationError || quoteExpired ? 'Resolve Issues to Continue' : 'Continue'}
               </button>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {step === 'review' && quote && (
-          <div className="card animate-slide-up">
-            <button type="button" onClick={() => setStep('amount')} className="text-gray-600 hover:text-gray-900 mb-4 flex items-center gap-2">
+          <motion.div
+            key="send-review"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.32 }}
+            className="vv-panel"
+          >
+            <button
+              type="button"
+              onClick={() => setStep('amount')}
+              className="text-gray-600 hover:text-gray-900 mb-4 flex items-center gap-2 text-sm font-semibold"
+            >
               ← Back
             </button>
 
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Review and confirm</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 font-display">Review and confirm</h2>
 
             <div className="space-y-6">
-              <div className="bg-white/70 border border-white/60 rounded-2xl p-5 space-y-4">
+              <div className="vv-surface-soft space-y-4">
                 <div>
                   <div className="text-sm text-gray-600 mb-1">Sending to</div>
                   <div className="flex items-center gap-2">
@@ -715,7 +788,7 @@ export default function Send() {
               </div>
 
               {quoteExpired && (
-                <div className="bg-error-50 border border-error-200 rounded-2xl p-4 flex items-center justify-between gap-4">
+                <div className="vv-surface-soft bg-error-50 border-error-200 flex items-center justify-between gap-4">
                   <div className="text-sm text-error-700">Quote expired. Refresh quote before sending.</div>
                   <button type="button" onClick={() => void refreshQuote()} className="btn btn-secondary text-sm">
                     Refresh Quote
@@ -723,7 +796,7 @@ export default function Send() {
                 </div>
               )}
 
-              <label className="flex items-start gap-3 bg-white/70 border border-white/60 rounded-2xl p-4">
+              <label className="vv-surface-soft flex items-start gap-3">
                 <input
                   type="checkbox"
                   checked={acceptDisclosure}
@@ -751,16 +824,24 @@ export default function Send() {
                 )}
               </button>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {step === 'success' && quote && (
-          <div className="card animate-slide-up text-center">
+          <motion.div
+            key="send-success"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.32 }}
+            className="vv-hero text-center"
+          >
             <div className="text-6xl mb-4">✅</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Money sent successfully!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2 font-display">
+              Money sent successfully!
+            </h2>
             <p className="text-gray-600 mb-6">Your transfer is complete and fully tracked across all stages.</p>
 
-            <div className="bg-white/70 border border-white/60 rounded-2xl p-5 space-y-3 mb-6 text-left">
+            <div className="vv-surface-soft space-y-3 mb-6 text-left">
               <div className="flex justify-between">
                 <span className="text-gray-600">Intent ID</span>
                 <span className="font-semibold text-gray-900">{lastIntentId || 'N/A'}</span>
@@ -789,10 +870,10 @@ export default function Send() {
                 Back to Home
               </button>
             </div>
-          </div>
+          </motion.div>
         )}
 
-        <p className="text-[10px] text-gray-300 text-center mt-8">
+        <p className="text-[10px] text-gray-400 text-center mt-8 uppercase tracking-[0.14em]">
           Tier {tier} · Per transfer up to ${limits.perTransaction.toFixed(2)} · Daily cap ${limits.daily.toFixed(2)}
         </p>
       </div>

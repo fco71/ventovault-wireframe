@@ -531,6 +531,72 @@
   .vv-breath {
     animation: vv-breath 2.8s ease-in-out infinite;
   }
+
+  .vv-flow-shell {
+    @apply rounded-2xl border border-white/75 bg-white/80 p-4 shadow-[0_20px_38px_-30px_rgba(8,25,49,0.45)];
+    backdrop-filter: blur(12px);
+  }
+
+  .vv-flow-track {
+    @apply flex items-center justify-between gap-2;
+  }
+
+  .vv-flow-node {
+    @apply relative flex h-10 w-10 items-center justify-center rounded-2xl border border-white/80 bg-white/80 text-sm font-semibold text-gray-500 transition-all duration-300;
+  }
+
+  .vv-flow-node-active {
+    @apply border-primary-500 bg-primary-600 text-white shadow-[0_16px_30px_-20px_rgba(8,145,178,0.95)];
+  }
+
+  .vv-flow-node-done {
+    @apply border-primary-400/80 bg-primary-100 text-primary-800;
+  }
+
+  .vv-flow-link {
+    @apply h-1 flex-1 rounded-full bg-white/80 transition-all duration-300;
+  }
+
+  .vv-flow-link-active {
+    background: linear-gradient(90deg, rgba(14, 116, 144, 0.92), rgba(34, 211, 238, 0.9));
+  }
+
+  .vv-choice-card {
+    @apply relative w-full rounded-2xl border border-white/70 bg-white/75 p-4 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-[0_16px_30px_-26px_rgba(8,25,49,0.6)];
+    backdrop-filter: blur(8px);
+  }
+
+  .vv-choice-card-active {
+    @apply border-primary-400 bg-primary-50/90 shadow-[0_20px_36px_-28px_rgba(14,116,144,0.7)];
+  }
+
+  .vv-segment {
+    @apply grid grid-cols-2 gap-1 rounded-xl border border-white/80 bg-white/80 p-1;
+  }
+
+  .vv-segment-btn {
+    @apply rounded-lg px-3 py-2 text-sm font-semibold text-gray-500 transition-all duration-200 hover:text-gray-800;
+  }
+
+  .vv-segment-btn-active {
+    @apply bg-gray-950 text-white shadow-[0_12px_24px_-18px_rgba(8,25,49,0.8)];
+  }
+
+  .vv-amount-pill {
+    @apply rounded-xl border border-white/75 bg-white/80 px-3 py-2 text-sm font-semibold text-gray-900 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary-300 hover:bg-primary-50;
+  }
+
+  .vv-surface-soft {
+    @apply rounded-2xl border border-white/70 bg-white/80 p-4 shadow-[0_16px_30px_-30px_rgba(8,25,49,0.62)];
+  }
+
+  .vv-request-row {
+    @apply flex items-center justify-between rounded-xl border border-white/70 bg-white/80 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary-200;
+  }
+
+  .vv-template-card {
+    @apply rounded-2xl border border-white/75 bg-white/80 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-[0_18px_34px_-28px_rgba(8,25,49,0.62)];
+  }
 }
 
 @layer utilities {

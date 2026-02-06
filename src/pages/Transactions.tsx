@@ -2,9 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../components/common/Layout';
 import { ArrowUpRight, ArrowDownLeft, Download, Search, Filter, Sparkles } from 'lucide-react';
-import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
-import Button from '../components/ui/Button';
 import Timeline from '../components/ui/Timeline';
 import { transferService } from '../services';
 import { Transaction, TransferReceipt } from '../types';
@@ -140,6 +138,13 @@ export default function Transactions() {
     };
   }, [transactions]);
 
+  const completedCount = useMemo(
+    () => transactions.filter((item) => item.status === 'completed').length,
+    [transactions]
+  );
+
+  const pendingCount = transactions.length - completedCount;
+
   const exportCsv = () => {
     if (filtered.length === 0) {
       toast.error('No transactions to export');
@@ -170,195 +175,241 @@ export default function Transactions() {
     toast.success('Export started');
   };
 
+  const cycleFilter = () => {
+    setFilter((current) =>
+      current === 'all' ? 'send' : current === 'send' ? 'receive' : 'all'
+    );
+  };
+
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto pb-20 md:pb-6 space-y-6">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h1 className="text-3xl font-semibold text-gray-900 font-display">Transaction History</h1>
-          <p className="text-gray-600 mt-2">View all your money transfers.</p>
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}>
-          <Card className="p-5">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-primary-50 text-primary-700 flex items-center justify-center">
-                  <Sparkles className="w-6 h-6" />
-                </div>
-                <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Smart Summary</div>
-                  <div className="text-lg font-semibold text-gray-900 font-display mt-1">Net outflow stabilized</div>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Transfer engine is deterministic and all stage transitions are tracked for replay.
-                  </p>
-                </div>
-              </div>
-              <button type="button" className="btn btn-secondary" onClick={() => toast.success('Insights reviewed')}>
-                Review Insights
-              </button>
-            </div>
-          </Card>
+      <div className="max-w-5xl mx-auto pb-20 md:pb-6 space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          className="vv-hero"
+        >
+          <div className="flex flex-wrap items-center gap-2.5 mb-5">
+            <span className="vv-chip vv-chip-hot">{transactions.length} total transfers</span>
+            <span className="vv-chip">{completedCount} completed</span>
+            <span className="vv-chip vv-chip-accent">{pendingCount} in-flight</span>
+          </div>
+          <h1 className="text-3xl md:text-[2.2rem] font-bold text-gray-950 font-display leading-tight">
+            Transaction command ledger
+          </h1>
+          <p className="text-sm text-gray-600 mt-3 max-w-2xl">
+            Inspect every transfer path, replay all deterministic state transitions, and export
+            exact activity snapshots.
+          </p>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.05 }}
+          className="vv-panel"
+        >
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-primary-50 text-primary-700 flex items-center justify-center">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Smart Summary</div>
+                <div className="text-lg font-semibold text-gray-900 font-display mt-1">
+                  Net outflow stabilized
+                </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  Transfer engine is deterministic and all stage transitions are tracked for replay.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => toast.success('Insights reviewed')}
+            >
+              Review Insights
+            </button>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="flex gap-3"
+          className="vv-panel"
         >
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search by name, amount, or purpose..."
-              className="input pl-12"
-            />
+          <div className="flex flex-col lg:flex-row gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search by name, amount, or purpose..."
+                className="input pl-12"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className="btn btn-secondary inline-flex items-center gap-2"
+                onClick={cycleFilter}
+              >
+                <Filter className="w-4 h-4" />
+                Filter: {filter}
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary inline-flex items-center gap-2"
+                onClick={exportCsv}
+              >
+                <Download className="w-4 h-4" />
+                Export CSV
+              </button>
+            </div>
           </div>
-          <Button
-            variant="outline"
-            icon={<Filter className="w-4 h-4" />}
-            onClick={() => setFilter((current) => (current === 'all' ? 'send' : 'all'))}
-          >
-            Filter
-          </Button>
-          <Button variant="outline" icon={<Download className="w-4 h-4" />} onClick={exportCsv}>
-            Export
-          </Button>
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          className="flex gap-2 bg-white/70 p-2 rounded-2xl border border-white/60 shadow-sm"
-        >
-          {[
-            { value: 'all', label: 'All' },
-            { value: 'send', label: 'Sent' },
-            { value: 'receive', label: 'Received' },
-          ].map((tab) => (
-            <motion.button
-              key={tab.value}
-              onClick={() => setFilter(tab.value as 'all' | 'send' | 'receive')}
-              className={`flex-1 px-6 py-2.5 rounded-lg font-medium transition-all relative ${
-                filter === tab.value ? 'text-white' : 'text-gray-600 hover:bg-white/70'
-              }`}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {filter === tab.value && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute inset-0 bg-gradient-to-r from-primary-600 to-primary-700 rounded-lg shadow-md"
-                  transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-              <span className="relative z-10">{tab.label}</span>
-            </motion.button>
-          ))}
+          <div className="mt-4 flex gap-2 rounded-xl border border-white/80 bg-white/80 p-1">
+            {[
+              { value: 'all', label: 'All' },
+              { value: 'send', label: 'Sent' },
+              { value: 'receive', label: 'Received' },
+            ].map((tab) => (
+              <motion.button
+                key={tab.value}
+                onClick={() => setFilter(tab.value as 'all' | 'send' | 'receive')}
+                className={`flex-1 px-6 py-2.5 rounded-lg font-medium transition-all relative ${
+                  filter === tab.value ? 'text-white' : 'text-gray-600 hover:bg-white/70'
+                }`}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {filter === tab.value && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute inset-0 bg-gradient-to-r from-primary-600 to-primary-700 rounded-lg shadow-md"
+                    transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+                <span className="relative z-10">{tab.label}</span>
+              </motion.button>
+            ))}
+          </div>
         </motion.div>
 
         <AnimatePresence mode="wait">
           <motion.div
             key={filter}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
+            className="vv-panel"
           >
-            <Card>
-              <div className="space-y-2">
-                {loading ? (
-                  <div className="text-sm text-gray-500 p-4">Loading transactions...</div>
-                ) : (
-                  filtered.map((transaction, index) => (
-                    <motion.button
-                      type="button"
-                      key={transaction.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.05 }}
-                      className={`w-full p-4 rounded-xl transition-all cursor-pointer group border text-left ${
-                        transaction.id === selectedTransactionId
-                          ? 'border-primary-300 bg-primary-50/60'
-                          : 'border-white/60 bg-white/70 hover:bg-white'
-                      }`}
-                      whileHover={{ scale: 1.01 }}
-                      onClick={() => setSelectedTransactionId(transaction.id)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <motion.div
-                            className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${
-                              transaction.type === 'send' ? 'bg-error-50' : 'bg-success-50'
-                            }`}
-                            whileHover={{ rotate: 360 }}
-                            transition={{ duration: 0.6 }}
-                          >
-                            {transaction.type === 'send' ? (
-                              <ArrowUpRight className="w-5 h-5 text-error-600" />
-                            ) : (
-                              <ArrowDownLeft className="w-5 h-5 text-success-600" />
-                            )}
-                          </motion.div>
-                          <div>
-                            <div className="font-semibold text-gray-900 flex items-center gap-2">
-                              <span>{transaction.to.flag || '🌍'}</span>
-                              {transaction.type === 'send' ? transaction.to.name : transaction.from.name}
-                            </div>
-                            <div className="text-sm text-gray-500">{transaction.createdAt.toLocaleDateString('en-US')}</div>
+            <div className="space-y-2">
+              {loading ? (
+                <div className="vv-surface-soft text-sm text-gray-500">Loading transactions...</div>
+              ) : filtered.length === 0 ? (
+                <div className="vv-surface-soft text-sm text-gray-500">
+                  No transactions match that filter.
+                </div>
+              ) : (
+                filtered.map((transaction, index) => (
+                  <motion.button
+                    type="button"
+                    key={transaction.id}
+                    initial={{ opacity: 0, x: -14 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.26, delay: index * 0.04 }}
+                    className={`vv-choice-card group ${
+                      transaction.id === selectedTransactionId ? 'vv-choice-card-active' : ''
+                    }`}
+                    whileHover={{ y: -2 }}
+                    onClick={() => setSelectedTransactionId(transaction.id)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <motion.div
+                          className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${
+                            transaction.type === 'send' ? 'bg-error-50' : 'bg-success-50'
+                          }`}
+                          whileHover={{ rotate: 8 }}
+                          transition={{ duration: 0.18 }}
+                        >
+                          {transaction.type === 'send' ? (
+                            <ArrowUpRight className="w-5 h-5 text-error-600" />
+                          ) : (
+                            <ArrowDownLeft className="w-5 h-5 text-success-600" />
+                          )}
+                        </motion.div>
+                        <div>
+                          <div className="font-semibold text-gray-900 flex items-center gap-2">
+                            <span>{transaction.to.flag || '🌍'}</span>
+                            {transaction.type === 'send'
+                              ? transaction.to.name
+                              : transaction.from.name}
                           </div>
-                        </div>
-                        <div className="text-right">
-                          <div
-                            className={`font-bold text-lg ${
-                              transaction.type === 'send' ? 'text-error-600' : 'text-success-600'
-                            }`}
-                          >
-                            {transaction.type === 'send' ? '-' : '+'}${transaction.amount.toFixed(2)}
+                          <div className="text-sm text-gray-500">
+                            {transaction.createdAt.toLocaleDateString('en-US')}
                           </div>
-                          <Badge variant={transaction.status === 'completed' ? 'success' : 'warning'} size="sm">
-                            {transaction.status}
-                          </Badge>
                         </div>
                       </div>
-                    </motion.button>
-                  ))
-                )}
-              </div>
-            </Card>
+                      <div className="text-right">
+                        <div
+                          className={`font-bold text-lg ${
+                            transaction.type === 'send' ? 'text-error-600' : 'text-success-600'
+                          }`}
+                        >
+                          {transaction.type === 'send' ? '-' : '+'}${transaction.amount.toFixed(2)}
+                        </div>
+                        <Badge
+                          variant={transaction.status === 'completed' ? 'success' : 'warning'}
+                          size="sm"
+                        >
+                          {transaction.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  </motion.button>
+                ))
+              )}
+            </div>
           </motion.div>
         </AnimatePresence>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 }}>
-          <Card className="p-5">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Transfer Detail</div>
-                <div className="text-lg font-semibold text-gray-900 font-display mt-1">
-                  {selected ? `${selected.to.name} · $${selected.amount.toFixed(2)}` : 'Select a transaction'}
-                </div>
-                <p className="text-sm text-gray-600 mt-2">
-                  {selectedReceipt?.quoteMatched
-                    ? 'Quote matched and timeline verified.'
-                    : 'Timeline displayed from the transfer engine.'}
-                </p>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+          className="vv-panel"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Transfer Detail</div>
+              <div className="text-lg font-semibold text-gray-900 font-display mt-1">
+                {selected ? `${selected.to.name} · $${selected.amount.toFixed(2)}` : 'Select a transaction'}
               </div>
-              <span className="badge badge-success">Tracked</span>
+              <p className="text-sm text-gray-600 mt-2">
+                {selectedReceipt?.quoteMatched
+                  ? 'Quote matched and timeline verified.'
+                  : 'Timeline displayed from the transfer engine.'}
+              </p>
             </div>
-            <div className="bg-white/70 border border-white/60 rounded-2xl p-4">
-              <Timeline items={detailTimeline} />
-            </div>
-          </Card>
+            <span className="badge badge-success">Tracked</span>
+          </div>
+          <div className="vv-surface-soft">
+            <Timeline items={detailTimeline} />
+          </div>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.4 }}
-          className="grid grid-cols-3 gap-4"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           {[
             { label: 'Total Sent', value: `$${summary.totalSent.toFixed(2)}`, color: 'text-error-600' },
@@ -374,11 +425,12 @@ export default function Transactions() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
+              className="group vv-kpi-card text-center"
             >
-              <Card className="text-center">
-                <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-                <div className="text-sm text-gray-500 mt-1">{stat.label}</div>
-              </Card>
+              <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
+              <div className="text-[11px] text-gray-500 mt-1 uppercase tracking-[0.14em]">
+                {stat.label}
+              </div>
             </motion.div>
           ))}
         </motion.div>
