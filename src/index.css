@@ -9,14 +9,14 @@
 
   body {
     @apply text-gray-900 font-sans antialiased;
-    background-color: #f8fafc;
+    background-color: #f4f8fb;
     background-image:
-      radial-gradient(at 12% 18%, rgba(34, 211, 238, 0.12) 0px, transparent 50%),
-      radial-gradient(at 88% 8%, rgba(249, 115, 22, 0.07) 0px, transparent 45%),
-      radial-gradient(at 8% 85%, rgba(56, 189, 248, 0.09) 0px, transparent 50%),
-      linear-gradient(to right, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
-    background-size: auto, auto, auto, 100px 100px, 100px 100px;
+      radial-gradient(at 14% 16%, rgba(34, 211, 238, 0.2) 0px, transparent 52%),
+      radial-gradient(at 86% 10%, rgba(249, 115, 22, 0.14) 0px, transparent 46%),
+      radial-gradient(at 4% 86%, rgba(14, 116, 144, 0.14) 0px, transparent 50%),
+      linear-gradient(to right, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+    background-size: auto, auto, auto, 84px 84px, 84px 84px;
     background-attachment: fixed;
   }
 
@@ -327,6 +327,210 @@
   .glow-primary-lg {
     @apply shadow-glow-lg;
   }
+
+  .vv-world {
+    @apply relative isolate;
+  }
+
+  .vv-world::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 8% 9%, rgba(34, 211, 238, 0.24) 0%, rgba(34, 211, 238, 0) 34%),
+      radial-gradient(circle at 92% 14%, rgba(249, 115, 22, 0.18) 0%, rgba(249, 115, 22, 0) 36%),
+      radial-gradient(circle at 50% 88%, rgba(14, 116, 144, 0.22) 0%, rgba(14, 116, 144, 0) 44%);
+    animation: vv-drift 22s linear infinite alternate;
+  }
+
+  .vv-world::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(8, 25, 49, 0.042) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(8, 25, 49, 0.042) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: radial-gradient(circle at 50% 30%, rgba(0, 0, 0, 0.72), transparent 82%);
+  }
+
+  .vv-topbar {
+    @apply rounded-2xl border border-white/75;
+    background:
+      linear-gradient(130deg, rgba(255, 255, 255, 0.92), rgba(245, 250, 253, 0.76)),
+      radial-gradient(circle at 18% -65%, rgba(14, 116, 144, 0.18), rgba(14, 116, 144, 0) 70%);
+    backdrop-filter: blur(18px);
+    box-shadow:
+      0 24px 48px -36px rgba(8, 25, 49, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.68);
+  }
+
+  .vv-topbar-grid {
+    @apply flex h-14 items-center justify-between gap-3 px-2 sm:px-3;
+  }
+
+  .vv-brand-chip {
+    @apply relative flex items-center gap-2.5 rounded-xl px-2 py-1.5 transition-all duration-200;
+  }
+
+  .vv-brand-chip::before {
+    content: '';
+    @apply absolute inset-0 rounded-xl opacity-0 transition-opacity duration-200;
+    background: linear-gradient(120deg, rgba(14, 116, 144, 0.14), rgba(249, 115, 22, 0.1));
+  }
+
+  .vv-brand-chip:hover::before {
+    @apply opacity-100;
+  }
+
+  .vv-brand-chip > * {
+    @apply relative z-10;
+  }
+
+  .vv-nav-link {
+    @apply relative flex items-center gap-2 rounded-xl px-3.5 py-2 text-[13px] font-semibold text-gray-500 transition-all duration-200;
+  }
+
+  .vv-nav-link::before {
+    content: '';
+    @apply absolute inset-0 rounded-xl opacity-0 transition-opacity duration-200;
+    background: linear-gradient(130deg, rgba(14, 116, 144, 0.15), rgba(249, 115, 22, 0.1));
+  }
+
+  .vv-nav-link:hover {
+    @apply text-gray-900;
+  }
+
+  .vv-nav-link:hover::before {
+    @apply opacity-100;
+  }
+
+  .vv-nav-link > * {
+    @apply relative z-10;
+  }
+
+  .vv-nav-link-active {
+    @apply text-white shadow-[0_14px_30px_-18px_rgba(6,182,212,0.75)];
+    background: linear-gradient(140deg, #0e7490, #0891b2 52%, #0ea5c6);
+  }
+
+  .vv-nav-link-active::before {
+    @apply opacity-0;
+  }
+
+  .vv-status-chip {
+    @apply inline-flex items-center gap-2 rounded-full border border-primary-200/70 bg-primary-50/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-700;
+  }
+
+  .vv-user-chip {
+    @apply flex items-center gap-2 rounded-xl border border-white/60 bg-white/75 px-2 py-1.5 text-[13px] font-semibold text-gray-600 transition-all duration-200 hover:border-primary-200 hover:text-gray-900 hover:shadow-sm;
+  }
+
+  .vv-main-shell {
+    @apply mx-auto max-w-7xl px-4 pb-24 pt-8 sm:px-6 lg:px-8 md:pb-10;
+  }
+
+  .vv-mobile-dock {
+    @apply mx-4 rounded-2xl border border-white/70 bg-white/90 shadow-[0_20px_36px_-24px_rgba(8,25,49,0.45)];
+    backdrop-filter: blur(16px);
+  }
+
+  .vv-mobile-link {
+    @apply relative flex h-full flex-1 flex-col items-center justify-center text-gray-400 transition-all duration-200;
+  }
+
+  .vv-mobile-link-active {
+    @apply text-gray-900;
+  }
+
+  .vv-mobile-link-active::before {
+    content: '';
+    @apply absolute top-1.5 h-1 w-6 rounded-full;
+    background: linear-gradient(90deg, #0e7490, #22d3ee);
+  }
+
+  .vv-hero {
+    @apply relative isolate overflow-hidden rounded-[1.75rem] border border-white/75 bg-white/75 p-7 shadow-[0_34px_66px_-44px_rgba(8,25,49,0.5)] md:p-9;
+    backdrop-filter: blur(18px);
+  }
+
+  .vv-hero::before {
+    content: '';
+    @apply absolute inset-0 rounded-[1.75rem];
+    background:
+      radial-gradient(circle at 12% 0%, rgba(14, 116, 144, 0.25) 0%, rgba(14, 116, 144, 0) 50%),
+      radial-gradient(circle at 90% 100%, rgba(249, 115, 22, 0.17) 0%, rgba(249, 115, 22, 0) 46%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .vv-hero::after {
+    content: '';
+    @apply absolute inset-0 rounded-[1.75rem];
+    background-image:
+      linear-gradient(rgba(8, 25, 49, 0.052) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(8, 25, 49, 0.052) 1px, transparent 1px);
+    background-size: 34px 34px;
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .vv-hero > * {
+    @apply relative z-10;
+  }
+
+  .vv-chip {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/80 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-600;
+  }
+
+  .vv-chip-hot {
+    @apply text-primary-800 border-primary-100/90 bg-primary-50/90;
+  }
+
+  .vv-chip-accent {
+    @apply text-accent-700 border-accent-100/80 bg-accent-50/90;
+  }
+
+  .vv-kpi-card {
+    @apply relative overflow-hidden rounded-2xl border border-white/70 bg-white/75 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_44px_-30px_rgba(8,25,49,0.55)];
+    backdrop-filter: blur(10px);
+  }
+
+  .vv-kpi-card::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+    background: linear-gradient(130deg, rgba(14, 116, 144, 0.16), rgba(249, 115, 22, 0.08));
+  }
+
+  .vv-kpi-card:hover::before {
+    @apply opacity-100;
+  }
+
+  .vv-kpi-card > * {
+    @apply relative z-10;
+  }
+
+  .vv-panel {
+    @apply rounded-2xl border border-white/70 bg-white/75 p-5 shadow-[0_18px_36px_-30px_rgba(8,25,49,0.45)];
+    backdrop-filter: blur(12px);
+  }
+
+  .vv-activity-row {
+    @apply -mx-2 flex cursor-pointer items-center justify-between rounded-xl px-2 py-3 transition-colors hover:bg-white/75;
+  }
+
+  .vv-signal-card {
+    @apply rounded-xl border border-white/70 bg-white/80 px-4 py-3 shadow-[0_12px_26px_-22px_rgba(8,25,49,0.48)];
+  }
+
+  .vv-breath {
+    animation: vv-breath 2.8s ease-in-out infinite;
+  }
 }
 
 @layer utilities {
@@ -359,6 +563,25 @@
   /* Focus Visible */
   .focus-visible {
     @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+  }
+}
+
+@keyframes vv-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(0, -1.8%, 0) scale(1.04);
+  }
+}
+
+@keyframes vv-breath {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
   }
 }
 

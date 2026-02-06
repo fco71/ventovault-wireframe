@@ -44,13 +44,20 @@ export default function Dashboard() {
     };
   }, [currentUser]);
 
-  const recentTransactions = dashboardData?.recentTransactions || [];
+  const recentTransactions = useMemo(
+    () => dashboardData?.recentTransactions ?? [],
+    [dashboardData]
+  );
 
   const displayedTransactions = showAllTransactions
     ? recentTransactions
     : recentTransactions.slice(0, 3);
 
   const chartData = dashboardData?.monthlySpending || [];
+  const pendingCount = useMemo(
+    () => recentTransactions.filter((tx) => tx.status !== 'completed').length,
+    [recentTransactions]
+  );
 
   const stats = useMemo(() => {
     if (!dashboardData) {
@@ -89,15 +96,25 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto pb-20 md:pb-6">
+      <div className="max-w-5xl mx-auto pb-20 md:pb-6">
         <HeroBrandStatement />
-        <div className="border-t border-gray-200/50 my-10" />
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.1, ease: smoothEase }}
+          className="mt-5 flex flex-wrap items-center gap-2.5"
+        >
+          <span className="vv-chip">Tier {currentUser?.verificationTier || 'L30'}</span>
+          <span className="vv-chip vv-chip-hot">{recentTransactions.length} recent transfers</span>
+          <span className="vv-chip vv-chip-accent">{pendingCount} pending clearances</span>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.15, ease: smoothEase }}
-          className="grid grid-cols-3 gap-3 mb-8"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3 my-6"
         >
           {stats.map((stat, index) => (
             <motion.div
@@ -105,14 +122,14 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.2 + 0.05 * index, ease: smoothEase }}
-              className="group rounded-xl border border-gray-200/60 bg-white/70 backdrop-blur-sm p-4 hover:bg-white hover:shadow-md hover:border-gray-200 transition-all duration-200 cursor-pointer"
+              className="group vv-kpi-card"
             >
               <div className="flex items-center justify-between mb-2">
-                <stat.icon className="w-3.5 h-3.5 text-gray-400 group-hover:text-primary-600 transition-colors" />
-                <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">{stat.change}</span>
+                <stat.icon className="w-3.5 h-3.5 text-gray-500 group-hover:text-primary-700 transition-colors" />
+                <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-[0.14em]">{stat.change}</span>
               </div>
-              <p className="text-lg md:text-xl font-bold text-gray-900 font-display">{stat.value}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">{stat.label}</p>
+              <p className="text-2xl md:text-[1.65rem] font-bold text-gray-950 font-display leading-tight">{stat.value}</p>
+              <p className="text-[11px] text-gray-500 mt-1 uppercase tracking-[0.16em]">{stat.label}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -121,36 +138,36 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.25, ease: smoothEase }}
-          className="rounded-xl border border-gray-200/60 bg-white/70 backdrop-blur-sm p-5"
+          className="vv-panel"
         >
           <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-1 bg-gray-100/80 rounded-lg p-1">
+            <div className="flex items-center gap-1 bg-white/80 border border-white/80 rounded-lg p-1 shadow-sm">
               <button
                 onClick={() => setActiveTab('activity')}
-                className={`px-3.5 py-1.5 rounded-md text-[13px] font-semibold transition-colors ${
+                className={`px-3.5 py-1.5 rounded-md text-[13px] font-semibold transition-all ${
                   activeTab === 'activity'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-400 hover:text-gray-600'
+                    ? 'bg-gray-950 text-white shadow-[0_12px_24px_-16px_rgba(8,25,49,0.68)]'
+                    : 'text-gray-500 hover:text-gray-800'
                 }`}
               >
-                Recent Activity
+                Live Activity
               </button>
               <button
                 onClick={() => setActiveTab('spending')}
-                className={`px-3.5 py-1.5 rounded-md text-[13px] font-semibold transition-colors ${
+                className={`px-3.5 py-1.5 rounded-md text-[13px] font-semibold transition-all ${
                   activeTab === 'spending'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-400 hover:text-gray-600'
+                    ? 'bg-gray-950 text-white shadow-[0_12px_24px_-16px_rgba(8,25,49,0.68)]'
+                    : 'text-gray-500 hover:text-gray-800'
                 }`}
               >
-                Spending
+                Spend Graph
               </button>
             </div>
             <button
               onClick={() => navigate('/transactions')}
-              className="text-[12px] font-medium text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-[12px] font-semibold text-gray-500 hover:text-gray-800 transition-colors"
             >
-              View all
+              Open Ledger
             </button>
           </div>
 
@@ -164,22 +181,22 @@ export default function Dashboard() {
                 transition={{ duration: 0.2 }}
               >
                 {loading ? (
-                  <div className="text-sm text-gray-500">Loading your latest activity...</div>
+                  <div className="text-sm text-gray-500">Syncing ledger events...</div>
                 ) : (
                   <div className="space-y-0.5">
                     {displayedTransactions.map((tx) => (
                       <div
                         key={tx.id}
                         onClick={() => navigate('/transactions')}
-                        className="flex items-center justify-between py-3 cursor-pointer hover:bg-gray-50/80 -mx-2 px-2 rounded-lg transition-colors"
+                        className="vv-activity-row"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center text-base flex-shrink-0">
+                          <div className="w-9 h-9 bg-gradient-to-br from-white to-primary-50 border border-white rounded-lg flex items-center justify-center text-base flex-shrink-0">
                             {formatFlag(tx)}
                           </div>
                           <div>
                             <p className="text-[13px] font-semibold text-gray-900">{formatRecipient(tx)}</p>
-                            <p className="text-[11px] text-gray-400">{formatCountry(tx)}</p>
+                            <p className="text-[11px] text-gray-500">{formatCountry(tx)}</p>
                           </div>
                         </div>
                         <div className="text-right">
@@ -201,7 +218,7 @@ export default function Dashboard() {
                   <div className="mt-3 pt-3 border-t border-gray-100 text-center">
                     <button
                       onClick={() => setShowAllTransactions(!showAllTransactions)}
-                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-gray-400 hover:text-gray-700 transition-colors"
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-gray-500 hover:text-gray-800 transition-colors"
                     >
                       {showAllTransactions ? (
                         <span>Show less</span>
@@ -225,8 +242,8 @@ export default function Dashboard() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <p className="text-[13px] font-semibold text-gray-900">Monthly Spending</p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">Last 6 months</p>
+                    <p className="text-[13px] font-semibold text-gray-900">Monthly Throughput</p>
+                    <p className="text-[11px] text-gray-500 mt-0.5">Rolling 6-month signal</p>
                   </div>
                   <div className="text-right">
                     <p className="text-[13px] font-bold text-gray-900">
@@ -242,13 +259,13 @@ export default function Dashboard() {
                     <AreaChart data={chartData}>
                       <defs>
                         <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#0e7490" stopOpacity={0.1} />
+                          <stop offset="5%" stopColor="#0e7490" stopOpacity={0.28} />
                           <stop offset="95%" stopColor="#0e7490" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <XAxis
                         dataKey="month"
-                        stroke="#d1d5db"
+                        stroke="#94a3b8"
                         tickLine={false}
                         axisLine={false}
                         style={{ fontSize: '11px', fontFamily: 'Manrope' }}
@@ -256,10 +273,10 @@ export default function Dashboard() {
                       <YAxis hide />
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: '#fff',
-                          borderRadius: '8px',
-                          border: '1px solid #e5e7eb',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+                          backgroundColor: 'rgba(255,255,255,0.95)',
+                          borderRadius: '12px',
+                          border: '1px solid rgba(203,213,225,0.75)',
+                          boxShadow: '0 12px 28px -20px rgba(8,25,49,0.7)',
                           fontSize: '12px',
                           fontFamily: 'Manrope',
                         }}
@@ -269,7 +286,7 @@ export default function Dashboard() {
                         type="monotone"
                         dataKey="amount"
                         stroke="#0e7490"
-                        strokeWidth={1.5}
+                        strokeWidth={2}
                         fill="url(#colorAmount)"
                       />
                     </AreaChart>
@@ -280,7 +297,7 @@ export default function Dashboard() {
           </AnimatePresence>
         </motion.div>
 
-        <p className="text-[10px] text-gray-300 text-center mt-10">
+        <p className="text-[10px] text-gray-400 text-center mt-10 uppercase tracking-[0.14em]">
           VentoVault orchestrates licensed partners. No customer funds are held.
         </p>
       </div>

@@ -1,6 +1,16 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Wallet, Home, ArrowUpRight, ArrowDownLeft, BarChart3, Users, Settings } from 'lucide-react';
+import {
+  Wallet,
+  Home,
+  ArrowUpRight,
+  ArrowDownLeft,
+  BarChart3,
+  Users,
+  Settings,
+  ShieldCheck,
+  Sparkles,
+} from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,6 +29,8 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
+  const firstName = currentUser?.displayName?.split(' ')[0] || 'User';
+  const firstInitial = firstName.charAt(0).toUpperCase();
 
   const navItems = [
     { path: '/dashboard', label: 'Home', icon: 'Home' as const },
@@ -34,31 +46,46 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="vv-world min-h-screen relative overflow-hidden">
       {/* Ambient background */}
       <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
-        <div className="absolute -top-48 right-[-10%] w-[520px] h-[520px] bg-primary-300/10 blur-3xl" />
-        <div className="absolute top-1/3 -left-32 w-[420px] h-[420px] bg-accent-200/8 blur-3xl" />
+        <div className="absolute -top-52 left-[8%] w-[420px] h-[420px] bg-primary-300/14 blur-3xl vv-breath" />
+        <div className="absolute top-28 right-[6%] w-[360px] h-[360px] bg-accent-300/12 blur-3xl" />
+        <div className="absolute -bottom-40 right-[32%] w-[500px] h-[500px] bg-primary-500/8 blur-3xl" />
       </div>
 
-      {/* ─── Top Navbar ─── Minimal, brand-forward ─── */}
-      <nav className="sticky top-0 z-50">
-        <div className="bg-white/70 backdrop-blur-2xl border-b border-gray-200/40">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-14">
-
-              {/* Logo — clean, no subtitle */}
-              <Link to="/dashboard" className="flex items-center gap-2.5">
-                <div className="w-8 h-8 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center">
+      {/* Top navbar */}
+      <nav className="sticky top-0 z-50 px-3 pt-3 md:px-4 md:pt-4">
+        <div className="max-w-7xl mx-auto vv-topbar">
+          <div className="vv-topbar-grid">
+            <div className="flex items-center gap-3">
+              <Link to="/dashboard" className="vv-brand-chip">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center shadow-[0_12px_24px_-16px_rgba(8,25,49,0.75)]">
                   <Wallet className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-[15px] font-semibold text-gray-900 font-display tracking-tight">
-                  VentoVault
-                </span>
+                <div className="leading-tight">
+                  <div className="text-[14px] sm:text-[15px] font-semibold text-gray-900 font-display tracking-tight">
+                    VentoVault
+                  </div>
+                  <div className="hidden sm:block text-[10px] text-gray-500 uppercase tracking-[0.16em]">
+                    Transfer Intelligence
+                  </div>
+                </div>
               </Link>
+            </div>
 
-              {/* Desktop Navigation — icons only with tooltip-style labels */}
-              <div className="hidden md:flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-1">
+              <div className="hidden xl:flex items-center gap-2 mr-1">
+                <span className="vv-status-chip">
+                  <ShieldCheck className="w-3 h-3" />
+                  Live Rails
+                </span>
+                <span className="vv-chip vv-chip-accent">
+                  <Sparkles className="w-3 h-3" />
+                  AI Routing
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
                 {navItems.map((item) => {
                   const isActive = location.pathname === item.path;
                   const IconComponent = iconComponents[item.icon];
@@ -67,58 +94,52 @@ export default function Layout({ children }: LayoutProps) {
                       key={item.path}
                       to={item.path}
                       aria-current={isActive ? 'page' : undefined}
-                      className={`group relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 ${
-                        isActive
-                          ? 'bg-gray-900 text-white shadow-sm'
-                          : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100/60'
-                      }`}
+                      className={`vv-nav-link ${isActive ? 'vv-nav-link-active' : ''}`}
                     >
                       <IconComponent className="w-4 h-4" />
-                      <span className={isActive ? '' : 'hidden lg:inline'}>{item.label}</span>
+                      <span>{item.label}</span>
                     </Link>
                   );
                 })}
               </div>
+            </div>
 
-              {/* Right side — minimal: avatar + settings */}
-              <div className="flex items-center gap-2">
-                <Link
-                  to="/settings"
-                  aria-label="Open settings"
-                  className={`p-2 rounded-xl transition-all duration-200 ${
-                    location.pathname === '/settings'
-                      ? 'bg-gray-900 text-white'
-                      : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100/60'
-                  }`}
-                >
-                  <Settings className="w-4 h-4" />
-                </Link>
-                <div className="w-px h-5 bg-gray-200/60 mx-1" />
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  aria-label="Sign out"
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100/60 transition-all duration-200"
-                >
-                  <div className="w-6 h-6 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center text-[10px] font-bold text-white">
-                    {currentUser?.displayName?.charAt(0)?.toUpperCase() || 'U'}
-                  </div>
-                  <span className="hidden sm:inline">{currentUser?.displayName?.split(' ')[0]}</span>
-                </button>
-              </div>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/settings"
+                aria-label="Open settings"
+                className={`p-2 rounded-xl transition-all duration-200 ${
+                  location.pathname === '/settings'
+                    ? 'bg-gray-900 text-white'
+                    : 'text-gray-500 hover:text-gray-900 hover:bg-white/80'
+                }`}
+              >
+                <Settings className="w-4 h-4" />
+              </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                aria-label="Sign out"
+                className="vv-user-chip"
+              >
+                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 text-white flex items-center justify-center text-[10px] font-bold">
+                  {firstInitial || 'U'}
+                </div>
+                <span className="hidden sm:inline">{firstName}</span>
+              </button>
             </div>
           </div>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
+      <main className="vv-main-shell">
         {children}
       </main>
 
-      {/* ─── Mobile Bottom Nav ─── */}
+      {/* Mobile bottom nav */}
       <nav className="md:hidden fixed bottom-4 left-0 right-0 z-50">
-        <div className="mx-4 bg-white/90 border border-gray-200/60 backdrop-blur-2xl rounded-2xl shadow-[0_-4px_30px_-10px_rgba(15,23,42,0.12)]">
+        <div className="vv-mobile-dock">
           <div className="flex justify-around items-center h-14">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
@@ -129,9 +150,7 @@ export default function Layout({ children }: LayoutProps) {
                   to={item.path}
                   aria-label={item.label}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`flex flex-col items-center justify-center flex-1 h-full transition-all ${
-                    isActive ? 'text-gray-900' : 'text-gray-400'
-                  }`}
+                  className={`vv-mobile-link ${isActive ? 'vv-mobile-link-active' : ''}`}
                 >
                   <IconComponent className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
                   <span className={`text-[9px] mt-1 font-semibold tracking-wide ${isActive ? 'text-gray-900' : 'text-gray-400'}`}>
