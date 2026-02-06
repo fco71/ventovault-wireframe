@@ -106,15 +106,29 @@
   }
 
   .focus-stage {
-    @apply relative space-y-8 rounded-[2rem] p-2;
+    @apply relative isolate space-y-8 rounded-[2.25rem] border border-white/70 bg-white/55 p-4 md:p-6 shadow-[0_32px_80px_-56px_rgba(15,23,42,0.55)];
+    backdrop-filter: blur(14px);
   }
 
   .focus-stage::before {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: 2rem;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(248, 250, 252, 0.1) 100%);
+    border-radius: 2.25rem;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(14, 116, 144, 0.16) 0, rgba(14, 116, 144, 0) 40%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.62) 0%, rgba(248, 250, 252, 0.08) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .focus-stage::after {
+    content: '';
+    position: absolute;
+    inset: 1.25rem 1.25rem auto 1.25rem;
+    height: min(360px, 52%);
+    border-radius: 1.75rem;
+    background: radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.02) 75%);
     pointer-events: none;
     z-index: 0;
   }
@@ -125,14 +139,14 @@
   }
 
   .focus-intro {
-    @apply inline-flex flex-col items-start rounded-2xl border border-white/70 bg-white/70 px-4 py-3 shadow-sm;
+    @apply inline-flex flex-col items-start rounded-2xl border border-white/80 bg-white/75 px-4 py-3 shadow-sm;
   }
 
   .focus-panel {
     @apply relative isolate rounded-3xl transition-all duration-500 ease-out;
-    opacity: 0.58;
-    filter: saturate(0.72) blur(0.4px);
-    transform: translateY(0) scale(0.995);
+    opacity: 0.62;
+    filter: saturate(0.76) blur(0.3px);
+    transform: translateY(0) scale(0.994);
   }
 
   .focus-panel::before {
@@ -153,9 +167,9 @@
   }
 
   .focus-panel-muted {
-    opacity: 0.34;
-    filter: saturate(0.5) blur(1px);
-    transform: translateY(0) scale(0.985);
+    opacity: 0.38;
+    filter: saturate(0.54) blur(0.8px);
+    transform: translateY(0) scale(0.982);
   }
 
   @media (hover: none) {

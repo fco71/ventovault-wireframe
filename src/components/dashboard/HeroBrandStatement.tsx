@@ -17,19 +17,21 @@ export default function HeroBrandStatement() {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="flex items-center justify-between"
+      className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
     >
-      <div>
-        <p className="text-sm font-medium text-gray-400 uppercase tracking-wider">
-          {getGreeting()}
+      <div className="space-y-3">
+        <p className="text-[11px] font-semibold text-primary-700 uppercase tracking-[0.28em]">
+          VentoVault
         </p>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mt-1 font-display">
-          {firstName}
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-950 leading-tight font-display max-w-2xl">
+          Move money at the speed of trust.
         </h1>
+        <p className="text-sm md:text-base text-gray-600 max-w-2xl">
+          {getGreeting()}, {firstName}. Your command center keeps high-signal transfer actions front and center.
+        </p>
       </div>
-      <div className="text-right">
-        <p className="text-xs font-semibold text-gray-400 tracking-wide font-display">VentoVault</p>
-        <p className="text-[10px] text-gray-300 uppercase tracking-widest">Global Wallet</p>
+      <div className="inline-flex items-center rounded-full bg-primary-50/90 border border-primary-200/60 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-800">
+        Signal First
       </div>
     </motion.div>
   );
