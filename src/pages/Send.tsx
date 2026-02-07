@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ChangeEvent, type ClipboardEvent, type KeyboardEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Check, CircleCheck, Loader2, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/common/Layout';
 import Toggle from '../components/ui/Toggle';
@@ -15,6 +16,7 @@ import {
 } from '../state/transferMachine';
 import { getTierLimits } from '../config/domain';
 import { toast } from '../components/ui/Toast';
+import { toCountryCode } from '../utils/country';
 
 type Step = 'recipient' | 'amount' | 'review' | 'success';
 
@@ -49,11 +51,25 @@ export default function Send() {
   const location = useLocation();
   const tier: VerificationTier = currentUser?.verificationTier || 'L30';
   const limits = getTierLimits(tier);
+  const amountFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
+    []
+  );
+
+  const decimalSeparator = useMemo(
+    () => amountFormatter.formatToParts(1.1).find((part) => part.type === 'decimal')?.value || '.',
+    [amountFormatter]
+  );
 
   const selectedRecipient = useMemo(
     () => recipients.find((item) => item.id === recipientId) || null,
     [recipientId, recipients]
   );
+  const selectedRecipientCountryCode = toCountryCode(selectedRecipient?.country);
 
   const filteredRecipients = useMemo(
     () =>
@@ -70,6 +86,131 @@ export default function Send() {
       }),
     [recipientSearch, recipients]
   );
+
+  const parseLocaleAmount = (value: string): number | null => {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return null;
+    }
+
+    const prefersLocaleDecimal = decimalSeparator !== '.' && trimmed.includes(decimalSeparator);
+    const decimalCandidates = new Set([decimalSeparator]);
+    if (!prefersLocaleDecimal) {
+      decimalCandidates.add('.');
+    }
+
+    let normalized = '';
+    let seenDecimal = false;
+
+    for (const char of trimmed) {
+      if (/\d/u.test(char)) {
+        normalized += char;
+        continue;
+      }
+
+      if (!seenDecimal && decimalCandidates.has(char)) {
+        normalized += '.';
+        seenDecimal = true;
+      }
+    }
+
+    if (!normalized || normalized === '.') {
+      return null;
+    }
+
+    const parsed = Number.parseFloat(normalized);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return null;
+    }
+
+    return Math.round(parsed * 100) / 100;
+  };
+
+  const formatMaskedAmount = (value: string): string => {
+    if (!value) {
+      return '';
+    }
+
+    const parsed = Number.parseFloat(value);
+    if (!Number.isFinite(parsed)) {
+      return '';
+    }
+
+    return amountFormatter.format(parsed);
+  };
+
+  const setActiveAmount = (value: string) => {
+    if (mode === 'send_exact') {
+      setSourceAmount(value);
+    } else {
+      setTargetAmount(value);
+    }
+  };
+
+  const activeAmountValue = mode === 'send_exact' ? sourceAmount : targetAmount;
+  const activeAmountDisplay = formatMaskedAmount(activeAmountValue);
+
+  const handleMaskedAmountKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.ctrlKey || event.metaKey || event.altKey) {
+      return;
+    }
+
+    if (
+      ['Tab', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'Escape', 'Enter'].includes(
+        event.key
+      )
+    ) {
+      return;
+    }
+
+    const current = Number.parseFloat(activeAmountValue || '0');
+    const wholeUnits = Number.isFinite(current) ? Math.max(0, Math.trunc(current)) : 0;
+
+    if (/^[0-9]$/.test(event.key)) {
+      event.preventDefault();
+      const nextWholeUnits = wholeUnits * 10 + Number.parseInt(event.key, 10);
+      setActiveAmount(nextWholeUnits > 0 ? nextWholeUnits.toString() : '');
+      return;
+    }
+
+    if (event.key === 'Backspace') {
+      event.preventDefault();
+      const nextWholeUnits = Math.floor(wholeUnits / 10);
+      setActiveAmount(nextWholeUnits > 0 ? nextWholeUnits.toString() : '');
+      return;
+    }
+
+    if (event.key === 'Delete') {
+      event.preventDefault();
+      setActiveAmount('');
+      return;
+    }
+
+    event.preventDefault();
+  };
+
+  const handleMaskedAmountChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const parsed = parseLocaleAmount(event.target.value);
+    if (parsed === null) {
+      if (!event.target.value.trim()) {
+        setActiveAmount('');
+      }
+      return;
+    }
+
+    setActiveAmount(parsed.toFixed(2));
+  };
+
+  const handleMaskedAmountPaste = (event: ClipboardEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    const pasted = event.clipboardData.getData('text');
+    const parsed = parseLocaleAmount(pasted);
+    if (parsed === null) {
+      return;
+    }
+
+    setActiveAmount(parsed.toFixed(2));
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -468,7 +609,9 @@ export default function Send() {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="text-3xl">{recipient.countryFlag}</span>
+                          <span className="vv-country-badge h-10 w-10 rounded-xl text-xs">
+                            {toCountryCode(recipient.country)}
+                          </span>
                           <div>
                             <div className="font-semibold text-gray-900">{recipient.name}</div>
                             <div className="text-sm text-gray-500">{recipient.email}</div>
@@ -479,7 +622,7 @@ export default function Send() {
                           <div className="text-xs text-gray-500">
                             {blocked ? blocked.message : 'Eligible to send'}
                           </div>
-                          {recipientId === recipient.id && <span className="text-primary-600 text-xl">✓</span>}
+                          {recipientId === recipient.id && <Check className="w-5 h-5 text-primary-600 ml-auto" />}
                         </div>
                       </div>
                     </motion.button>
@@ -547,7 +690,10 @@ export default function Send() {
                     !limits.allowReceiveExact ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
-                  They Receive Exactly {!limits.allowReceiveExact && '🔒'}
+                  <span className="inline-flex items-center justify-center gap-1.5">
+                    They Receive Exactly
+                    {!limits.allowReceiveExact && <Lock className="h-3.5 w-3.5" />}
+                  </span>
                 </button>
               </div>
 
@@ -558,19 +704,15 @@ export default function Send() {
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-2xl font-semibold">$</span>
                   <input
-                    type="number"
-                    value={mode === 'send_exact' ? sourceAmount : targetAmount}
-                    onChange={(event) => {
-                      if (mode === 'send_exact') {
-                        setSourceAmount(event.target.value);
-                      } else {
-                        setTargetAmount(event.target.value);
-                      }
-                    }}
+                    type="text"
+                    inputMode="decimal"
+                    value={activeAmountDisplay}
+                    onKeyDown={handleMaskedAmountKeyDown}
+                    onChange={handleMaskedAmountChange}
+                    onPaste={handleMaskedAmountPaste}
                     className="input pl-12 text-2xl font-semibold"
                     placeholder="0.00"
-                    min="1"
-                    step="0.01"
+                    aria-label="Transfer amount"
                   />
                 </div>
               </div>
@@ -581,11 +723,7 @@ export default function Send() {
                     type="button"
                     key={value}
                     onClick={() => {
-                      if (mode === 'send_exact') {
-                        setSourceAmount(value.toString());
-                      } else {
-                        setTargetAmount(value.toString());
-                      }
+                      setActiveAmount(value.toString());
                     }}
                     whileHover={{ y: -2 }}
                     whileTap={{ scale: 0.97 }}
@@ -629,8 +767,11 @@ export default function Send() {
                     </div>
                     <div className="flex justify-between">
                       <span className="font-medium text-gray-900">They receive</span>
-                      <span className="font-bold text-lg text-primary-700">
-                        {selectedRecipient?.countryFlag} {quote.destinationAmount.toFixed(2)} {quote.destinationCurrency}
+                      <span className="font-bold text-lg text-primary-700 inline-flex items-center gap-2">
+                        <span className="vv-country-badge h-6 w-8 rounded-md text-[10px]">
+                          {selectedRecipientCountryCode}
+                        </span>
+                        {quote.destinationAmount.toFixed(2)} {quote.destinationCurrency}
                       </span>
                     </div>
                     <div className="text-xs text-gray-500">
@@ -675,7 +816,10 @@ export default function Send() {
                       fundingMethod === 'debit_card' ? 'vv-choice-card-active' : ''
                     } ${!limits.allowDebitCard ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    <div className="font-semibold text-gray-900">Debit Card {!limits.allowDebitCard && '🔒'}</div>
+                    <div className="font-semibold text-gray-900 inline-flex items-center gap-1.5">
+                      Debit Card
+                      {!limits.allowDebitCard && <Lock className="h-3.5 w-3.5" />}
+                    </div>
                     <div className="text-xs text-gray-500">Instant funding · +$1.50</div>
                   </button>
                 </div>
@@ -740,7 +884,9 @@ export default function Send() {
                 <div>
                   <div className="text-sm text-gray-600 mb-1">Sending to</div>
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl">{selectedRecipient?.countryFlag}</span>
+                    <span className="vv-country-badge h-8 w-10 rounded-lg text-[10px]">
+                      {selectedRecipientCountryCode}
+                    </span>
                     <span className="font-semibold text-lg text-gray-900">{selectedRecipient?.name}</span>
                   </div>
                 </div>
@@ -817,7 +963,8 @@ export default function Send() {
               >
                 {sending ? (
                   <span className="flex items-center justify-center gap-2">
-                    <span className="animate-spin">⏳</span> Processing transfer machine...
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Processing transfer machine...
                   </span>
                 ) : (
                   `Send $${quote.totalDebitAmount.toFixed(2)}`
@@ -835,7 +982,9 @@ export default function Send() {
             transition={{ duration: 0.32 }}
             className="vv-hero text-center"
           >
-            <div className="text-6xl mb-4">✅</div>
+            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-success-50 text-success-600">
+              <CircleCheck className="h-10 w-10" />
+            </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2 font-display">
               Money sent successfully!
             </h2>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Wallet } from 'lucide-react';
+import { featureFlags } from '../config/flags';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -26,7 +27,6 @@ export default function Login() {
     }
   };
 
-  // Demo credentials shortcut
   const fillDemoCredentials = () => {
     setEmail('demo@ventovault.com');
     setPassword('demo123');
@@ -171,13 +171,15 @@ export default function Login() {
                 {loading ? 'Logging in...' : 'Log in'}
               </button>
 
-              <button
-                type="button"
-                onClick={fillDemoCredentials}
-                className="w-full btn btn-secondary py-3 text-sm"
-              >
-                Fill Demo Credentials
-              </button>
+              {featureFlags.enableAuthDemoFallback && (
+                <button
+                  type="button"
+                  onClick={fillDemoCredentials}
+                  className="w-full btn btn-secondary py-3 text-sm"
+                >
+                  Fill Demo Credentials
+                </button>
+              )}
             </form>
 
             <div className="mt-8 text-center text-sm text-gray-600">

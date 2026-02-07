@@ -7,19 +7,29 @@ import { Notification } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { shortTimeAgo } from '../services/mock/utils';
 import { toast } from '../components/ui/Toast';
-import { BellRing, CheckCheck, Sparkles, SlidersHorizontal } from 'lucide-react';
+import {
+  BellRing,
+  CheckCheck,
+  CircleCheck,
+  Gift,
+  LockKeyhole,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  type LucideIcon,
+} from 'lucide-react';
 
-function iconForType(type: Notification['type']): string {
+function iconForType(type: Notification['type']): { icon: LucideIcon; className: string } {
   if (type === 'security') {
-    return '🔒';
+    return { icon: LockKeyhole, className: 'text-accent-600' };
   }
   if (type === 'promotion') {
-    return '🎉';
+    return { icon: Gift, className: 'text-primary-600' };
   }
   if (type === 'compliance') {
-    return '🛡️';
+    return { icon: ShieldCheck, className: 'text-success-600' };
   }
-  return '✅';
+  return { icon: CircleCheck, className: 'text-success-600' };
 }
 
 export default function Notifications() {
@@ -170,41 +180,46 @@ export default function Notifications() {
                 No notifications in this view.
               </div>
             ) : (
-              visibleNotifications.map((notification, index) => (
-                <motion.button
-                  type="button"
-                  key={notification.id}
-                  onClick={() => {
-                    if (!notification.read) {
-                      void handleMarkRead(notification.id);
-                    }
-                  }}
-                  className={`vv-choice-card ${!notification.read ? 'border-primary-200 bg-primary-50/80' : ''}`}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.24, delay: index * 0.03 }}
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.995 }}
-                >
-                  <div className="flex gap-4 items-start">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-white to-primary-50 border border-white/80 flex items-center justify-center text-2xl flex-shrink-0">
-                      {iconForType(notification.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-4 mb-1">
-                        <div className="font-semibold text-gray-900">{notification.title}</div>
-                        <span className="text-xs text-gray-500 whitespace-nowrap">
-                          {shortTimeAgo(notification.createdAt)}
-                        </span>
+              visibleNotifications.map((notification, index) => {
+                const iconMeta = iconForType(notification.type);
+                const IconComponent = iconMeta.icon;
+
+                return (
+                  <motion.button
+                    type="button"
+                    key={notification.id}
+                    onClick={() => {
+                      if (!notification.read) {
+                        void handleMarkRead(notification.id);
+                      }
+                    }}
+                    className={`vv-choice-card ${!notification.read ? 'border-primary-200 bg-primary-50/80' : ''}`}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.24, delay: index * 0.03 }}
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.995 }}
+                  >
+                    <div className="flex gap-4 items-start">
+                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-white to-primary-50 border border-white/80 flex items-center justify-center flex-shrink-0">
+                        <IconComponent className={`w-5 h-5 ${iconMeta.className}`} />
                       </div>
-                      <p className="text-sm text-gray-600">{notification.message}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-4 mb-1">
+                          <div className="font-semibold text-gray-900">{notification.title}</div>
+                          <span className="text-xs text-gray-500 whitespace-nowrap">
+                            {shortTimeAgo(notification.createdAt)}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600">{notification.message}</p>
+                      </div>
+                      {!notification.read && (
+                        <div className="w-2 h-2 bg-primary-600 rounded-full flex-shrink-0 mt-2 vv-breath" />
+                      )}
                     </div>
-                    {!notification.read && (
-                      <div className="w-2 h-2 bg-primary-600 rounded-full flex-shrink-0 mt-2 vv-breath" />
-                    )}
-                  </div>
-                </motion.button>
-              ))
+                  </motion.button>
+                );
+              })
             )}
           </div>
         </motion.div>

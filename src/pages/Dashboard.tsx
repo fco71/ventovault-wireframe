@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { transferService } from '../services';
 import { DashboardData, Transaction } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { toCountryCode } from '../utils/country';
 
 const smoothEase: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -91,8 +92,8 @@ export default function Dashboard() {
   }, [dashboardData]);
 
   const formatRecipient = (tx: Transaction) => tx.type === 'receive' ? tx.from.name : tx.to.name;
-  const formatFlag = (tx: Transaction) => tx.type === 'receive' ? '🇺🇸' : tx.to.flag || '🌍';
   const formatCountry = (tx: Transaction) => tx.type === 'receive' ? 'United States' : tx.to.country;
+  const formatCountryCode = (tx: Transaction) => toCountryCode(formatCountry(tx));
 
   return (
     <Layout>
@@ -191,8 +192,8 @@ export default function Dashboard() {
                         className="vv-activity-row"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 bg-gradient-to-br from-white to-primary-50 border border-white rounded-lg flex items-center justify-center text-base flex-shrink-0">
-                            {formatFlag(tx)}
+                          <div className="vv-country-badge w-9 h-9 rounded-lg text-[11px] flex-shrink-0">
+                            {formatCountryCode(tx)}
                           </div>
                           <div>
                             <p className="text-[13px] font-semibold text-gray-900">{formatRecipient(tx)}</p>

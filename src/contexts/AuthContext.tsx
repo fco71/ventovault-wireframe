@@ -8,7 +8,7 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase/config';
+import { auth, db, isFirebaseConfigured, missingFirebaseConfigKeys } from '../firebase/config';
 import { User } from '../types';
 import { featureFlags } from '../config/flags';
 
@@ -110,6 +110,44 @@ function shouldFallbackToDemo(error: unknown): boolean {
   ].includes(code);
 }
 
+function createMissingFirebaseConfigError(): Error {
+  if (missingFirebaseConfigKeys.length === 0) {
+    return new Error('Firebase configuration is missing. Set VITE_FIREBASE_* environment variables.');
+  }
+
+  return new Error(
+    `Firebase configuration is incomplete. Missing: ${missingFirebaseConfigKeys.join(', ')}.`
+  );
+}
+
+function toAuthError(error: unknown): Error {
+  const code = getErrorCode(error);
+  if (!code) {
+    if (error instanceof Error && error.message) {
+      return error;
+    }
+
+    return new Error('Authentication failed. Please try again.');
+  }
+
+  const messages: Record<string, string> = {
+    'auth/invalid-email': 'Enter a valid email address.',
+    'auth/invalid-credential': 'Invalid email or password.',
+    'auth/user-not-found': 'No account found for this email.',
+    'auth/wrong-password': 'Invalid email or password.',
+    'auth/email-already-in-use': 'An account with this email already exists.',
+    'auth/weak-password': 'Password must be at least 6 characters.',
+    'auth/too-many-requests': 'Too many attempts. Please wait and try again.',
+    'auth/network-request-failed': 'Network error. Check your connection and try again.',
+    'auth/configuration-not-found':
+      'Firebase Auth is not fully configured. Enable Email/Password sign-in in Firebase Console.',
+    'auth/operation-not-allowed':
+      'Email/password sign-in is disabled. Enable it in Firebase Console.',
+  };
+
+  return new Error(messages[code] || (error instanceof Error ? error.message : 'Authentication failed.'));
+}
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -128,6 +166,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const signup = async (email: string, password: string, displayName: string) => {
+    if (!featureFlags.enableAuthDemoFallback && !isFirebaseConfigured) {
+      throw createMissingFirebaseConfigError();
+    }
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
@@ -144,7 +186,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setCurrentUser(userData);
     } catch (error) {
       if (!shouldFallbackToDemo(error)) {
-        throw error;
+        throw toAuthError(error);
       }
 
       const demoUser = toDemoUser(email, displayName);
@@ -155,6 +197,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const login = async (email: string, password: string) => {
+    if (!featureFlags.enableAuthDemoFallback && !isFirebaseConfigured) {
+      throw createMissingFirebaseConfigError();
+    }
+
     const normalizedEmail = email.trim().toLowerCase();
 
     if (featureFlags.enableAuthDemoFallback && normalizedEmail === DEMO_EMAIL && password === DEMO_PASSWORD) {
@@ -170,7 +216,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       clearDemoUser();
     } catch (error) {
       if (!shouldFallbackToDemo(error)) {
-        throw error;
+        throw toAuthError(error);
       }
 
       if (password.length < 6) {
@@ -200,6 +246,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     if (!featureFlags.enableAuthDemoFallback) {
       clearDemoUser();
+    }
+
+    if (!featureFlags.enableAuthDemoFallback && !isFirebaseConfigured) {
+      setLoading(false);
+      return;
     }
 
     const storedDemoUser = getStoredDemoUser();

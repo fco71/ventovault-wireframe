@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Banknote, QrCode, Smartphone } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/common/Layout';
 import Toggle from '../components/ui/Toggle';
@@ -194,11 +195,13 @@ export default function Receive() {
               animate={{ opacity: 1, y: 0 }}
               className="vv-surface-soft border-primary-300/70 text-center"
             >
-              <div className="text-4xl mb-4">📱</div>
+              <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-700">
+                <Smartphone className="h-7 w-7" />
+              </div>
               <h3 className="font-bold text-xl text-gray-900 mb-2 font-display">Scan to Pay</h3>
               <div className="bg-white/80 border border-white/70 w-64 h-64 mx-auto rounded-2xl flex items-center justify-center mb-4">
                 <div className="text-center">
-                  <div className="text-6xl">QR</div>
+                  <QrCode className="mx-auto h-16 w-16 text-gray-800" />
                   <div className="text-xs text-gray-500 mt-2">Auto-generated demo code</div>
                 </div>
               </div>
@@ -229,8 +232,8 @@ export default function Receive() {
                     className="vv-request-row"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-lg">
-                        💰
+                      <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-700">
+                        <Banknote className="w-5 h-5" />
                       </div>
                       <div>
                         <div className="font-semibold text-gray-900">{request.fromName}</div>

@@ -105,7 +105,7 @@ export default function Dashboard() {
       amount: 250.00,
       date: '2 hours ago',
       status: 'completed',
-      flag: '🇩🇴'
+      flag: 'DO'
     },
     {
       id: '2',
@@ -114,7 +114,7 @@ export default function Dashboard() {
       amount: 150.00,
       date: '1 day ago',
       status: 'completed',
-      flag: '🇩🇴'
+      flag: 'DO'
     },
     {
       id: '3',
@@ -123,7 +123,7 @@ export default function Dashboard() {
       amount: 300.00,
       date: '2 days ago',
       status: 'completed',
-      flag: '🇲🇽'
+      flag: 'MX'
     }
   ];
 

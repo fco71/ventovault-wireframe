@@ -9,6 +9,7 @@ import { Transaction, TransferReceipt } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { shortTimeAgo } from '../services/mock/utils';
 import { toast } from '../components/ui/Toast';
+import { toCountryCode } from '../utils/country';
 
 export default function Transactions() {
   const { currentUser } = useAuth();
@@ -347,7 +348,9 @@ export default function Transactions() {
                         </motion.div>
                         <div>
                           <div className="font-semibold text-gray-900 flex items-center gap-2">
-                            <span>{transaction.to.flag || '🌍'}</span>
+                            <span className="vv-country-badge h-6 w-8 rounded-md text-[10px]">
+                              {toCountryCode(transaction.to.country)}
+                            </span>
                             {transaction.type === 'send'
                               ? transaction.to.name
                               : transaction.from.name}

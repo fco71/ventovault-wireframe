@@ -5,7 +5,26 @@ import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/common/Layout';
 import Toggle from '../components/ui/Toggle';
 import { toast } from '../components/ui/Toast';
-import { LogOut, ShieldCheck, SlidersHorizontal, Sparkles } from 'lucide-react';
+import {
+  BarChart3,
+  Bell,
+  ChevronRight,
+  CircleHelp,
+  CreditCard,
+  FileText,
+  Info,
+  Landmark,
+  LockKeyhole,
+  LogOut,
+  MessageSquare,
+  Shield,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  Star,
+  UserRound,
+  type LucideIcon,
+} from 'lucide-react';
 
 export default function Settings() {
   const { currentUser, logout } = useAuth();
@@ -14,37 +33,40 @@ export default function Settings() {
   const [autoShield, setAutoShield] = useState(true);
   const [priorityAlerts, setPriorityAlerts] = useState(false);
 
-  const sections = [
+  const sections: Array<{
+    title: string;
+    items: Array<{ icon: LucideIcon; label: string; value: string }>;
+  }> = [
     {
       title: 'Account',
       items: [
-        { icon: '👤', label: 'Personal Information', value: 'Edit profile details' },
-        { icon: '🔒', label: 'Security', value: 'Password, 2FA, biometrics' },
-        { icon: '🔔', label: 'Notifications', value: 'Email and push preferences' },
+        { icon: UserRound, label: 'Personal Information', value: 'Edit profile details' },
+        { icon: LockKeyhole, label: 'Security', value: 'Password, 2FA, biometrics' },
+        { icon: Bell, label: 'Notifications', value: 'Email and push preferences' },
       ]
     },
     {
       title: 'Financial',
       items: [
-        { icon: '💳', label: 'Payment Methods', value: '2 cards linked' },
-        { icon: '🏦', label: 'Bank Accounts', value: '1 account connected' },
-        { icon: '📊', label: 'Limits', value: 'Daily: $5,000' },
+        { icon: CreditCard, label: 'Payment Methods', value: '2 cards linked' },
+        { icon: Landmark, label: 'Bank Accounts', value: '1 account connected' },
+        { icon: BarChart3, label: 'Limits', value: 'Daily: $5,000' },
       ]
     },
     {
       title: 'Support',
       items: [
-        { icon: '❓', label: 'Help Center', value: 'FAQs and guides' },
-        { icon: '💬', label: 'Contact Support', value: 'Get help from our team' },
-        { icon: '⭐', label: 'Rate App', value: 'Share your feedback' },
+        { icon: CircleHelp, label: 'Help Center', value: 'FAQs and guides' },
+        { icon: MessageSquare, label: 'Contact Support', value: 'Get help from our team' },
+        { icon: Star, label: 'Rate App', value: 'Share your feedback' },
       ]
     },
     {
       title: 'Legal',
       items: [
-        { icon: '📄', label: 'Terms of Service', value: '' },
-        { icon: '🔐', label: 'Privacy Policy', value: '' },
-        { icon: 'ℹ️', label: 'About', value: 'Version 1.0.0' },
+        { icon: FileText, label: 'Terms of Service', value: '' },
+        { icon: Shield, label: 'Privacy Policy', value: '' },
+        { icon: Info, label: 'About', value: 'Version 1.0.0' },
       ]
     }
   ];
@@ -200,21 +222,27 @@ export default function Settings() {
           >
             <h3 className="font-bold text-gray-900 mb-4 font-display">{section.title}</h3>
             <div className="space-y-2">
-              {section.items.map((item) => (
-                <button
-                  key={`${section.title}-${item.label}`}
-                  type="button"
-                  className="vv-choice-card flex items-center gap-4"
-                  onClick={() => toast.success(`${item.label} selected`)}
-                >
-                  <span className="text-2xl">{item.icon}</span>
-                  <div className="flex-1 text-left">
-                    <div className="font-semibold text-gray-900">{item.label}</div>
-                    {item.value && <div className="text-sm text-gray-500">{item.value}</div>}
-                  </div>
-                  <span className="text-gray-400">→</span>
-                </button>
-              ))}
+              {section.items.map((item) => {
+                const IconComponent = item.icon;
+
+                return (
+                  <button
+                    key={`${section.title}-${item.label}`}
+                    type="button"
+                    className="vv-choice-card flex items-center gap-4"
+                    onClick={() => toast.success(`${item.label} selected`)}
+                  >
+                    <span className="vv-icon-tile">
+                      <IconComponent className="h-4 w-4 text-gray-600" />
+                    </span>
+                    <div className="flex-1 text-left">
+                      <div className="font-semibold text-gray-900">{item.label}</div>
+                      {item.value && <div className="text-sm text-gray-500">{item.value}</div>}
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-gray-400" />
+                  </button>
+                );
+              })}
             </div>
           </motion.div>
         ))}

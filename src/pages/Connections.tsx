@@ -8,6 +8,7 @@ import { recipientService } from '../services';
 import { useAuth } from '../contexts/AuthContext';
 import { shortTimeAgo, toCurrency } from '../services/mock/utils';
 import { toast } from '../components/ui/Toast';
+import { toCountryCode } from '../utils/country';
 
 const smoothEase: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -319,8 +320,11 @@ export default function Connections() {
                           <span className={badge.className}>{badge.label}</span>
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs text-gray-500">
-                            {connection.countryFlag} {connection.country}
+                          <span className="text-xs text-gray-500 inline-flex items-center gap-1.5">
+                            <span className="vv-country-badge h-5 w-7 rounded-md text-[9px]">
+                              {toCountryCode(connection.country)}
+                            </span>
+                            {connection.country}
                           </span>
                           <span className="text-gray-300">·</span>
                           <span className="text-xs text-gray-500">{connection.email}</span>

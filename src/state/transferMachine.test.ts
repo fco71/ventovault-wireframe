@@ -46,7 +46,7 @@ describe('transferMachine', () => {
       name: 'Ana Garcia',
       email: 'ana@test.dev',
       country: 'Guatemala',
-      countryFlag: '🇬🇹',
+      countryFlag: 'GT',
       isFavorite: false,
       state: 'validated_new',
       createdAt: new Date(),
