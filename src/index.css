@@ -468,7 +468,7 @@
   }
 
   .vv-hero {
-    @apply relative isolate overflow-hidden rounded-[1.75rem] p-7 md:p-9;
+    @apply relative isolate overflow-hidden rounded-[1.75rem] p-5 md:p-7;
     border: 1px solid rgba(255, 255, 255, 0.82);
     background:
       linear-gradient(150deg, var(--vv-surface-strong), rgba(247, 251, 255, 0.66)),
@@ -542,7 +542,42 @@
   }
 
   .vv-activity-row {
-    @apply -mx-2 flex cursor-pointer items-center justify-between rounded-xl px-2 py-3 transition-colors hover:bg-white/75;
+    @apply -mx-2 flex cursor-pointer items-center justify-between rounded-xl px-2 py-3 transition-all duration-200;
+  }
+
+  .vv-activity-row:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateX(2px);
+  }
+
+  .vv-activity-row .vv-row-action {
+    @apply opacity-0 transition-all duration-200 -translate-x-2;
+  }
+
+  .vv-activity-row:hover .vv-row-action {
+    @apply opacity-100 translate-x-0;
+  }
+
+  /* Skeleton shimmer */
+  .vv-skeleton {
+    @apply rounded-xl;
+    background: linear-gradient(90deg, rgba(226,232,240,0.5) 25%, rgba(241,245,249,0.8) 50%, rgba(226,232,240,0.5) 75%);
+    background-size: 200% 100%;
+    animation: vv-shimmer 1.5s ease-in-out infinite;
+  }
+
+  .vv-skeleton-text {
+    @apply h-3 rounded-md;
+    background: linear-gradient(90deg, rgba(226,232,240,0.5) 25%, rgba(241,245,249,0.8) 50%, rgba(226,232,240,0.5) 75%);
+    background-size: 200% 100%;
+    animation: vv-shimmer 1.5s ease-in-out infinite;
+  }
+
+  .vv-skeleton-circle {
+    @apply rounded-full;
+    background: linear-gradient(90deg, rgba(226,232,240,0.5) 25%, rgba(241,245,249,0.8) 50%, rgba(226,232,240,0.5) 75%);
+    background-size: 200% 100%;
+    animation: vv-shimmer 1.5s ease-in-out infinite;
   }
 
   .vv-signal-card {
@@ -674,6 +709,15 @@
   }
   100% {
     transform: translate3d(0, -1.8%, 0) scale(1.04);
+  }
+}
+
+@keyframes vv-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
   }
 }
 

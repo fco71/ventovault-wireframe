@@ -8,8 +8,6 @@ import {
   BarChart3,
   Users,
   Settings,
-  ShieldCheck,
-  Sparkles,
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -68,23 +66,13 @@ export default function Layout({ children }: LayoutProps) {
                     VentoVault
                   </div>
                   <div className="hidden sm:block text-[10px] text-gray-500 uppercase tracking-[0.16em]">
-                    Transfer Intelligence
+                    Remittance
                   </div>
                 </div>
               </Link>
             </div>
 
             <div className="hidden md:flex items-center gap-1">
-              <div className="hidden xl:flex items-center gap-2 mr-1">
-                <span className="vv-status-chip">
-                  <ShieldCheck className="w-3 h-3" />
-                  Live Rails
-                </span>
-                <span className="vv-chip vv-chip-accent">
-                  <Sparkles className="w-3 h-3" />
-                  AI Routing
-                </span>
-              </div>
               <div className="flex items-center gap-1">
                 {navItems.map((item) => {
                   const isActive = location.pathname === item.path;

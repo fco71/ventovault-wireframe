@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/common/Layout';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Send, Star, X, Check, UserPlus, Lock } from 'lucide-react';
+import { Plus, Search, Send, Star, X, Check, UserPlus, Lock, Users } from 'lucide-react';
 import { Recipient } from '../types';
 import { recipientService } from '../services';
 import { useAuth } from '../contexts/AuthContext';
@@ -152,10 +152,10 @@ export default function Connections() {
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
               <h1 className="text-3xl md:text-[2.2rem] font-bold text-gray-950 font-display tracking-tight leading-tight">
-                People graph
+                People
               </h1>
               <p className="text-sm text-gray-600 mt-3 max-w-2xl">
-                Manage trusted recipients, monitor eligibility states, and launch transfers directly.
+                Your saved recipients. Add someone new or send money to an existing contact.
               </p>
             </div>
             <motion.button
@@ -274,17 +274,70 @@ export default function Connections() {
         </motion.div>
 
         {loading ? (
-          <div className="vv-panel">
-            <div className="vv-surface-soft text-sm text-gray-500">Loading recipients...</div>
+          <div className="vv-panel space-y-2">
+            {[0, 1, 2, 3].map((i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.08, duration: 0.2 }}
+                className="vv-choice-card"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="vv-skeleton w-11 h-11 rounded-xl" />
+                  <div className="flex-1">
+                    <div className="vv-skeleton-text w-32 h-3.5 mb-2" />
+                    <div className="vv-skeleton-text w-48 h-2.5" />
+                  </div>
+                  <div className="hidden sm:flex items-center gap-6">
+                    <div className="vv-skeleton-text w-16 h-3" />
+                    <div className="vv-skeleton-text w-12 h-3" />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
+        ) : connections.length === 0 && !search ? (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15, ease: smoothEase }}
+            className="vv-panel text-center py-14"
+          >
+            <div className="relative w-20 h-20 mx-auto mb-6">
+              <motion.div
+                className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-50"
+                animate={{ scale: [1, 1.05, 1], rotate: [0, 2, -2, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Users className="w-8 h-8 text-primary-600" />
+              </div>
+            </div>
+            <h3 className="text-[15px] font-bold text-gray-900 font-display mb-1.5">
+              No recipients yet
+            </h3>
+            <p className="text-[13px] text-gray-500 max-w-xs mx-auto mb-6 leading-relaxed">
+              Add someone you send money to regularly. You can set them up now and transfer later.
+            </p>
+            <motion.button
+              onClick={() => setShowAddForm(true)}
+              className="btn btn-primary px-5 py-2.5 text-[13px] inline-flex items-center gap-2"
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <UserPlus className="w-4 h-4" />
+              Add your first recipient
+            </motion.button>
+          </motion.div>
         ) : filteredConnections.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="vv-panel">
-            <div className="vv-surface-soft text-center py-14">
+            <div className="text-center py-14">
               <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Search className="w-5 h-5 text-gray-400" />
               </div>
-              <p className="text-sm font-semibold text-gray-900">No connections found</p>
-              <p className="text-xs text-gray-500 mt-1">Try a different search or add a new person.</p>
+              <p className="text-sm font-semibold text-gray-900">No matches</p>
+              <p className="text-xs text-gray-500 mt-1">Try a different search term.</p>
             </div>
           </motion.div>
         ) : (
