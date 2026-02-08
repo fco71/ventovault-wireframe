@@ -649,7 +649,9 @@ export default function Send() {
                 disabled={!canProceedRecipient}
                 className="w-full btn btn-primary py-3 text-lg disabled:opacity-50"
               >
-                Continue to amount
+                {selectedRecipient
+                  ? `Continue with ${selectedRecipient.name.split(' ')[0]}`
+                  : 'Select a recipient to continue'}
               </button>
             </div>
           </motion.div>

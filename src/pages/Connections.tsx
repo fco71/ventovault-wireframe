@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/common/Layout';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Send, Star, X, Check, UserPlus, Lock, Users } from 'lucide-react';
+import { Plus, Search, Send, Star, X, Check, UserPlus, Lock, Users, ArrowRight } from 'lucide-react';
 import { Recipient } from '../types';
 import { recipientService } from '../services';
 import { useAuth } from '../contexts/AuthContext';
@@ -133,6 +133,32 @@ export default function Connections() {
     setNewConnection({ name: '', email: '', country: '' });
     setShowAddForm(false);
     toast.success('Recipient added');
+  };
+
+  const openRecipient = (recipient: Recipient) => {
+    const recipientBadge = stateLabel(recipient);
+
+    if (recipientBadge.sendBlocked) {
+      if (recipient.state === 'flagged') {
+        toast.error('This recipient is restricted right now. Contact support for help.');
+        return;
+      }
+
+      if (recipient.state === 'pending_validation') {
+        toast.error('This recipient is still validating and cannot receive transfers yet.');
+        return;
+      }
+
+      if (recipient.state === 'validated_new' && recipient.coolingOffEndsAt) {
+        toast.error(`Cooling-off ends ${recipient.coolingOffEndsAt.toLocaleString()}.`);
+        return;
+      }
+
+      toast.error('This recipient is not ready for transfers yet.');
+      return;
+    }
+
+    navigate('/send', { state: { recipientId: recipient.id } });
   };
 
   return (
@@ -271,6 +297,9 @@ export default function Connections() {
               </button>
             </div>
           </div>
+          <div className="mt-3 text-xs text-gray-500">
+            Tip: click any person card to start a transfer instantly.
+          </div>
         </motion.div>
 
         {loading ? (
@@ -358,7 +387,17 @@ export default function Connections() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.26, delay: 0.03 * index, ease: smoothEase }}
-                    className="vv-choice-card"
+                    className="vv-choice-card cursor-pointer group"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Open ${connection.name}`}
+                    onClick={() => openRecipient(connection)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openRecipient(connection);
+                      }
+                    }}
                   >
                     <div className="flex items-center gap-4">
                       <div
@@ -402,10 +441,20 @@ export default function Connections() {
                         </div>
                       </div>
 
+                      <div className={`hidden lg:flex items-center gap-1 text-xs font-semibold ${
+                        badge.sendBlocked ? 'text-gray-400' : 'text-primary-700'
+                      }`}>
+                        <span>{badge.sendBlocked ? 'Blocked' : 'Send now'}</span>
+                        <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                      </div>
+
                       <div className="flex items-center gap-1.5">
                         <motion.button
                           type="button"
-                          onClick={() => void toggleFavorite(connection.id)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            void toggleFavorite(connection.id);
+                          }}
                           className={`p-2 rounded-lg transition-all ${
                             connection.isFavorite
                               ? 'text-amber-500 bg-amber-50'
@@ -417,11 +466,14 @@ export default function Connections() {
                         </motion.button>
                         <motion.button
                           type="button"
-                          onClick={() => navigate('/send', { state: { recipientId: connection.id } })}
-                          disabled={badge.sendBlocked}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            openRecipient(connection);
+                          }}
+                          aria-disabled={badge.sendBlocked}
                           className={`p-2 rounded-lg transition-all ${
                             badge.sendBlocked
-                              ? 'text-gray-300 bg-gray-100 cursor-not-allowed'
+                              ? 'text-gray-300 bg-gray-100'
                               : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                           }`}
                           whileHover={{ scale: badge.sendBlocked ? 1 : 1.05 }}
