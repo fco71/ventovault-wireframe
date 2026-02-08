@@ -123,7 +123,7 @@ export function validateModeForTier(
   if (mode === 'receive_exact' && !limits.allowReceiveExact) {
     return {
       code: 'TIER_MODE_RESTRICTED',
-      message: 'Receive-Exact mode is available for verified tiers only.',
+      message: 'Exact delivery mode is available on Verified and Business accounts.',
     };
   }
   return null;
@@ -137,7 +137,7 @@ export function validateFundingMethodForTier(
   if (fundingMethod === 'debit_card' && !limits.allowDebitCard) {
     return {
       code: 'TIER_FUNDING_RESTRICTED',
-      message: 'Debit card funding is available for verified tiers only.',
+      message: 'Debit card funding is available on Verified and Business accounts.',
     };
   }
   return null;
@@ -161,7 +161,7 @@ export function validateAmountForTier(
   if (amount > limits.perTransaction) {
     return {
       code: 'AMOUNT_TOO_HIGH',
-      message: `Maximum per-transaction limit for ${tier} is $${limits.perTransaction.toFixed(2)}.`,
+      message: `Maximum per-transfer limit for your current account level is $${limits.perTransaction.toFixed(2)}.`,
     };
   }
 

@@ -17,6 +17,7 @@ import {
 import { getTierLimits } from '../config/domain';
 import { toast } from '../components/ui/Toast';
 import { toCountryCode } from '../utils/country';
+import { getAccountLevel } from '../utils/accountLevel';
 
 type Step = 'recipient' | 'amount' | 'review' | 'success';
 
@@ -51,6 +52,7 @@ export default function Send() {
   const location = useLocation();
   const tier: VerificationTier = currentUser?.verificationTier || 'L30';
   const limits = getTierLimits(tier);
+  const accountLevel = getAccountLevel(tier);
   const amountFormatter = useMemo(
     () =>
       new Intl.NumberFormat(undefined, {
@@ -494,8 +496,8 @@ export default function Send() {
 
   const progressSteps: Array<{ key: Exclude<Step, 'success'>; label: string }> = [
     { key: 'recipient', label: 'Recipient' },
-    { key: 'amount', label: 'Amount' },
-    { key: 'review', label: 'Review' },
+    { key: 'amount', label: 'Amount & Quote' },
+    { key: 'review', label: 'Confirm' },
   ];
 
   const activeStepIndex =
@@ -513,18 +515,18 @@ export default function Send() {
           className="vv-hero"
         >
           <div className="flex flex-wrap items-center gap-2.5 mb-5">
-            <span className="vv-chip vv-chip-hot">Live quote engine</span>
-            <span className="vv-chip">Tier {tier}</span>
+            <span className="vv-chip vv-chip-hot">Live exchange quote</span>
+            <span className="vv-chip">{accountLevel.shortName} ({tier})</span>
             <span className="vv-chip vv-chip-accent">
               Balance ${(currentUser?.balance || 0).toFixed(2)}
             </span>
           </div>
           <h1 className="text-3xl md:text-[2.2rem] font-bold text-gray-950 font-display leading-tight">
-            Send with deterministic confidence
+            Send money with clear totals before you pay
           </h1>
           <p className="text-sm text-gray-600 mt-3 max-w-2xl">
-            Build the transfer, lock the quote, and push it through the full machine with
-            transparent state progression.
+            Pick a recipient, lock a live quote, and confirm exactly what you pay and what they
+            receive.
           </p>
         </motion.div>
 
@@ -620,7 +622,7 @@ export default function Send() {
                         </div>
                         <div className="text-right">
                           <div className="text-xs text-gray-500">
-                            {blocked ? blocked.message : 'Eligible to send'}
+                            {blocked ? blocked.message : 'Ready to send'}
                           </div>
                           {recipientId === recipient.id && <Check className="w-5 h-5 text-primary-600 ml-auto" />}
                         </div>
@@ -636,8 +638,8 @@ export default function Send() {
               </div>
 
               <div className="vv-surface-soft border-accent-200/40 bg-accent-50/80 text-sm text-accent-800">
-                Tier: {tier} · Recipient limit:{' '}
-                {limits.recipientLimit === 999 ? 'Unlimited' : limits.recipientLimit} · Cooling-off
+                Account level: {accountLevel.customerLabel} ({tier}) · Recipient limit:{' '}
+                {limits.recipientLimit >= 999 ? 'Unlimited' : limits.recipientLimit} · Cooling-off
                 window: {limits.coolingOffHours}h
               </div>
 
@@ -647,7 +649,7 @@ export default function Send() {
                 disabled={!canProceedRecipient}
                 className="w-full btn btn-primary py-3 text-lg disabled:opacity-50"
               >
-                Continue to Amount
+                Continue to amount
               </button>
             </div>
           </motion.div>
@@ -670,7 +672,7 @@ export default function Send() {
             </button>
 
             <h2 className="text-2xl font-bold text-gray-900 mb-6 font-display">
-              Configure transfer
+              Set amount and delivery preference
             </h2>
 
             <div className="space-y-5">
@@ -680,7 +682,7 @@ export default function Send() {
                   onClick={() => setMode('send_exact')}
                   className={`vv-segment-btn ${mode === 'send_exact' ? 'vv-segment-btn-active' : ''}`}
                 >
-                  Send Exactly
+                  Set Sent Amount
                 </button>
                 <button
                   type="button"
@@ -691,11 +693,16 @@ export default function Send() {
                   }`}
                 >
                   <span className="inline-flex items-center justify-center gap-1.5">
-                    They Receive Exactly
+                    Set Delivered Amount
                     {!limits.allowReceiveExact && <Lock className="h-3.5 w-3.5" />}
                   </span>
                 </button>
               </div>
+              <p className="text-xs text-gray-500">
+                {mode === 'send_exact'
+                  ? 'You choose exactly how much leaves your account.'
+                  : 'Your recipient gets the exact amount, and your total debit adjusts with live FX and fees.'}
+              </p>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -735,7 +742,7 @@ export default function Send() {
               </div>
 
               <div className="vv-surface-soft space-y-2">
-                {quoteLoading && <div className="text-sm text-gray-500">Calculating live quote...</div>}
+                {quoteLoading && <div className="text-sm text-gray-500">Fetching live quote...</div>}
                 {quoteError && <div className="text-sm text-error-600">{quoteError}</div>}
 
                 {quote && (
@@ -747,7 +754,7 @@ export default function Send() {
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Mid-market</span>
+                      <span className="text-gray-600">Market reference</span>
                       <span className="font-semibold text-gray-900">{quote.midMarketRate}</span>
                     </div>
                     <div className="flex justify-between text-sm">
@@ -755,7 +762,7 @@ export default function Send() {
                       <span className="font-semibold text-gray-900">${quote.sourceAmount.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Fees + network</span>
+                      <span className="text-gray-600">Fees and network</span>
                       <span className="font-semibold text-gray-900">
                         ${(quote.feeAmount + quote.networkCost).toFixed(2)}
                       </span>
@@ -775,7 +782,7 @@ export default function Send() {
                       </span>
                     </div>
                     <div className="text-xs text-gray-500">
-                      Quote expires in {secondsRemaining}s {quoteExpired && '• expired'}
+                      Quote valid for {secondsRemaining}s {quoteExpired && '• expired'}
                     </div>
                   </>
                 )}
@@ -794,7 +801,7 @@ export default function Send() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Funding Method</div>
-                    <div className="font-semibold text-gray-900">Choose payment rail</div>
+                    <div className="font-semibold text-gray-900">Choose how you want to pay</div>
                   </div>
                 </div>
                 <div className="mt-3 grid sm:grid-cols-2 gap-3">
@@ -806,7 +813,7 @@ export default function Send() {
                     }`}
                   >
                     <div className="font-semibold text-gray-900">ACH</div>
-                    <div className="text-xs text-gray-500">1-2 business days · included</div>
+                    <div className="text-xs text-gray-500">Bank transfer · 1-2 business days · no extra fee</div>
                   </button>
                   <button
                     type="button"
@@ -820,11 +827,11 @@ export default function Send() {
                       Debit Card
                       {!limits.allowDebitCard && <Lock className="h-3.5 w-3.5" />}
                     </div>
-                    <div className="text-xs text-gray-500">Instant funding · +$1.50</div>
+                    <div className="text-xs text-gray-500">Card payment · near instant · +$1.50</div>
                   </button>
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-4">
-                  <div className="text-sm text-gray-600">FX Shield locks rate for quote window.</div>
+                  <div className="text-sm text-gray-600">FX Shield holds your quoted rate until it expires.</div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-500">FX Shield</span>
                     <Toggle checked={fxShield} onChange={setFxShield} />
@@ -839,12 +846,12 @@ export default function Send() {
                   onChange={(event) => setNote(event.target.value)}
                   className="input"
                   rows={3}
-                  placeholder="What's this for?"
+                  placeholder="e.g., Family support for February"
                 />
               </div>
 
               <div className="vv-surface-soft border-accent-200/40 bg-accent-50/80 text-sm text-accent-800">
-                Remaining daily limit: ${(limits.daily - dailySent).toFixed(2)} · Remaining monthly limit: ${
+                Remaining today: ${(limits.daily - dailySent).toFixed(2)} · Remaining this month: ${
                   (limits.monthly - monthlySent).toFixed(2)
                 }
               </div>
@@ -855,7 +862,7 @@ export default function Send() {
                 disabled={!quote || !!validationError}
                 className="w-full btn btn-primary py-3 text-lg disabled:opacity-50"
               >
-                {validationError || quoteExpired ? 'Resolve Issues to Continue' : 'Continue'}
+                {validationError || quoteExpired ? 'Fix issues to continue' : 'Continue'}
               </button>
             </div>
           </motion.div>
@@ -950,8 +957,7 @@ export default function Send() {
                   className="mt-1 rounded border-gray-300"
                 />
                 <span className="text-sm text-gray-700">
-                  I authorize regulated partners to process this transfer and I acknowledge VentoVault coordinates the
-                  instruction flow.
+                  I authorize VentoVault and its regulated partners to process this transfer.
                 </span>
               </label>
 
@@ -964,7 +970,7 @@ export default function Send() {
                 {sending ? (
                   <span className="flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Processing transfer machine...
+                    Sending transfer...
                   </span>
                 ) : (
                   `Send $${quote.totalDebitAmount.toFixed(2)}`
@@ -988,11 +994,11 @@ export default function Send() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2 font-display">
               Money sent successfully!
             </h2>
-            <p className="text-gray-600 mb-6">Your transfer is complete and fully tracked across all stages.</p>
+            <p className="text-gray-600 mb-6">Your transfer is confirmed and now visible in activity tracking.</p>
 
             <div className="vv-surface-soft space-y-3 mb-6 text-left">
               <div className="flex justify-between">
-                <span className="text-gray-600">Intent ID</span>
+                <span className="text-gray-600">Transfer ID</span>
                 <span className="font-semibold text-gray-900">{lastIntentId || 'N/A'}</span>
               </div>
               <div className="flex justify-between">
@@ -1023,7 +1029,7 @@ export default function Send() {
         )}
 
         <p className="text-[10px] text-gray-400 text-center mt-8 uppercase tracking-[0.14em]">
-          Tier {tier} · Per transfer up to ${limits.perTransaction.toFixed(2)} · Daily cap ${limits.daily.toFixed(2)}
+          {accountLevel.customerLabel} ({tier}) · Up to ${limits.perTransaction.toFixed(2)} per transfer · Daily limit ${limits.daily.toFixed(2)}
         </p>
       </div>
     </Layout>

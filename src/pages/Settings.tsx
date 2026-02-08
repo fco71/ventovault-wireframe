@@ -5,6 +5,9 @@ import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/common/Layout';
 import Toggle from '../components/ui/Toggle';
 import { toast } from '../components/ui/Toast';
+import { getTierLimits } from '../config/domain';
+import { VerificationTier } from '../types';
+import { getAccountLevel } from '../utils/accountLevel';
 import {
   BarChart3,
   Bell,
@@ -29,6 +32,9 @@ import {
 export default function Settings() {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
+  const tier: VerificationTier = currentUser?.verificationTier || 'L30';
+  const limits = getTierLimits(tier);
+  const accountLevel = getAccountLevel(tier);
   const [autoRoute, setAutoRoute] = useState(true);
   const [autoShield, setAutoShield] = useState(true);
   const [priorityAlerts, setPriorityAlerts] = useState(false);
@@ -87,15 +93,15 @@ export default function Settings() {
           className="vv-hero"
         >
           <div className="flex flex-wrap items-center gap-2.5 mb-5">
-            <span className="vv-chip vv-chip-hot">Verified account</span>
-            <span className="vv-chip">Tier {currentUser?.verificationTier || 'L30'}</span>
-            <span className="vv-chip vv-chip-accent">Premium controls active</span>
+            <span className="vv-chip vv-chip-hot">{accountLevel.customerLabel}</span>
+            <span className="vv-chip">Daily limit ${limits.daily.toLocaleString()}</span>
+            <span className="vv-chip vv-chip-accent">Security and limits</span>
           </div>
           <h1 className="text-3xl md:text-[2.2rem] font-bold text-gray-950 font-display leading-tight">
-            Control tower settings
+            Account and transfer settings
           </h1>
           <p className="text-sm text-gray-600 mt-3 max-w-2xl">
-            Manage account profile, automations, compliance posture, and platform behavior from one command surface.
+            Manage your profile, transfer preferences, notifications, and compliance settings.
           </p>
         </motion.div>
 
@@ -191,15 +197,15 @@ export default function Settings() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-semibold text-gray-900 font-display">Compliance & Limits</h3>
-              <p className="text-sm text-gray-600 mt-1">Stay verified for faster payouts and higher limits.</p>
+              <p className="text-sm text-gray-600 mt-1">Current account level and sending limits.</p>
             </div>
-            <span className="badge badge-success">Verified</span>
+            <span className="badge badge-success">{accountLevel.shortName}</span>
           </div>
           <div className="space-y-3">
             {[
-              { label: 'Identity Verification', value: 'Completed', tone: 'success' },
+              { label: 'Account Level', value: `${accountLevel.shortName} (${tier})`, tone: 'success' },
               { label: 'Source of Funds', value: 'On file', tone: 'success' },
-              { label: 'Daily Send Limit', value: '$5,000', tone: 'info' },
+              { label: 'Daily Send Limit', value: `$${limits.daily.toLocaleString()}`, tone: 'info' },
             ].map((item) => {
               const badgeClass = item.tone === 'info' ? 'badge badge-info' : 'badge badge-success';
               return (

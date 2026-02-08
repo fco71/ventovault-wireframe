@@ -194,14 +194,13 @@ export default function Transactions() {
           <div className="flex flex-wrap items-center gap-2.5 mb-5">
             <span className="vv-chip vv-chip-hot">{transactions.length} total transfers</span>
             <span className="vv-chip">{completedCount} completed</span>
-            <span className="vv-chip vv-chip-accent">{pendingCount} in-flight</span>
+            <span className="vv-chip vv-chip-accent">{pendingCount} in progress</span>
           </div>
           <h1 className="text-3xl md:text-[2.2rem] font-bold text-gray-950 font-display leading-tight">
-            Transaction command ledger
+            Transfer history and receipts
           </h1>
           <p className="text-sm text-gray-600 mt-3 max-w-2xl">
-            Inspect every transfer path, replay all deterministic state transitions, and export
-            exact activity snapshots.
+            Review every transfer, follow status updates, and export activity reports anytime.
           </p>
         </motion.div>
 
@@ -217,12 +216,12 @@ export default function Transactions() {
                 <Sparkles className="w-6 h-6" />
               </div>
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Smart Summary</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Account Snapshot</div>
                 <div className="text-lg font-semibold text-gray-900 font-display mt-1">
-                  Net outflow stabilized
+                  This period at a glance
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
-                  Transfer engine is deterministic and all stage transitions are tracked for replay.
+                  Each transfer includes time-stamped status updates for support and reconciliation.
                 </p>
               </div>
             </div>
@@ -231,7 +230,7 @@ export default function Transactions() {
               className="btn btn-secondary"
               onClick={() => toast.success('Insights reviewed')}
             >
-              Review Insights
+              View insights
             </button>
           </div>
         </motion.div>

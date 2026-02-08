@@ -60,7 +60,7 @@ export default function Signup() {
           </div>
           <div>
             <div className="text-2xl font-semibold text-gray-900 font-display">VentoVault</div>
-            <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Future of Remittance</div>
+            <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Global Money Transfers</div>
           </div>
         </div>
 
@@ -99,7 +99,7 @@ export default function Signup() {
             </div>
             <div>
               <div className="text-2xl font-semibold text-gray-900 font-display">VentoVault</div>
-              <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Remittance</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Global Transfers</div>
             </div>
           </div>
 

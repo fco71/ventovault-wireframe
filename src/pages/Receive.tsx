@@ -103,15 +103,15 @@ export default function Receive() {
           className="vv-hero"
         >
           <div className="flex flex-wrap items-center gap-2.5 mb-5">
-            <span className="vv-chip vv-chip-hot">Smart collect</span>
-            <span className="vv-chip">Auto reminder {autoReminder ? 'On' : 'Off'}</span>
+            <span className="vv-chip vv-chip-hot">Request payments</span>
+            <span className="vv-chip">Auto-reminders {autoReminder ? 'On' : 'Off'}</span>
             <span className="vv-chip vv-chip-accent">{requests.length} active requests</span>
           </div>
           <h1 className="text-3xl md:text-[2.2rem] font-bold text-gray-950 font-display leading-tight">
-            Receive with shared confidence
+            Request money with one secure link
           </h1>
           <p className="text-sm text-gray-600 mt-3 max-w-2xl">
-            Request funds with one link, one QR surface, and one deterministic status model.
+            Share your payment link or QR and track each request from pending to paid.
           </p>
         </motion.div>
 
@@ -138,8 +138,8 @@ export default function Receive() {
           <div className="vv-surface-soft">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Smart Request</div>
-                <div className="font-semibold text-gray-900 mt-1">Auto-remind in 24 hours</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Automatic Reminder</div>
+                <div className="font-semibold text-gray-900 mt-1">Send reminder after 24 hours</div>
                 <p className="text-sm text-gray-600 mt-2">
                   Send a polite nudge if payment is still pending.
                 </p>
@@ -185,7 +185,7 @@ export default function Receive() {
               disabled={!amount}
               className="w-full btn btn-primary py-3 disabled:opacity-50"
             >
-              Generate Payment Request
+              Create payment request
             </button>
           </div>
 
@@ -202,7 +202,7 @@ export default function Receive() {
               <div className="bg-white/80 border border-white/70 w-64 h-64 mx-auto rounded-2xl flex items-center justify-center mb-4">
                 <div className="text-center">
                   <QrCode className="mx-auto h-16 w-16 text-gray-800" />
-                  <div className="text-xs text-gray-500 mt-2">Auto-generated demo code</div>
+                  <div className="text-xs text-gray-500 mt-2">Demo QR preview</div>
                 </div>
               </div>
               <div className="text-2xl font-bold text-primary-700 mb-1">${Number(amount).toFixed(2)}</div>
@@ -247,7 +247,7 @@ export default function Receive() {
                           request.status === 'paid' ? 'text-success-600' : 'text-accent-600'
                         }`}
                       >
-                        {request.status}
+                        {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
                       </div>
                     </div>
                   </motion.div>
