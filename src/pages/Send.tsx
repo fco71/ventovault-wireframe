@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type ClipboardEvent, type KeyboardEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, CircleCheck, Loader2, Lock } from 'lucide-react';
+import { CircleCheck, Loader2, Lock, UserPlus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/common/Layout';
 import Toggle from '../components/ui/Toggle';
@@ -23,6 +23,9 @@ type Step = 'recipient' | 'amount' | 'review' | 'success';
 
 interface LocationState {
   recipientId?: string;
+  presetAmount?: number;
+  presetNote?: string;
+  focusStep?: Exclude<Step, 'success'>;
 }
 
 export default function Send() {
@@ -72,6 +75,7 @@ export default function Send() {
     [recipientId, recipients]
   );
   const selectedRecipientCountryCode = toCountryCode(selectedRecipient?.country);
+  const hasRecipients = recipients.length > 0;
 
   const filteredRecipients = useMemo(
     () =>
@@ -222,6 +226,7 @@ export default function Send() {
         return;
       }
 
+      const routeState = location.state as LocationState | null;
       const [recipientResult, usageResult] = await Promise.all([
         recipientService.listRecipients(currentUser.id),
         transferService.getUsage(currentUser.id),
@@ -233,12 +238,24 @@ export default function Send() {
 
       if (recipientResult.ok && recipientResult.data) {
         setRecipients(recipientResult.data);
-        const routeState = location.state as LocationState | null;
         if (routeState?.recipientId) {
           setRecipientId(routeState.recipientId);
         } else if (recipientResult.data.length > 0) {
           setRecipientId(recipientResult.data[0].id);
         }
+      }
+
+      if (routeState?.presetAmount && routeState.presetAmount > 0) {
+        setMode('send_exact');
+        setSourceAmount(routeState.presetAmount.toFixed(2));
+      }
+
+      if (routeState?.presetNote) {
+        setNote(routeState.presetNote);
+      }
+
+      if (routeState?.focusStep === 'amount' && routeState?.recipientId) {
+        setStep('amount');
       }
 
       if (usageResult.ok && usageResult.data) {
@@ -340,11 +357,9 @@ export default function Send() {
 
   const quoteExpired = quote ? quoteService.isExpired(quote) : false;
 
-  const canProceedRecipient = !!selectedRecipient;
-
   const validationError = useMemo(() => {
     if (!selectedRecipient) {
-      return 'Select a recipient to continue.';
+      return 'Select a recipient to start this transfer.';
     }
 
     const recipientError = canSendToRecipient(selectedRecipient);
@@ -456,22 +471,34 @@ export default function Send() {
     toast.success('Transfer completed');
   };
 
-  const goToAmountStep = () => {
-    if (!canProceedRecipient) {
-      setValidationMessage('Select a recipient before continuing.');
+  const goToAmountStep = (recipient?: Recipient | null) => {
+    const activeRecipient = recipient ?? selectedRecipient;
+
+    if (!activeRecipient) {
+      setValidationMessage('Select a recipient to start.');
       return;
     }
 
-    if (selectedRecipient) {
-      const recipientError = canSendToRecipient(selectedRecipient);
-      if (recipientError) {
-        setValidationMessage(recipientError.message);
-        return;
-      }
+    setRecipientId(activeRecipient.id);
+
+    const recipientError = canSendToRecipient(activeRecipient);
+    if (recipientError) {
+      setValidationMessage(recipientError.message);
+      return;
     }
 
     setValidationMessage('');
     setStep('amount');
+  };
+
+  const goToRequestStep = (recipient: Recipient) => {
+    setRecipientId(recipient.id);
+    navigate('/receive', {
+      state: {
+        suggestedContact: recipient.name,
+        suggestedNote: `Request from ${recipient.name}`,
+      },
+    });
   };
 
   const goToReviewStep = () => {
@@ -481,7 +508,7 @@ export default function Send() {
     }
 
     if (quoteExpired) {
-      setValidationMessage('Quote expired. Refresh quote before continuing.');
+      setValidationMessage('Quote expired. Refresh quote before review.');
       return;
     }
 
@@ -516,7 +543,7 @@ export default function Send() {
         >
           <div className="flex flex-wrap items-center gap-2.5 mb-5">
             <span className="vv-chip vv-chip-hot">Live exchange quote</span>
-            <span className="vv-chip">{accountLevel.shortName} ({tier})</span>
+            <span className="vv-chip">{accountLevel.shortName}</span>
             <span className="vv-chip vv-chip-accent">
               Balance ${(currentUser?.balance || 0).toFixed(2)}
             </span>
@@ -600,59 +627,98 @@ export default function Send() {
               <div className="space-y-3">
                 {filteredRecipients.map((recipient) => {
                   const blocked = canSendToRecipient(recipient);
+                  const isSelected = recipientId === recipient.id;
                   return (
-                    <motion.button
-                      type="button"
+                    <motion.div
                       key={recipient.id}
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setRecipientId(recipient.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          setRecipientId(recipient.id);
+                        }
+                      }}
                       whileHover={{ scale: 1.005 }}
-                      whileTap={{ scale: 0.995 }}
-                      className={`vv-choice-card ${recipientId === recipient.id ? 'vv-choice-card-active' : ''}`}
+                      className={`vv-choice-card group ${isSelected ? 'vv-choice-card-active' : ''}`}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
                           <span className="vv-country-badge h-10 w-10 rounded-xl text-xs">
                             {toCountryCode(recipient.country)}
                           </span>
-                          <div>
+                          <div className="min-w-0">
                             <div className="font-semibold text-gray-900">{recipient.name}</div>
-                            <div className="text-sm text-gray-500">{recipient.email}</div>
+                            <div className="text-sm text-gray-500 truncate">{recipient.email}</div>
                             <div className="text-xs text-gray-400">{recipient.country}</div>
+                            {blocked && (
+                              <div className="text-[11px] text-amber-700 mt-1 truncate">
+                                {blocked.message}
+                              </div>
+                            )}
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="text-xs text-gray-500">
-                            {blocked ? blocked.message : 'Ready to send'}
-                          </div>
-                          {recipientId === recipient.id && <Check className="w-5 h-5 text-primary-600 ml-auto" />}
+
+                        <div
+                          className={`flex items-center gap-2 shrink-0 transition-all duration-200 ${
+                            isSelected
+                              ? 'opacity-100 translate-x-0'
+                              : 'opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0'
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              goToAmountStep(recipient);
+                            }}
+                            disabled={!!blocked}
+                            className="rounded-lg border border-primary-300/70 bg-white/72 text-primary-900 text-xs font-semibold px-3 py-2 backdrop-blur-sm shadow-[0_8px_18px_-14px_rgba(12,74,110,0.28)] transition-all duration-200 hover:bg-primary-50/86 hover:border-primary-400/80 hover:shadow-[0_10px_20px_-14px_rgba(12,74,110,0.36)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 disabled:border-gray-200 disabled:bg-gray-100/90 disabled:text-gray-400 disabled:opacity-100 disabled:shadow-none"
+                          >
+                            Send
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              goToRequestStep(recipient);
+                            }}
+                            className="rounded-lg border border-gray-200 bg-white text-gray-700 text-xs font-semibold px-3 py-2 transition-colors hover:bg-gray-50"
+                          >
+                            Request
+                          </button>
                         </div>
                       </div>
-                    </motion.button>
+                    </motion.div>
                   );
                 })}
                 {filteredRecipients.length === 0 && (
-                  <div className="vv-surface-soft text-sm text-gray-500">
-                    No recipients match that search.
-                  </div>
+                  <>
+                    {!hasRecipients && !recipientSearch.trim() ? (
+                      <div className="vv-surface-soft text-sm text-gray-600">
+                        <p className="font-semibold text-gray-900">No recipients yet</p>
+                        <p className="mt-1">
+                          Add your first recipient to start a transfer.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => navigate('/connections')}
+                          className="mt-3 btn btn-secondary inline-flex items-center gap-2 text-sm"
+                        >
+                          <UserPlus className="h-4 w-4" />
+                          Add recipient
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="vv-surface-soft text-sm text-gray-500">
+                        No recipients match that search.
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
-              <div className="vv-surface-soft border-accent-200/40 bg-accent-50/80 text-sm text-accent-800">
-                Account level: {accountLevel.customerLabel} ({tier}) · Recipient limit:{' '}
-                {limits.recipientLimit >= 999 ? 'Unlimited' : limits.recipientLimit} · Cooling-off
-                window: {limits.coolingOffHours}h
-              </div>
-
-              <button
-                type="button"
-                onClick={goToAmountStep}
-                disabled={!canProceedRecipient}
-                className="w-full btn btn-primary py-3 text-lg disabled:opacity-50"
-              >
-                {selectedRecipient
-                  ? `Continue with ${selectedRecipient.name.split(' ')[0]}`
-                  : 'Select a recipient to continue'}
-              </button>
             </div>
           </motion.div>
         )}
@@ -864,7 +930,7 @@ export default function Send() {
                 disabled={!quote || !!validationError}
                 className="w-full btn btn-primary py-3 text-lg disabled:opacity-50"
               >
-                {validationError || quoteExpired ? 'Fix issues to continue' : 'Continue'}
+                {validationError || quoteExpired ? 'Resolve issues to review' : 'Review transfer'}
               </button>
             </div>
           </motion.div>
@@ -1031,7 +1097,7 @@ export default function Send() {
         )}
 
         <p className="text-[10px] text-gray-400 text-center mt-8 uppercase tracking-[0.14em]">
-          {accountLevel.customerLabel} ({tier}) · Up to ${limits.perTransaction.toFixed(2)} per transfer · Daily limit ${limits.daily.toFixed(2)}
+          {accountLevel.customerLabel} · Up to ${limits.perTransaction.toFixed(2)} per transfer · Daily limit ${limits.daily.toFixed(2)}
         </p>
       </div>
     </Layout>

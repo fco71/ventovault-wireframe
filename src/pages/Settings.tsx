@@ -203,7 +203,7 @@ export default function Settings() {
           </div>
           <div className="space-y-3">
             {[
-              { label: 'Account Level', value: `${accountLevel.shortName} (${tier})`, tone: 'success' },
+              { label: 'Account Level', value: accountLevel.shortName, tone: 'success' },
               { label: 'Source of Funds', value: 'On file', tone: 'success' },
               { label: 'Daily Send Limit', value: `$${limits.daily.toLocaleString()}`, tone: 'info' },
             ].map((item) => {

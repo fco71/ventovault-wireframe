@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Banknote, QrCode, Smartphone } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -14,6 +15,11 @@ const templates = [
   { title: 'Family Support', amount: 250, note: 'Weekly transfer' },
 ];
 
+interface ReceiveLocationState {
+  suggestedContact?: string;
+  suggestedNote?: string;
+}
+
 export default function Receive() {
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
@@ -21,7 +27,9 @@ export default function Receive() {
   const [autoReminder, setAutoReminder] = useState(true);
   const [requests, setRequests] = useState<ReceiveRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [routePrefillApplied, setRoutePrefillApplied] = useState(false);
   const { currentUser } = useAuth();
+  const location = useLocation();
 
   const shareLink = `https://ventovault.com/pay/${currentUser?.id || 'guest'}`;
 
@@ -49,6 +57,27 @@ export default function Receive() {
       mounted = false;
     };
   }, [currentUser]);
+
+  useEffect(() => {
+    if (routePrefillApplied) {
+      return;
+    }
+
+    const routeState = location.state as ReceiveLocationState | null;
+    if (!routeState) {
+      return;
+    }
+
+    if (routeState.suggestedNote && !note) {
+      setNote(routeState.suggestedNote);
+    }
+
+    if (routeState.suggestedContact) {
+      toast.success(`Request flow ready for ${routeState.suggestedContact}`);
+    }
+
+    setRoutePrefillApplied(true);
+  }, [location.state, note, routePrefillApplied]);
 
   const handleShare = async () => {
     if (navigator.share) {

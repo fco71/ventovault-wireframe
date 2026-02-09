@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../components/common/Layout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Search, Send, Star, X, Check, UserPlus, Lock, Users, ArrowRight } from 'lucide-react';
-import { Recipient } from '../types';
-import { recipientService } from '../services';
+import { Recipient, Transaction } from '../types';
+import { recipientService, transferService } from '../services';
 import { useAuth } from '../contexts/AuthContext';
 import { shortTimeAgo, toCurrency } from '../services/mock/utils';
 import { toast } from '../components/ui/Toast';
@@ -49,7 +49,9 @@ export default function Connections() {
   const [filter, setFilter] = useState<'all' | 'favorites'>('all');
   const [showAddForm, setShowAddForm] = useState(false);
   const [connections, setConnections] = useState<Recipient[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeRecipientId, setActiveRecipientId] = useState<string | null>(null);
   const [newConnection, setNewConnection] = useState({
     name: '',
     email: '',
@@ -64,13 +66,24 @@ export default function Connections() {
         return;
       }
 
-      const result = await recipientService.listRecipients(currentUser.id);
-      if (mounted && result.ok && result.data) {
-        setConnections(result.data);
+      const [recipientResult, transactionResult] = await Promise.all([
+        recipientService.listRecipients(currentUser.id),
+        transferService.listTransactions(currentUser.id),
+      ]);
+
+      if (!mounted) {
+        return;
       }
-      if (mounted) {
-        setLoading(false);
+
+      if (recipientResult.ok && recipientResult.data) {
+        setConnections(recipientResult.data);
       }
+
+      if (transactionResult.ok && transactionResult.data) {
+        setTransactions(transactionResult.data);
+      }
+
+      setLoading(false);
     }
 
     void loadRecipients();
@@ -79,6 +92,46 @@ export default function Connections() {
       mounted = false;
     };
   }, [currentUser]);
+
+  useEffect(() => {
+    if (!activeRecipientId) {
+      return;
+    }
+
+    if (!connections.some((connection) => connection.id === activeRecipientId)) {
+      setActiveRecipientId(null);
+    }
+  }, [activeRecipientId, connections]);
+
+  useEffect(() => {
+    if (!activeRecipientId) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [activeRecipientId]);
+
+  useEffect(() => {
+    if (!activeRecipientId) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setActiveRecipientId(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeRecipientId]);
 
   const filteredConnections = useMemo(
     () =>
@@ -95,6 +148,105 @@ export default function Connections() {
   const favoriteCount = useMemo(
     () => connections.filter((connection) => connection.isFavorite).length,
     [connections]
+  );
+
+  const activeRecipient = useMemo(
+    () => connections.find((connection) => connection.id === activeRecipientId) || null,
+    [activeRecipientId, connections]
+  );
+
+  const recipientTransfers = useMemo(() => {
+    if (!activeRecipient) {
+      return [];
+    }
+
+    return transactions
+      .filter((item) => item.type === 'send' && item.to.id === activeRecipient.id)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }, [activeRecipient, transactions]);
+
+  const recipientInsights = useMemo(() => {
+    if (!activeRecipient) {
+      return {
+        transferCount: 0,
+        averageAmount: 0,
+        totalSent: 0,
+        lastTransfer: null as Transaction | null,
+      };
+    }
+
+    const totalFromTransactions = recipientTransfers.reduce((sum, item) => sum + item.amount, 0);
+    const transferCount = recipientTransfers.length;
+
+    return {
+      transferCount,
+      averageAmount: transferCount > 0 ? totalFromTransactions / transferCount : 0,
+      totalSent: activeRecipient.totalSentUsd ?? totalFromTransactions,
+      lastTransfer: transferCount > 0 ? recipientTransfers[0] : null,
+    };
+  }, [activeRecipient, recipientTransfers]);
+
+  const suggestedAmounts = useMemo(() => {
+    if (!activeRecipient) {
+      return [];
+    }
+
+    const amountScore = new Map<number, { count: number; lastUsedAt: number }>();
+
+    recipientTransfers.forEach((item) => {
+      const amount = Math.round(item.amount);
+      const existing = amountScore.get(amount);
+      const nextCount = (existing?.count || 0) + 1;
+      const lastUsedAt = Math.max(existing?.lastUsedAt || 0, item.createdAt.getTime());
+      amountScore.set(amount, { count: nextCount, lastUsedAt });
+    });
+
+    if (amountScore.size === 0) {
+      const baseline = Math.max(50, Math.round(((activeRecipient.totalSentUsd || 300) / 6) / 50) * 50);
+      return [baseline, baseline + 100, baseline + 250];
+    }
+
+    return Array.from(amountScore.entries())
+      .sort((a, b) => {
+        if (b[1].count !== a[1].count) {
+          return b[1].count - a[1].count;
+        }
+        return b[1].lastUsedAt - a[1].lastUsedAt;
+      })
+      .slice(0, 3)
+      .map(([amount]) => amount);
+  }, [activeRecipient, recipientTransfers]);
+
+  function getBlockedReason(recipient: Recipient): string | null {
+    const recipientBadge = stateLabel(recipient);
+
+    if (recipientBadge.sendBlocked) {
+      if (recipient.state === 'flagged') {
+        return 'This recipient is restricted right now. Contact support for help.';
+      }
+
+      if (recipient.state === 'pending_validation') {
+        return 'This recipient is still validating and cannot receive transfers yet.';
+      }
+
+      if (recipient.state === 'validated_new' && recipient.coolingOffEndsAt) {
+        return `Cooling-off ends ${recipient.coolingOffEndsAt.toLocaleString()}.`;
+      }
+
+      return 'This recipient is not ready for transfers yet.';
+    }
+
+    return null;
+  }
+
+  const activeRecipientBadge = useMemo(
+    () => (activeRecipient ? stateLabel(activeRecipient) : null),
+    [activeRecipient]
+  );
+
+  const activeRecipientBlockedReason = useMemo(
+    () => (activeRecipient ? getBlockedReason(activeRecipient) : null),
+    [activeRecipient]
   );
 
   const toggleFavorite = async (id: string) => {
@@ -136,29 +288,24 @@ export default function Connections() {
   };
 
   const openRecipient = (recipient: Recipient) => {
-    const recipientBadge = stateLabel(recipient);
+    setActiveRecipientId(recipient.id);
+  };
 
-    if (recipientBadge.sendBlocked) {
-      if (recipient.state === 'flagged') {
-        toast.error('This recipient is restricted right now. Contact support for help.');
-        return;
-      }
-
-      if (recipient.state === 'pending_validation') {
-        toast.error('This recipient is still validating and cannot receive transfers yet.');
-        return;
-      }
-
-      if (recipient.state === 'validated_new' && recipient.coolingOffEndsAt) {
-        toast.error(`Cooling-off ends ${recipient.coolingOffEndsAt.toLocaleString()}.`);
-        return;
-      }
-
-      toast.error('This recipient is not ready for transfers yet.');
+  const startTransfer = (recipient: Recipient, amount?: number, note?: string) => {
+    const blockedReason = getBlockedReason(recipient);
+    if (blockedReason) {
+      toast.error(blockedReason);
       return;
     }
 
-    navigate('/send', { state: { recipientId: recipient.id } });
+    navigate('/send', {
+      state: {
+        recipientId: recipient.id,
+        presetAmount: amount,
+        presetNote: note,
+        focusStep: 'amount',
+      },
+    });
   };
 
   return (
@@ -298,7 +445,7 @@ export default function Connections() {
             </div>
           </div>
           <div className="mt-3 text-xs text-gray-500">
-            Tip: click any person card to start a transfer instantly.
+            Tip: click any person to open their quick transfer profile.
           </div>
         </motion.div>
 
@@ -444,7 +591,7 @@ export default function Connections() {
                       <div className={`hidden lg:flex items-center gap-1 text-xs font-semibold ${
                         badge.sendBlocked ? 'text-gray-400' : 'text-primary-700'
                       }`}>
-                        <span>{badge.sendBlocked ? 'Blocked' : 'Send now'}</span>
+                        <span>{badge.sendBlocked ? 'Blocked' : 'Open profile'}</span>
                         <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                       </div>
 
@@ -468,7 +615,7 @@ export default function Connections() {
                           type="button"
                           onClick={(event) => {
                             event.stopPropagation();
-                            openRecipient(connection);
+                            startTransfer(connection);
                           }}
                           aria-disabled={badge.sendBlocked}
                           className={`p-2 rounded-lg transition-all ${
@@ -489,6 +636,161 @@ export default function Connections() {
             </div>
           </div>
         )}
+
+        <AnimatePresence>
+          {activeRecipient && (
+            <>
+              <motion.button
+                type="button"
+                aria-label="Close recipient profile"
+                className="vv-drawer-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setActiveRecipientId(null)}
+              />
+
+              <motion.aside
+                initial={{ x: 420, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 420, opacity: 0 }}
+                transition={{ duration: 0.28, ease: smoothEase }}
+                className="vv-drawer"
+                role="dialog"
+                aria-modal="true"
+                aria-label={`${activeRecipient.name} quick profile`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 text-white flex items-center justify-center text-sm font-bold">
+                      {activeRecipient.name
+                        .split(' ')
+                        .map((part) => part[0])
+                        .join('')
+                        .toUpperCase()
+                        .slice(0, 2)}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 font-display">{activeRecipient.name}</h3>
+                      <p className="text-sm text-gray-500">{activeRecipient.email}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveRecipientId(null)}
+                    className="p-2 rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <span className="vv-country-badge h-7 w-10 rounded-lg text-[10px]">
+                    {toCountryCode(activeRecipient.country)}
+                  </span>
+                  <span className={activeRecipientBadge?.className}>{activeRecipientBadge?.label}</span>
+                  <span className="text-xs text-gray-500">{activeRecipient.country}</span>
+                </div>
+
+                {activeRecipientBlockedReason && (
+                  <div className="mt-4 vv-surface-soft border-amber-200 bg-amber-50/85 text-amber-800 text-sm">
+                    {activeRecipientBlockedReason}
+                  </div>
+                )}
+
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  <div className="vv-metric-tile">
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Total Sent</p>
+                    <p className="text-sm font-semibold text-gray-900 mt-1">{toCurrency(recipientInsights.totalSent)}</p>
+                  </div>
+                  <div className="vv-metric-tile">
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Transfers</p>
+                    <p className="text-sm font-semibold text-gray-900 mt-1">{recipientInsights.transferCount}</p>
+                  </div>
+                  <div className="vv-metric-tile">
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Avg Amount</p>
+                    <p className="text-sm font-semibold text-gray-900 mt-1">
+                      {recipientInsights.transferCount > 0 ? toCurrency(recipientInsights.averageAmount) : '$0.00'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <p className="text-xs uppercase tracking-[0.16em] text-gray-500">Smart Amounts</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {suggestedAmounts.map((amount) => (
+                      <button
+                        key={`${activeRecipient.id}-${amount}`}
+                        type="button"
+                        onClick={() => startTransfer(activeRecipient, amount)}
+                        className={`vv-quick-amount ${activeRecipientBlockedReason ? 'opacity-50' : ''}`}
+                        disabled={!!activeRecipientBlockedReason}
+                      >
+                        ${amount.toLocaleString()}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <p className="text-xs uppercase tracking-[0.16em] text-gray-500">Recent Transfers</p>
+                  <div className="mt-2 space-y-2">
+                    {recipientTransfers.length === 0 ? (
+                      <div className="vv-surface-soft text-sm text-gray-500">
+                        No transfer history yet. Start with a first transfer to build smart suggestions.
+                      </div>
+                    ) : (
+                      recipientTransfers.slice(0, 4).map((transfer) => (
+                        <button
+                          key={transfer.id}
+                          type="button"
+                          onClick={() => startTransfer(activeRecipient, transfer.amount, transfer.note)}
+                          className={`vv-surface-soft w-full text-left ${activeRecipientBlockedReason ? 'opacity-50' : 'hover:-translate-y-0.5'}`}
+                          disabled={!!activeRecipientBlockedReason}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold text-gray-900">{toCurrency(transfer.amount)}</p>
+                              <p className="text-xs text-gray-500 mt-0.5">
+                                {transfer.note || 'No note'} · {shortTimeAgo(transfer.createdAt)}
+                              </p>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-gray-400" />
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-6 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => startTransfer(activeRecipient)}
+                    disabled={!!activeRecipientBlockedReason}
+                    className="btn btn-primary flex-1"
+                  >
+                    {activeRecipientBlockedReason ? 'Not Available Yet' : 'Start Transfer'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveRecipientId(null)}
+                    className="btn btn-secondary"
+                  >
+                    Close
+                  </button>
+                </div>
+
+                {recipientInsights.lastTransfer && (
+                  <div className="mt-4 text-xs text-gray-500">
+                    Last transfer: {toCurrency(recipientInsights.lastTransfer.amount)}{' '}
+                    {shortTimeAgo(recipientInsights.lastTransfer.createdAt)}
+                  </div>
+                )}
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
       </div>
     </Layout>
   );

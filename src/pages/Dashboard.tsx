@@ -174,6 +174,10 @@ export default function Dashboard() {
     () => recentTransactions.filter((tx) => tx.status !== 'completed').length,
     [recentTransactions]
   );
+  const lastSendTransaction = useMemo(
+    () => recentTransactions.find((tx) => tx.type === 'send') || null,
+    [recentTransactions]
+  );
 
   const stats = useMemo(() => {
     if (!dashboardData) {
@@ -212,6 +216,21 @@ export default function Dashboard() {
   const hasTransactions = !loading && recentTransactions.length > 0;
   const isEmpty = !loading && recentTransactions.length === 0;
 
+  const repeatTransfer = (tx: Transaction) => {
+    if (tx.type !== 'send') {
+      return;
+    }
+
+    navigate('/send', {
+      state: {
+        recipientId: tx.to.id,
+        presetAmount: tx.amount,
+        presetNote: tx.note,
+        focusStep: 'amount',
+      },
+    });
+  };
+
   return (
     <Layout>
       <div className="max-w-5xl mx-auto pb-20 md:pb-6">
@@ -228,6 +247,16 @@ export default function Dashboard() {
             <span className="vv-chip vv-chip-hot">{recentTransactions.length} transfers</span>
             {pendingCount > 0 && (
               <span className="vv-chip vv-chip-accent">{pendingCount} pending</span>
+            )}
+            {lastSendTransaction && (
+              <button
+                type="button"
+                onClick={() => repeatTransfer(lastSendTransaction)}
+                className="vv-chip text-primary-700 hover:text-primary-800 hover:border-primary-200 transition-colors"
+              >
+                Repeat last transfer
+                <ArrowRight className="w-3 h-3" />
+              </button>
             )}
           </motion.div>
         )}
@@ -351,11 +380,19 @@ export default function Dashboard() {
                           </div>
 
                           <div className="flex items-center gap-3">
-                            {/* Quick action — appears on hover */}
-                            <span className="vv-row-action text-[11px] font-semibold text-primary-600 flex items-center gap-1">
-                              Send again
-                              <ArrowRight className="w-3 h-3" />
-                            </span>
+                            {tx.type === 'send' && (
+                              <button
+                                type="button"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  repeatTransfer(tx);
+                                }}
+                                className="vv-row-action text-[11px] font-semibold text-primary-600 flex items-center gap-1 hover:text-primary-700"
+                              >
+                                Send again
+                                <ArrowRight className="w-3 h-3" />
+                              </button>
+                            )}
                             <div className="text-right">
                               <p className="text-[13px] font-semibold text-gray-900">
                                 {tx.type === 'send' ? '-' : '+'}${Math.abs(tx.amount).toFixed(2)}
