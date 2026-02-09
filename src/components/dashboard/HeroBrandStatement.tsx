@@ -27,11 +27,11 @@ export default function HeroBrandStatement() {
         </p>
 
         <h1 className="text-[1.55rem] md:text-[2rem] font-bold text-gray-950 font-display tracking-tight leading-[1.1] mb-2 max-w-2xl">
-          What would you like to do?
+          Move money globally with total clarity.
         </h1>
 
         <p className="text-[13px] text-gray-500 max-w-md mb-5 leading-relaxed">
-          Send money abroad or request a payment — fast, transparent, and under your control.
+          Send or request in seconds, with exact totals and delivery amounts before you confirm.
         </p>
 
         <div className="flex flex-wrap gap-3">

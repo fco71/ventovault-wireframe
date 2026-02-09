@@ -26,6 +26,8 @@ interface LocationState {
   presetAmount?: number;
   presetNote?: string;
   focusStep?: Exclude<Step, 'success'>;
+  resetFlow?: boolean;
+  resetToken?: number;
 }
 
 export default function Send() {
@@ -227,6 +229,24 @@ export default function Send() {
       }
 
       const routeState = location.state as LocationState | null;
+      const shouldResetFlow = !!routeState?.resetFlow;
+
+      if (shouldResetFlow) {
+        setStep('recipient');
+        setRecipientSearch('');
+        setRecipientId('');
+        setSourceAmount('');
+        setTargetAmount('');
+        setNote('');
+        setQuote(null);
+        setQuoteError('');
+        setValidationMessage('');
+        setAcceptDisclosure(false);
+        setLastIntentId(null);
+        setMode('send_exact');
+        setFundingMethod('ach');
+      }
+
       const [recipientResult, usageResult] = await Promise.all([
         recipientService.listRecipients(currentUser.id),
         transferService.getUsage(currentUser.id),
@@ -245,16 +265,16 @@ export default function Send() {
         }
       }
 
-      if (routeState?.presetAmount && routeState.presetAmount > 0) {
+      if (!shouldResetFlow && routeState?.presetAmount && routeState.presetAmount > 0) {
         setMode('send_exact');
         setSourceAmount(routeState.presetAmount.toFixed(2));
       }
 
-      if (routeState?.presetNote) {
+      if (!shouldResetFlow && routeState?.presetNote) {
         setNote(routeState.presetNote);
       }
 
-      if (routeState?.focusStep === 'amount' && routeState?.recipientId) {
+      if (!shouldResetFlow && routeState?.focusStep === 'amount' && routeState?.recipientId) {
         setStep('amount');
       }
 

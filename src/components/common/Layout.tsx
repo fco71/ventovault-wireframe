@@ -30,6 +30,16 @@ export default function Layout({ children }: LayoutProps) {
   const firstName = currentUser?.displayName?.split(' ')[0] || 'User';
   const firstInitial = firstName.charAt(0).toUpperCase();
 
+  const navigateToSendHome = () => {
+    navigate('/send', {
+      replace: location.pathname === '/send',
+      state: {
+        resetFlow: true,
+        resetToken: Date.now(),
+      },
+    });
+  };
+
   const navItems = [
     { path: '/dashboard', label: 'Home', icon: 'Home' as const },
     { path: '/send', label: 'Send', icon: 'ArrowUpRight' as const },
@@ -77,6 +87,20 @@ export default function Layout({ children }: LayoutProps) {
                 {navItems.map((item) => {
                   const isActive = location.pathname === item.path;
                   const IconComponent = iconComponents[item.icon];
+                  if (item.path === '/send') {
+                    return (
+                      <button
+                        key={item.path}
+                        type="button"
+                        onClick={navigateToSendHome}
+                        aria-current={isActive ? 'page' : undefined}
+                        className={`vv-nav-link border-0 bg-transparent ${isActive ? 'vv-nav-link-active' : ''}`}
+                      >
+                        <IconComponent className="w-4 h-4" />
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  }
                   return (
                     <Link
                       key={item.path}
@@ -132,6 +156,23 @@ export default function Layout({ children }: LayoutProps) {
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               const IconComponent = iconComponents[item.icon];
+              if (item.path === '/send') {
+                return (
+                  <button
+                    key={item.path}
+                    type="button"
+                    onClick={navigateToSendHome}
+                    aria-label={item.label}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`vv-mobile-link border-0 bg-transparent ${isActive ? 'vv-mobile-link-active' : ''}`}
+                  >
+                    <IconComponent className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
+                    <span className={`text-[9px] mt-1 font-semibold tracking-wide ${isActive ? 'text-gray-900' : 'text-gray-400'}`}>
+                      {item.label}
+                    </span>
+                  </button>
+                );
+              }
               return (
                 <Link
                   key={item.path}
