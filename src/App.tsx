@@ -2,10 +2,13 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { DemoModeProvider } from './contexts/DemoModeContext';
 import ToastProvider from './components/ui/Toast';
 import PageTransition from './components/animations/PageTransition';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import RouteFallback from './components/common/RouteFallback';
+import DemoModeOverlay from './components/common/DemoModeOverlay';
+import DemoModeToggle from './components/common/DemoModeToggle';
 
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
@@ -115,8 +118,12 @@ function App() {
     <Router>
       <ErrorBoundary>
         <AuthProvider>
-          <ToastProvider />
-          <AppRoutes />
+          <DemoModeProvider>
+            <ToastProvider />
+            <AppRoutes />
+            <DemoModeOverlay />
+            <DemoModeToggle />
+          </DemoModeProvider>
         </AuthProvider>
       </ErrorBoundary>
     </Router>
