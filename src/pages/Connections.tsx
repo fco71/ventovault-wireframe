@@ -23,17 +23,17 @@ const avatarColors = [
 
 function stateLabel(recipient: Recipient): { label: string; className: string; sendBlocked: boolean } {
   if (recipient.state === 'flagged') {
-    return { label: 'Flagged', className: 'text-[10px] font-medium text-error-700 bg-error-50 px-1.5 py-0.5 rounded-full', sendBlocked: true };
+    return { label: 'Restricted', className: 'text-[10px] font-medium text-error-700 bg-error-50 px-1.5 py-0.5 rounded-full', sendBlocked: true };
   }
 
   if (recipient.state === 'pending_validation') {
-    return { label: 'Validating', className: 'text-[10px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-full', sendBlocked: true };
+    return { label: 'Setting up', className: 'text-[10px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-full', sendBlocked: true };
   }
 
   if (recipient.state === 'validated_new') {
     const coolingActive = recipient.coolingOffEndsAt ? recipient.coolingOffEndsAt.getTime() > Date.now() : false;
     return {
-      label: coolingActive ? 'Cooling Off' : 'Newly Validated',
+      label: coolingActive ? 'Available soon' : 'New',
       className: 'text-[10px] font-medium text-primary-700 bg-primary-50 px-1.5 py-0.5 rounded-full',
       sendBlocked: coolingActive,
     };
@@ -222,18 +222,18 @@ export default function Connections() {
 
     if (recipientBadge.sendBlocked) {
       if (recipient.state === 'flagged') {
-        return 'This recipient is restricted right now. Contact support for help.';
+        return 'This person is temporarily restricted. Please contact support.';
       }
 
       if (recipient.state === 'pending_validation') {
-        return 'This recipient is still validating and cannot receive transfers yet.';
+        return 'We\u0027re still setting up this person. This usually takes a few minutes.';
       }
 
       if (recipient.state === 'validated_new' && recipient.coolingOffEndsAt) {
-        return `Cooling-off ends ${recipient.coolingOffEndsAt.toLocaleString()}.`;
+        return `You can send to this person after ${recipient.coolingOffEndsAt.toLocaleString()}.`;
       }
 
-      return 'This recipient is not ready for transfers yet.';
+      return 'This person isn\u0027t ready to receive transfers yet.';
     }
 
     return null;
@@ -716,7 +716,7 @@ export default function Connections() {
                 </div>
 
                 <div className="mt-5">
-                  <p className="text-xs uppercase tracking-[0.16em] text-gray-500">Smart Amounts</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-gray-500">Suggested amounts</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {suggestedAmounts.map((amount) => (
                       <button
@@ -737,7 +737,7 @@ export default function Connections() {
                   <div className="mt-2 space-y-2">
                     {recipientTransfers.length === 0 ? (
                       <div className="vv-surface-soft text-sm text-gray-500">
-                        No transfer history yet. Start with a first transfer to build smart suggestions.
+                        No transfers yet. Send money to see your history here.
                       </div>
                     ) : (
                       recipientTransfers.slice(0, 4).map((transfer) => (

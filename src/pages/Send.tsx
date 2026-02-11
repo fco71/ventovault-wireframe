@@ -562,7 +562,7 @@ export default function Send() {
           className="vv-hero"
         >
           <div className="flex flex-wrap items-center gap-2.5 mb-5">
-            <span className="vv-chip vv-chip-hot">Live exchange quote</span>
+            <span className="vv-chip vv-chip-hot">Real-time quote</span>
             <span className="vv-chip">{accountLevel.shortName}</span>
             <span className="vv-chip vv-chip-accent">
               Balance ${(currentUser?.balance || 0).toFixed(2)}
@@ -572,8 +572,7 @@ export default function Send() {
             Send money with clear totals before you pay
           </h1>
           <p className="text-sm text-gray-600 mt-3 max-w-2xl">
-            Pick a recipient, lock a live quote, and confirm exactly what you pay and what they
-            receive.
+            Choose who to send to, see the exact cost, and confirm before anything leaves your account.
           </p>
         </motion.div>
 
@@ -789,7 +788,7 @@ export default function Send() {
               <p className="text-xs text-gray-500">
                 {mode === 'send_exact'
                   ? 'You choose exactly how much leaves your account.'
-                  : 'Your recipient gets the exact amount, and your total debit adjusts with live FX and fees.'}
+                  : 'Your recipient gets the exact amount. Your total adjusts based on the exchange rate and fees.'}
               </p>
 
               <div>
@@ -842,7 +841,7 @@ export default function Send() {
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Market reference</span>
+                      <span className="text-gray-600">Market rate</span>
                       <span className="font-semibold text-gray-900">{quote.midMarketRate}</span>
                     </div>
                     <div className="flex justify-between text-sm">
@@ -850,7 +849,7 @@ export default function Send() {
                       <span className="font-semibold text-gray-900">${quote.sourceAmount.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Fees and network</span>
+                      <span className="text-gray-600">Fees</span>
                       <span className="font-semibold text-gray-900">
                         ${(quote.feeAmount + quote.networkCost).toFixed(2)}
                       </span>
@@ -880,7 +879,7 @@ export default function Send() {
                 <FxTicker
                   pair={`USD → ${quote.destinationCurrency}`}
                   baseRate={quote.rate}
-                  label="Live FX"
+                  label="Exchange rate"
                   className="mt-4"
                 />
               )}
@@ -888,7 +887,7 @@ export default function Send() {
               <div className="vv-surface-soft">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Funding Method</div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Payment method</div>
                     <div className="font-semibold text-gray-900">Choose how you want to pay</div>
                   </div>
                 </div>
@@ -900,8 +899,8 @@ export default function Send() {
                       fundingMethod === 'ach' ? 'vv-choice-card-active' : ''
                     }`}
                   >
-                    <div className="font-semibold text-gray-900">ACH</div>
-                    <div className="text-xs text-gray-500">Bank transfer · 1-2 business days · no extra fee</div>
+                    <div className="font-semibold text-gray-900">Bank transfer</div>
+                    <div className="text-xs text-gray-500">From your bank account · 1-2 business days · no extra fee</div>
                   </button>
                   <button
                     type="button"
@@ -919,9 +918,9 @@ export default function Send() {
                   </button>
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-4">
-                  <div className="text-sm text-gray-600">FX Shield holds your quoted rate until it expires.</div>
+                  <div className="text-sm text-gray-600">Lock your exchange rate so it doesn't change while you confirm.</div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">FX Shield</span>
+                    <span className="text-xs text-gray-500">Rate lock</span>
                     <Toggle checked={fxShield} onChange={setFxShield} />
                   </div>
                 </div>
@@ -1007,8 +1006,8 @@ export default function Send() {
                   <span className="font-semibold text-gray-900">${quote.totalDebitAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Funding method</span>
-                  <span className="font-semibold text-gray-900">{fundingMethod === 'ach' ? 'ACH' : 'Debit Card'}</span>
+                  <span className="text-gray-600">Payment method</span>
+                  <span className="font-semibold text-gray-900">{fundingMethod === 'ach' ? 'Bank transfer' : 'Debit Card'}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Quote expiry</span>
@@ -1082,7 +1081,7 @@ export default function Send() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2 font-display">
               Money sent successfully!
             </h2>
-            <p className="text-gray-600 mb-6">Your transfer is confirmed and now visible in activity tracking.</p>
+            <p className="text-gray-600 mb-6">Your transfer is confirmed. You can track it in your activity.</p>
 
             <div className="vv-surface-soft space-y-3 mb-6 text-left">
               <div className="flex justify-between">

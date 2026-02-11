@@ -53,7 +53,7 @@ export default function Login() {
         <div className="relative z-10 space-y-8">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/70 border border-white/60 px-4 py-2 text-xs font-semibold text-gray-700 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
-            Live rails and real-time FX
+            Transfers powered by real-time rates
           </div>
           <h1 className="text-5xl font-semibold text-gray-900 leading-tight font-display">
             Move money<br />at the speed of trust
@@ -66,7 +66,7 @@ export default function Login() {
               { label: 'Annual Volume', value: '$10.2B' },
               { label: 'Success Rate', value: '98%' },
               { label: 'Avg. Delivery', value: '2 min' },
-              { label: 'Supported Markets', value: '120+' },
+              { label: 'Countries', value: '120+' },
             ].map((stat) => (
               <div key={stat.label} className="card p-4">
                 <div className="text-2xl font-semibold text-gray-900">{stat.value}</div>
@@ -95,7 +95,7 @@ export default function Login() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-3xl font-semibold text-gray-900 font-display">Welcome back</h2>
-                <p className="text-gray-600 mt-2">Log in to continue your money flow.</p>
+                <p className="text-gray-600 mt-2">Log in to your account.</p>
               </div>
               <div className="hidden sm:flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
                 Secure

@@ -123,7 +123,7 @@ export function validateModeForTier(
   if (mode === 'receive_exact' && !limits.allowReceiveExact) {
     return {
       code: 'TIER_MODE_RESTRICTED',
-      message: 'Exact delivery mode is available on Verified and Business accounts.',
+      message: 'Setting an exact delivery amount requires a Verified or Business account.',
     };
   }
   return null;
@@ -137,7 +137,7 @@ export function validateFundingMethodForTier(
   if (fundingMethod === 'debit_card' && !limits.allowDebitCard) {
     return {
       code: 'TIER_FUNDING_RESTRICTED',
-      message: 'Debit card funding is available on Verified and Business accounts.',
+      message: 'Paying with a debit card requires a Verified or Business account.',
     };
   }
   return null;
@@ -186,14 +186,14 @@ export function canSendToRecipient(recipient: Recipient): TransferMachineError |
   if (recipient.state === 'flagged') {
     return {
       code: 'RECIPIENT_FLAGGED',
-      message: 'This recipient is currently restricted. Contact support.',
+      message: 'This person is temporarily restricted. Please contact support.',
     };
   }
 
   if (recipient.state === 'pending_validation') {
     return {
       code: 'RECIPIENT_COOLING_OFF',
-      message: 'This recipient is still validating and cannot receive transfers yet.',
+      message: 'We\'re still setting up this person. This usually takes a few minutes.',
     };
   }
 
@@ -204,7 +204,7 @@ export function canSendToRecipient(recipient: Recipient): TransferMachineError |
   ) {
     return {
       code: 'RECIPIENT_COOLING_OFF',
-      message: 'This recipient is in the cooling-off window. Please try again later.',
+      message: 'This person was just added. You can send to them shortly.',
     };
   }
 

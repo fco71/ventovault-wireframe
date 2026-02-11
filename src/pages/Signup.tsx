@@ -66,17 +66,17 @@ export default function Signup() {
 
         <div className="relative z-10 space-y-8">
           <h1 className="text-5xl font-semibold text-gray-900 leading-tight font-display">
-            Join the<br />global money grid
+            Send money<br />anywhere in the world
           </h1>
           <p className="text-lg text-gray-600 max-w-lg">
-            Create your vault and unlock instant payouts, smart routing, and a multi-currency wallet built for the next decade.
+            Fast, secure international transfers with real-time exchange rates and no hidden fees.
           </p>
           <div className="grid grid-cols-2 gap-4 pt-4">
             {[
               { icon: Zap, label: 'Instant transfers', desc: 'Minutes, not days' },
               { icon: Lock, label: 'Bank-level security', desc: 'Encrypted end-to-end' },
               { icon: Zap, label: 'Transparent fees', desc: 'No hidden margins' },
-              { icon: Lock, label: 'Smart routing', desc: 'Optimized paths' },
+              { icon: Lock, label: 'Best rates', desc: 'Always competitive' },
             ].map((feature, index) => (
               <div key={`${feature.label}-${index}`} className="card p-4">
                 <div className="w-10 h-10 rounded-xl bg-primary-50 text-primary-700 flex items-center justify-center mb-3">

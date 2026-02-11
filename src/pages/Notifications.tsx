@@ -109,13 +109,13 @@ export default function Notifications() {
           <div className="flex flex-wrap items-center gap-2.5 mb-5">
             <span className="vv-chip vv-chip-hot">{notifications.length} total alerts</span>
             <span className="vv-chip">{totalUnread} unread</span>
-            <span className="vv-chip vv-chip-accent">{signalOnly ? 'Signal mode on' : 'All events'}</span>
+            <span className="vv-chip vv-chip-accent">{signalOnly ? 'Important only' : 'All notifications'}</span>
           </div>
           <h1 className="text-3xl md:text-[2.2rem] font-bold text-gray-950 font-display leading-tight">
-            Notification signal center
+            Notifications
           </h1>
           <p className="text-sm text-gray-600 mt-3 max-w-2xl">
-            Monitor transfer, security, and compliance events in one high-focus stream.
+            Stay up to date on your transfers, security alerts, and account updates.
           </p>
         </motion.div>
 
@@ -127,12 +127,12 @@ export default function Notifications() {
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Signal Mode</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Filter</div>
               <div className="font-semibold text-gray-900 font-display mt-1">
-                Focus on high-signal alerts
+                Show important alerts only
               </div>
               <p className="text-sm text-gray-600 mt-2">
-                Prioritize security and transfer events. Hide low-impact promotions.
+                Only show transfer and security updates. Hide promotions.
               </p>
             </div>
             <Toggle checked={signalOnly} onChange={setSignalOnly} />
@@ -152,7 +152,7 @@ export default function Notifications() {
                 <div className="font-semibold text-primary-900">
                   You have {unreadCount} unread notifications
                 </div>
-                <div className="text-sm text-primary-700">Stay on top of account-critical events</div>
+                <div className="text-sm text-primary-700">Tap to mark them as read</div>
               </div>
             </div>
             <button

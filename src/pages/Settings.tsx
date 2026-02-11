@@ -101,7 +101,7 @@ export default function Settings() {
             Account and transfer settings
           </h1>
           <p className="text-sm text-gray-600 mt-3 max-w-2xl">
-            Manage your profile, transfer preferences, notifications, and compliance settings.
+            Manage your profile, transfer preferences, and notifications.
           </p>
         </motion.div>
 
@@ -152,9 +152,9 @@ export default function Settings() {
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-semibold text-gray-900 font-display">Smart Automations</h3>
+              <h3 className="font-semibold text-gray-900 font-display">Transfer preferences</h3>
               <p className="text-sm text-gray-600 mt-1">
-                Let VentoVault optimize transfers for speed and safety.
+                Customize how your transfers are handled.
               </p>
             </div>
             <span className="badge badge-info">Beta</span>
@@ -162,25 +162,25 @@ export default function Settings() {
           <div className="space-y-3">
             <div className="vv-choice-card flex items-center justify-between gap-4">
               <div>
-                <div className="font-semibold text-gray-900">Auto-route transfers</div>
+                <div className="font-semibold text-gray-900">Fastest delivery</div>
                 <div className="text-sm text-gray-600">
-                  Always pick the fastest rail and payout partner.
+                  Automatically choose the quickest delivery route.
                 </div>
               </div>
               <Toggle checked={autoRoute} onChange={setAutoRoute} />
             </div>
             <div className="vv-choice-card flex items-center justify-between gap-4">
               <div>
-                <div className="font-semibold text-gray-900">FX Shield</div>
-                <div className="text-sm text-gray-600">Lock best rates for 10 minutes at checkout.</div>
+                <div className="font-semibold text-gray-900">Rate lock</div>
+                <div className="text-sm text-gray-600">Hold your exchange rate for 10 minutes while you confirm.</div>
               </div>
               <Toggle checked={autoShield} onChange={setAutoShield} />
             </div>
             <div className="vv-choice-card flex items-center justify-between gap-4">
               <div>
-                <div className="font-semibold text-gray-900">Priority alerts</div>
+                <div className="font-semibold text-gray-900">Important alerts only</div>
                 <div className="text-sm text-gray-600">
-                  Only notify on security or payment-critical events.
+                  Only get notified about transfers and security updates.
                 </div>
               </div>
               <Toggle checked={priorityAlerts} onChange={setPriorityAlerts} />
@@ -196,8 +196,8 @@ export default function Settings() {
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-semibold text-gray-900 font-display">Compliance & Limits</h3>
-              <p className="text-sm text-gray-600 mt-1">Current account level and sending limits.</p>
+              <h3 className="font-semibold text-gray-900 font-display">Account level & limits</h3>
+              <p className="text-sm text-gray-600 mt-1">Your current account status and how much you can send.</p>
             </div>
             <span className="badge badge-success">{accountLevel.shortName}</span>
           </div>

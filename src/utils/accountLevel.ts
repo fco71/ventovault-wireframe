@@ -18,19 +18,19 @@ const accountLevels: Record<VerificationTier, AccountLevelCopy> = {
     code: 'L20',
     shortName: 'Basic',
     customerLabel: 'Basic account',
-    summary: 'Send with core limits and ACH funding.',
+    summary: 'Send money with standard limits.',
   },
   L30: {
     code: 'L30',
     shortName: 'Verified',
     customerLabel: 'Verified account',
-    summary: 'Higher limits with ACH and debit funding.',
+    summary: 'Higher limits and more payment options.',
   },
   L40: {
     code: 'L40',
     shortName: 'Business',
     customerLabel: 'Business account',
-    summary: 'High-volume sending for business operations.',
+    summary: 'Higher limits for business needs.',
   },
 };
 
@@ -40,6 +40,6 @@ export function getAccountLevel(tier: VerificationTier): AccountLevelCopy {
 
 export function formatAccountLevel(tier: VerificationTier): string {
   const level = getAccountLevel(tier);
-  return `${level.customerLabel} (${level.code})`;
+  return level.customerLabel;
 }
 
