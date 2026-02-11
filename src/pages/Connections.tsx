@@ -312,35 +312,28 @@ export default function Connections() {
     <Layout>
       <div className="max-w-5xl mx-auto pb-20 md:pb-6 space-y-6">
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: smoothEase }}
-          className="vv-hero"
+          transition={{ duration: 0.35, ease: smoothEase }}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
         >
-          <div className="flex flex-wrap items-center gap-2.5 mb-5">
-            <span className="vv-chip vv-chip-hot">{connections.length} connections</span>
-            <span className="vv-chip">{favoriteCount} favorites</span>
-            <span className="vv-chip vv-chip-accent">{filteredConnections.length} visible now</span>
+          <div>
+            <h1 className="text-[1.35rem] md:text-[1.6rem] font-bold text-gray-950 font-display tracking-tight">
+              People
+            </h1>
+            <p className="text-[13px] text-gray-500 mt-0.5">
+              {connections.length} recipients{favoriteCount > 0 ? ` · ${favoriteCount} favorites` : ''}
+            </p>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl md:text-[2.2rem] font-bold text-gray-950 font-display tracking-tight leading-tight">
-                People
-              </h1>
-              <p className="text-sm text-gray-600 mt-3 max-w-2xl">
-                Your saved recipients. Add someone new or send money to an existing contact.
-              </p>
-            </div>
-            <motion.button
-              onClick={() => setShowAddForm(true)}
-              className="btn btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm"
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <Plus className="w-4 h-4" />
-              Add Person
-            </motion.button>
-          </div>
+          <motion.button
+            onClick={() => setShowAddForm(true)}
+            className="btn btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-[13px]"
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <Plus className="w-4 h-4" />
+            Add Person
+          </motion.button>
         </motion.div>
 
         <AnimatePresence>
@@ -570,7 +563,7 @@ export default function Connections() {
                         </div>
                         {connection.state === 'validated_new' && connection.coolingOffEndsAt && connection.coolingOffEndsAt.getTime() > Date.now() && (
                           <div className="text-[11px] text-amber-700 mt-1">
-                            Cooling-off ends {connection.coolingOffEndsAt.toLocaleString()}
+                            Available after {connection.coolingOffEndsAt.toLocaleDateString()}
                           </div>
                         )}
                       </div>

@@ -261,21 +261,27 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* KPI cards — skeleton or real */}
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="show"
-          className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 mb-5"
-        >
-          {loading ? (
-            <>
-              <KpiSkeleton />
-              <KpiSkeleton />
-              <KpiSkeleton />
-            </>
-          ) : (
-            stats.map((stat) => (
+        {/* KPI cards — skeleton while loading, hidden when no data */}
+        {loading && (
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 mb-5"
+          >
+            <KpiSkeleton />
+            <KpiSkeleton />
+            <KpiSkeleton />
+          </motion.div>
+        )}
+        {hasTransactions && (
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 mb-5"
+          >
+            {stats.map((stat) => (
               <motion.div
                 key={stat.label}
                 variants={staggerItem}
@@ -294,9 +300,9 @@ export default function Dashboard() {
                   {stat.label}
                 </p>
               </motion.div>
-            ))
-          )}
-        </motion.div>
+            ))}
+          </motion.div>
+        )}
 
         {/* Empty state */}
         {isEmpty && <EmptyDashboard />}

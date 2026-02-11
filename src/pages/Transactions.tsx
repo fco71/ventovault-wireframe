@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../components/common/Layout';
-import { ArrowUpRight, ArrowDownLeft, Download, Search, Filter, Sparkles } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Download, Search } from 'lucide-react';
 import Badge from '../components/ui/Badge';
 import Timeline from '../components/ui/Timeline';
 import { transferService } from '../services';
@@ -97,7 +97,7 @@ export default function Transactions() {
       return [
         {
           title: 'Select a transfer',
-          subtitle: 'Choose a transaction to inspect detailed stages',
+          subtitle: 'Choose a transaction to see its details',
           time: 'Now',
           tone: 'neutral' as const,
         },
@@ -108,7 +108,7 @@ export default function Transactions() {
       return [
         {
           title: 'Legacy transfer data',
-          subtitle: 'Detailed state timeline is unavailable for this transfer',
+          subtitle: 'Timeline details are not available for this transfer',
           time: 'N/A',
           tone: 'warning' as const,
         },
@@ -176,63 +176,32 @@ export default function Transactions() {
     toast.success('Export started');
   };
 
-  const cycleFilter = () => {
-    setFilter((current) =>
-      current === 'all' ? 'send' : current === 'send' ? 'receive' : 'all'
-    );
-  };
 
   return (
     <Layout>
       <div className="max-w-5xl mx-auto pb-20 md:pb-6 space-y-6">
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-          className="vv-hero"
+          transition={{ duration: 0.35 }}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
         >
-          <div className="flex flex-wrap items-center gap-2.5 mb-5">
-            <span className="vv-chip vv-chip-hot">{transactions.length} total transfers</span>
-            <span className="vv-chip">{completedCount} completed</span>
-            <span className="vv-chip vv-chip-accent">{pendingCount} in progress</span>
+          <div>
+            <h1 className="text-[1.35rem] md:text-[1.6rem] font-bold text-gray-950 font-display tracking-tight">
+              Activity
+            </h1>
+            <p className="text-[13px] text-gray-500 mt-0.5">
+              {transactions.length} transfers{pendingCount > 0 ? ` · ${pendingCount} in progress` : ''}
+            </p>
           </div>
-          <h1 className="text-3xl md:text-[2.2rem] font-bold text-gray-950 font-display leading-tight">
-            Transfer history and receipts
-          </h1>
-          <p className="text-sm text-gray-600 mt-3 max-w-2xl">
-            Review every transfer, follow status updates, and export activity reports anytime.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.05 }}
-          className="vv-panel"
-        >
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-primary-50 text-primary-700 flex items-center justify-center">
-                <Sparkles className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Account Snapshot</div>
-                <div className="text-lg font-semibold text-gray-900 font-display mt-1">
-                  This period at a glance
-                </div>
-                <p className="text-sm text-gray-600 mt-2">
-                  Each transfer includes time-stamped status updates for support and reconciliation.
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => toast.success('Insights reviewed')}
-            >
-              View insights
-            </button>
-          </div>
+          <button
+            type="button"
+            className="btn btn-secondary text-[13px] inline-flex items-center gap-2"
+            onClick={exportCsv}
+          >
+            <Download className="w-4 h-4" />
+            Export
+          </button>
         </motion.div>
 
         <motion.div
@@ -251,24 +220,6 @@ export default function Transactions() {
                 placeholder="Search by name, amount, or purpose..."
                 className="input pl-12"
               />
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                className="btn btn-secondary inline-flex items-center gap-2"
-                onClick={cycleFilter}
-              >
-                <Filter className="w-4 h-4" />
-                Filter: {filter}
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary inline-flex items-center gap-2"
-                onClick={exportCsv}
-              >
-                <Download className="w-4 h-4" />
-                Export CSV
-              </button>
             </div>
           </div>
 
@@ -396,8 +347,8 @@ export default function Transactions() {
               </div>
               <p className="text-sm text-gray-600 mt-2">
                 {selectedReceipt?.quoteMatched
-                  ? 'Quote matched and timeline verified.'
-                  : 'Timeline displayed from the transfer engine.'}
+                  ? 'Delivered at the quoted rate.'
+                  : 'Step-by-step progress for this transfer.'}
               </p>
             </div>
             <span className="badge badge-success">Tracked</span>

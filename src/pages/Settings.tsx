@@ -87,21 +87,15 @@ export default function Settings() {
     <Layout>
       <div className="max-w-5xl mx-auto pb-20 md:pb-6 space-y-6">
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-          className="vv-hero"
+          transition={{ duration: 0.35 }}
         >
-          <div className="flex flex-wrap items-center gap-2.5 mb-5">
-            <span className="vv-chip vv-chip-hot">{accountLevel.customerLabel}</span>
-            <span className="vv-chip">Daily limit ${limits.daily.toLocaleString()}</span>
-            <span className="vv-chip vv-chip-accent">Security and limits</span>
-          </div>
-          <h1 className="text-3xl md:text-[2.2rem] font-bold text-gray-950 font-display leading-tight">
-            Account and transfer settings
+          <h1 className="text-[1.35rem] md:text-[1.6rem] font-bold text-gray-950 font-display tracking-tight">
+            Settings
           </h1>
-          <p className="text-sm text-gray-600 mt-3 max-w-2xl">
-            Manage your profile, transfer preferences, and notifications.
+          <p className="text-[13px] text-gray-500 mt-0.5">
+            {accountLevel.customerLabel} · Daily limit ${limits.daily.toLocaleString()}
           </p>
         </motion.div>
 

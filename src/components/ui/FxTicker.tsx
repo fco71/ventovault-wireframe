@@ -15,7 +15,7 @@ export default function FxTicker({
   pair,
   baseRate,
   precision = 4,
-  label = 'Live FX',
+  label = 'Exchange rate',
   className,
 }: FxTickerProps) {
   const [rate, setRate] = useState(baseRate);
@@ -117,8 +117,8 @@ export default function FxTicker({
           transition={{ duration: 2.4, repeat: Infinity, ease: 'linear' }}
         />
         <div className="relative z-10 h-full flex items-center justify-between px-3 text-xs text-gray-600">
-          <span>Liquidity depth</span>
-          <span>Low spread</span>
+          <span>Rate stability</span>
+          <span>Fair pricing</span>
         </div>
       </div>
     </div>

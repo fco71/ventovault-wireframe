@@ -126,22 +126,19 @@ export default function Receive() {
     <Layout>
       <div className="max-w-3xl mx-auto pb-20 md:pb-6 space-y-6">
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-          className="vv-hero"
+          transition={{ duration: 0.35 }}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
         >
-          <div className="flex flex-wrap items-center gap-2.5 mb-5">
-            <span className="vv-chip vv-chip-hot">Request payments</span>
-            <span className="vv-chip">Auto-reminders {autoReminder ? 'On' : 'Off'}</span>
-            <span className="vv-chip vv-chip-accent">{requests.length} active requests</span>
+          <div>
+            <h1 className="text-[1.35rem] md:text-[1.6rem] font-bold text-gray-950 font-display tracking-tight">
+              Request money
+            </h1>
+            <p className="text-[13px] text-gray-500 mt-0.5">
+              Share a link or QR code. {requests.length > 0 ? `${requests.length} active requests.` : ''}
+            </p>
           </div>
-          <h1 className="text-3xl md:text-[2.2rem] font-bold text-gray-950 font-display leading-tight">
-            Request money with one secure link
-          </h1>
-          <p className="text-sm text-gray-600 mt-3 max-w-2xl">
-            Share your payment link or QR and track each request from pending to paid.
-          </p>
         </motion.div>
 
         <motion.div
@@ -250,7 +247,28 @@ export default function Receive() {
             <h3 className="font-semibold text-gray-900 mb-4 font-display">Recent Requests</h3>
             <div className="space-y-3">
               {loading ? (
-                <div className="vv-surface-soft text-sm text-gray-500">Loading requests...</div>
+                <div className="space-y-3">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="vv-surface-soft flex items-center justify-between py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full vv-skeleton" />
+                        <div className="space-y-2">
+                          <div className="h-3.5 w-28 rounded vv-skeleton-text" />
+                          <div className="h-3 w-16 rounded vv-skeleton-text" />
+                        </div>
+                      </div>
+                      <div className="space-y-2 text-right">
+                        <div className="h-3.5 w-16 rounded vv-skeleton-text ml-auto" />
+                        <div className="h-3 w-12 rounded vv-skeleton-text ml-auto" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : requests.length === 0 ? (
+                <div className="vv-surface-soft text-center py-8">
+                  <Banknote className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">No requests yet. Create one above to get started.</p>
+                </div>
               ) : (
                 requests.map((request, index) => (
                   <motion.div

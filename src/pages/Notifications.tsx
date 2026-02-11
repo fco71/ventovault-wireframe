@@ -101,22 +101,19 @@ export default function Notifications() {
     <Layout>
       <div className="max-w-4xl mx-auto pb-20 md:pb-6 space-y-6">
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-          className="vv-hero"
+          transition={{ duration: 0.35 }}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
         >
-          <div className="flex flex-wrap items-center gap-2.5 mb-5">
-            <span className="vv-chip vv-chip-hot">{notifications.length} total alerts</span>
-            <span className="vv-chip">{totalUnread} unread</span>
-            <span className="vv-chip vv-chip-accent">{signalOnly ? 'Important only' : 'All notifications'}</span>
+          <div>
+            <h1 className="text-[1.35rem] md:text-[1.6rem] font-bold text-gray-950 font-display tracking-tight">
+              Notifications
+            </h1>
+            <p className="text-[13px] text-gray-500 mt-0.5">
+              {totalUnread > 0 ? `${totalUnread} unread` : 'All caught up'}
+            </p>
           </div>
-          <h1 className="text-3xl md:text-[2.2rem] font-bold text-gray-950 font-display leading-tight">
-            Notifications
-          </h1>
-          <p className="text-sm text-gray-600 mt-3 max-w-2xl">
-            Stay up to date on your transfers, security alerts, and account updates.
-          </p>
         </motion.div>
 
         <motion.div

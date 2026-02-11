@@ -556,24 +556,20 @@ export default function Send() {
     <Layout>
       <div className="max-w-3xl mx-auto pb-20 md:pb-6 space-y-6">
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-          className="vv-hero"
+          transition={{ duration: 0.35 }}
+          className="flex items-center justify-between"
         >
-          <div className="flex flex-wrap items-center gap-2.5 mb-5">
-            <span className="vv-chip vv-chip-hot">Real-time quote</span>
-            <span className="vv-chip">{accountLevel.shortName}</span>
-            <span className="vv-chip vv-chip-accent">
-              Balance ${(currentUser?.balance || 0).toFixed(2)}
-            </span>
+          <div>
+            <h1 className="text-[1.35rem] md:text-[1.6rem] font-bold text-gray-950 font-display tracking-tight">
+              Send money
+            </h1>
+            <p className="text-[13px] text-gray-500 mt-0.5">
+              See the exact cost before you confirm.
+            </p>
           </div>
-          <h1 className="text-3xl md:text-[2.2rem] font-bold text-gray-950 font-display leading-tight">
-            Send money with clear totals before you pay
-          </h1>
-          <p className="text-sm text-gray-600 mt-3 max-w-2xl">
-            Choose who to send to, see the exact cost, and confirm before anything leaves your account.
-          </p>
+          <span className="vv-chip">{accountLevel.shortName}</span>
         </motion.div>
 
         <motion.div

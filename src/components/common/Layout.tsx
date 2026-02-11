@@ -76,7 +76,7 @@ export default function Layout({ children }: LayoutProps) {
                     VentoVault
                   </div>
                   <div className="hidden sm:block text-[10px] text-gray-500 uppercase tracking-[0.16em]">
-                    Global Transfers
+                    Money Transfers
                   </div>
                 </div>
               </Link>
