@@ -3,14 +3,22 @@ import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useDemoMode } from '../../contexts/DemoModeContext';
 
 export default function GuidedTour() {
-  const { isDemoMode, currentCallout, hideCallout, nextStep, prevStep, currentStepIndex, currentFlow } = useDemoMode();
+  const { isDemoMode, currentCallout, hideCallout, nextStep, prevStep, currentStepIndex } = useDemoMode();
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [calloutPosition, setCalloutPosition] = useState({ top: 0, left: 0 });
   const [isVisible, setIsVisible] = useState(false);
   const previousCalloutRef = useRef<any>(null);
+  const calloutRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isDemoMode || !currentCallout) {
+      // Clean up previous highlight
+      if (targetElement) {
+        targetElement.style.outline = '';
+        targetElement.style.outlineOffset = '';
+        targetElement.style.position = '';
+        targetElement.style.zIndex = '';
+      }
       setIsVisible(false);
       setTargetElement(null);
       return;
@@ -32,77 +40,83 @@ export default function GuidedTour() {
 
     if (!element) {
       console.warn('[Demo Mode] Target element not found:', currentCallout.target);
-      // Try body as fallback
-      element = document.body;
+      return;
+    }
+
+    // Clean up previous target
+    if (targetElement && targetElement !== element) {
+      targetElement.style.outline = '';
+      targetElement.style.outlineOffset = '';
+      targetElement.style.position = '';
+      targetElement.style.zIndex = '';
     }
 
     setTargetElement(element);
 
-    // Calculate callout position
-    const rect = element.getBoundingClientRect();
-    const scrollY = window.scrollY;
-    const scrollX = window.scrollX;
-
-    let top = 0, left = 0;
-    const calloutWidth = 450;
-    const calloutMinHeight = 200;
-
-    switch (currentCallout.placement) {
-      case 'top':
-        top = rect.top + scrollY - calloutMinHeight - 20;
-        left = rect.left + scrollX + rect.width / 2 - calloutWidth / 2;
-        break;
-      case 'bottom':
-        top = rect.bottom + scrollY + 20;
-        left = rect.left + scrollX + rect.width / 2 - calloutWidth / 2;
-        break;
-      case 'left':
-        top = rect.top + scrollY + rect.height / 2 - calloutMinHeight / 2;
-        left = rect.left + scrollX - calloutWidth - 20;
-        break;
-      case 'right':
-        top = rect.top + scrollY + rect.height / 2 - calloutMinHeight / 2;
-        left = rect.right + scrollX + 20;
-        break;
-    }
-
-    // Keep callout within viewport
-    const maxLeft = window.innerWidth - calloutWidth - 20;
-    const minLeft = 20;
-    left = Math.max(minLeft, Math.min(left, maxLeft));
-
-    const minTop = scrollY + 20;
-    top = Math.max(minTop, top);
-
-    setCalloutPosition({ top, left });
-
     // Scroll element into view smoothly
-    if (element !== document.body) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-    }
+    element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
 
-    // Add highlight with animation
-    if (element !== document.body) {
+    // Wait for scroll to settle, then position callout
+    setTimeout(() => {
+      if (!element) return;
+
+      // Add subtle highlight to target (NOT blocking overlay)
       element.style.position = 'relative';
-      element.style.zIndex = '60';
-      element.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+      element.style.zIndex = '10';
+      element.style.outline = '3px solid rgba(59, 130, 246, 0.6)';
+      element.style.outlineOffset = '4px';
+      element.style.borderRadius = '8px';
 
-      requestAnimationFrame(() => {
-        element!.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.6), 0 0 0 99999px rgba(0, 0, 0, 0.6)';
-        element!.style.borderRadius = '12px';
-        setIsVisible(true);
-      });
-    } else {
+      // Calculate callout position
+      const rect = element.getBoundingClientRect();
+      const calloutWidth = 380;
+      const calloutHeight = calloutRef.current?.offsetHeight || 250;
+      const padding = 20;
+
+      let top = 0, left = 0;
+
+      switch (currentCallout.placement) {
+        case 'top':
+          top = rect.top + window.scrollY - calloutHeight - padding;
+          left = rect.left + window.scrollX + rect.width / 2 - calloutWidth / 2;
+          break;
+        case 'bottom':
+          top = rect.bottom + window.scrollY + padding;
+          left = rect.left + window.scrollX + rect.width / 2 - calloutWidth / 2;
+          break;
+        case 'left':
+          top = rect.top + window.scrollY + rect.height / 2 - calloutHeight / 2;
+          left = rect.left + window.scrollX - calloutWidth - padding;
+          break;
+        case 'right':
+          top = rect.top + window.scrollY + rect.height / 2 - calloutHeight / 2;
+          left = rect.right + window.scrollX + padding;
+          break;
+        default:
+          // Default to right
+          top = rect.top + window.scrollY + rect.height / 2 - calloutHeight / 2;
+          left = rect.right + window.scrollX + padding;
+      }
+
+      // Keep callout within viewport with padding
+      const maxLeft = window.innerWidth - calloutWidth - 20;
+      const minLeft = 20;
+      left = Math.max(minLeft, Math.min(left, maxLeft));
+
+      const minTop = window.scrollY + 20;
+      const maxTop = window.scrollY + window.innerHeight - calloutHeight - 20;
+      top = Math.max(minTop, Math.min(top, maxTop));
+
+      setCalloutPosition({ top, left });
       setIsVisible(true);
-    }
+    }, 400);
 
     return () => {
-      if (element && element !== document.body) {
+      if (element) {
+        element.style.outline = '';
+        element.style.outlineOffset = '';
         element.style.position = '';
         element.style.zIndex = '';
-        element.style.boxShadow = '';
-        element.style.borderRadius = '';
-        element.style.transition = '';
       }
     };
   }, [isDemoMode, currentCallout]);
@@ -117,101 +131,107 @@ export default function GuidedTour() {
   const hasData = currentCallout.data && Object.keys(currentCallout.data).length > 0;
 
   return (
-    <>
-      {/* Callout bubble */}
-      <div
-        className="fixed z-[70] w-[450px] bg-white rounded-2xl shadow-2xl border-2 border-blue-500 transition-all duration-300"
-        style={{
-          top: `${calloutPosition.top}px`,
-          left: `${calloutPosition.left}px`,
-          opacity: isVisible ? 1 : 0,
-          transform: isVisible ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(10px)',
-        }}
-      >
-        {/* Arrow indicator */}
+    <div
+      ref={calloutRef}
+      className="fixed z-50 w-[380px] transition-all duration-300 ease-out"
+      style={{
+        top: `${calloutPosition.top}px`,
+        left: `${calloutPosition.left}px`,
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'scale(1) translateY(0)' : 'scale(0.9) translateY(-10px)',
+        pointerEvents: isVisible ? 'auto' : 'none',
+      }}
+    >
+      {/* Floating callout card */}
+      <div className="bg-white rounded-xl shadow-2xl border-2 border-blue-400 overflow-hidden backdrop-blur-sm">
+        {/* Arrow indicator pointing to target */}
         {currentCallout.placement === 'bottom' && (
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-b-[14px] border-b-blue-500" />
+          <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[12px] border-b-blue-400" />
         )}
         {currentCallout.placement === 'top' && (
-          <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-t-[14px] border-t-blue-500" />
+          <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[12px] border-t-blue-400" />
         )}
         {currentCallout.placement === 'right' && (
-          <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-0 h-0 border-t-[14px] border-t-transparent border-b-[14px] border-b-transparent border-r-[14px] border-r-blue-500" />
+          <div className="absolute -left-2.5 top-1/2 -translate-y-1/2 w-0 h-0 border-t-[12px] border-t-transparent border-b-[12px] border-b-transparent border-r-[12px] border-r-blue-400" />
         )}
         {currentCallout.placement === 'left' && (
-          <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-0 h-0 border-t-[14px] border-t-transparent border-b-[14px] border-b-transparent border-l-[14px] border-l-blue-500" />
+          <div className="absolute -right-2.5 top-1/2 -translate-y-1/2 w-0 h-0 border-t-[12px] border-t-transparent border-b-[12px] border-b-transparent border-l-[12px] border-l-blue-400" />
         )}
 
-        {/* Content */}
-        <div className="p-6">
+        {/* Gradient header bar */}
+        <div className="h-1 bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500" />
+
+        <div className="p-5">
           {/* Header */}
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex-1 pr-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-full mb-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                <span className="text-xs font-semibold text-blue-700">Investor Demo Mode</span>
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex-1">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-blue-50 rounded-full mb-2">
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
+                <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Demo Mode</span>
               </div>
-              <h3 className="text-lg font-bold text-slate-900 leading-tight">{currentCallout.title}</h3>
+              <h3 className="text-base font-bold text-slate-900 leading-snug">{currentCallout.title}</h3>
             </div>
             <button
               onClick={handleClose}
-              className="text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0 p-1"
+              className="text-slate-400 hover:text-slate-700 transition-colors p-1 hover:bg-slate-100 rounded-md ml-2"
+              aria-label="Close callout"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Content with HTML support */}
+          {/* Content */}
           <div
-            className="text-sm text-slate-700 leading-relaxed prose prose-sm max-w-none prose-p:my-0"
+            className="text-sm text-slate-600 leading-relaxed prose prose-sm max-w-none prose-p:my-1 prose-strong:text-slate-900 prose-strong:font-semibold"
             dangerouslySetInnerHTML={{ __html: currentCallout.content }}
           />
 
           {/* Real-time data display */}
           {hasData && (
-            <div className="mt-4 p-3 bg-gradient-to-br from-blue-50 to-slate-50 rounded-lg border border-blue-100">
-              <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2 flex items-center gap-2">
-                <span className="inline-block w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-                Real-Time Data
+            <div className="mt-3 p-3 bg-gradient-to-br from-blue-50 via-indigo-50 to-slate-50 rounded-lg border border-blue-200 shadow-sm">
+              <div className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <span className="inline-block w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                Live Data
               </div>
               <div className="space-y-1.5">
                 {Object.entries(currentCallout.data).map(([key, value]) => (
-                  <div key={key} className="flex justify-between items-center text-sm">
+                  <div key={key} className="flex justify-between items-center text-xs">
                     <span className="text-slate-600 font-medium">{key}:</span>
-                    <span className="font-bold text-slate-900 font-mono text-xs">{String(value)}</span>
+                    <span className="font-bold text-slate-900 font-mono">{String(value)}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Navigation & Progress */}
-          <div className="mt-5 pt-4 border-t border-slate-200">
-            <div className="flex items-center justify-between">
-              <button
-                onClick={prevStep}
-                disabled={currentStepIndex === 0}
-                className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Back
-              </button>
+          {/* Navigation */}
+          <div className="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
+            <button
+              onClick={prevStep}
+              disabled={currentStepIndex === 0}
+              className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              Back
+            </button>
 
-              <div className="text-xs text-slate-500 font-semibold">
-                Continue using the app →
-              </div>
-
-              <button
-                onClick={nextStep}
-                className="px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-1"
-              >
-                Next
-                <ChevronRight className="w-4 h-4" />
-              </button>
+            <div className="text-[10px] text-slate-500 font-medium italic">
+              Keep using the app →
             </div>
+
+            <button
+              onClick={nextStep}
+              className="px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 rounded-lg transition-all shadow-sm hover:shadow flex items-center gap-1"
+            >
+              Next
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </div>
-    </>
+
+      {/* Subtle pulsing glow effect */}
+      <div className="absolute inset-0 rounded-xl bg-blue-400 opacity-20 blur-xl -z-10 animate-pulse" />
+    </div>
   );
 }
