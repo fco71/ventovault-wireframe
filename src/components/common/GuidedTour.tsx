@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useDemoMode } from '../../contexts/DemoModeContext';
 
 export default function GuidedTour() {
-  const { isDemoMode, currentCallout, hideCallout, nextStep, prevStep, currentStepIndex } = useDemoMode();
+  const { isDemoMode, currentCallout, hideCallout } = useDemoMode();
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [calloutPosition, setCalloutPosition] = useState({ top: 0, left: 0 });
   const [isVisible, setIsVisible] = useState(false);
@@ -69,9 +69,9 @@ export default function GuidedTour() {
 
       // Calculate callout position
       const rect = element.getBoundingClientRect();
-      const calloutWidth = 380;
-      const calloutHeight = calloutRef.current?.offsetHeight || 250;
-      const padding = 20;
+      const calloutWidth = 400;
+      const calloutHeight = calloutRef.current?.offsetHeight || 280;
+      const padding = 24;
 
       let top = 0, left = 0;
 
@@ -119,7 +119,7 @@ export default function GuidedTour() {
         element.style.zIndex = '';
       }
     };
-  }, [isDemoMode, currentCallout]);
+  }, [isDemoMode, currentCallout, targetElement]);
 
   if (!isDemoMode || !currentCallout || !isVisible) return null;
 
@@ -133,17 +133,17 @@ export default function GuidedTour() {
   return (
     <div
       ref={calloutRef}
-      className="fixed z-50 w-[380px] transition-all duration-300 ease-out"
+      className="fixed z-50 w-[400px] transition-all duration-300 ease-out"
       style={{
         top: `${calloutPosition.top}px`,
         left: `${calloutPosition.left}px`,
         opacity: isVisible ? 1 : 0,
-        transform: isVisible ? 'scale(1) translateY(0)' : 'scale(0.9) translateY(-10px)',
+        transform: isVisible ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(-8px)',
         pointerEvents: isVisible ? 'auto' : 'none',
       }}
     >
       {/* Floating callout card */}
-      <div className="bg-white rounded-xl shadow-2xl border-2 border-blue-400 overflow-hidden backdrop-blur-sm">
+      <div className="bg-white rounded-xl shadow-2xl border-2 border-blue-400 overflow-hidden backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Arrow indicator pointing to target */}
         {currentCallout.placement === 'bottom' && (
           <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[12px] border-b-blue-400" />
@@ -159,7 +159,7 @@ export default function GuidedTour() {
         )}
 
         {/* Gradient header bar */}
-        <div className="h-1 bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500" />
+        <div className="h-1 bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500 animate-pulse" />
 
         <div className="p-5">
           {/* Header */}
@@ -167,7 +167,7 @@ export default function GuidedTour() {
             <div className="flex-1">
               <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-blue-50 rounded-full mb-2">
                 <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-                <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Demo Mode</span>
+                <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Investor Demo</span>
               </div>
               <h3 className="text-base font-bold text-slate-900 leading-snug">{currentCallout.title}</h3>
             </div>
@@ -182,13 +182,13 @@ export default function GuidedTour() {
 
           {/* Content */}
           <div
-            className="text-sm text-slate-600 leading-relaxed prose prose-sm max-w-none prose-p:my-1 prose-strong:text-slate-900 prose-strong:font-semibold"
+            className="text-sm text-slate-600 leading-relaxed prose prose-sm max-w-none prose-p:my-1.5 prose-strong:text-slate-900 prose-strong:font-semibold prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5"
             dangerouslySetInnerHTML={{ __html: currentCallout.content }}
           />
 
           {/* Real-time data display */}
           {hasData && (
-            <div className="mt-3 p-3 bg-gradient-to-br from-blue-50 via-indigo-50 to-slate-50 rounded-lg border border-blue-200 shadow-sm">
+            <div className="mt-4 p-3 bg-gradient-to-br from-blue-50 via-indigo-50 to-slate-50 rounded-lg border border-blue-200 shadow-sm">
               <div className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-2 flex items-center gap-2">
                 <span className="inline-block w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                 Live Data
@@ -204,28 +204,12 @@ export default function GuidedTour() {
             </div>
           )}
 
-          {/* Navigation */}
-          <div className="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
-            <button
-              onClick={prevStep}
-              disabled={currentStepIndex === 0}
-              className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
-            >
-              <ChevronLeft className="w-3.5 h-3.5" />
-              Back
-            </button>
-
-            <div className="text-[10px] text-slate-500 font-medium italic">
-              Keep using the app →
+          {/* Auto-advance hint */}
+          <div className="mt-4 pt-3 border-t border-slate-200">
+            <div className="flex items-center justify-center gap-2 text-xs text-slate-500 italic">
+              <span className="inline-block w-1 h-1 bg-slate-400 rounded-full animate-pulse" />
+              <span>Continue using the app - callouts will update automatically</span>
             </div>
-
-            <button
-              onClick={nextStep}
-              className="px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 rounded-lg transition-all shadow-sm hover:shadow flex items-center gap-1"
-            >
-              Next
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
           </div>
         </div>
       </div>
