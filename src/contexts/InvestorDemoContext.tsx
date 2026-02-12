@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 /**
@@ -205,42 +205,22 @@ export function InvestorDemoProvider({ children }: { children: ReactNode }) {
     setCurrentCallout(null);
   }, []);
 
-  // Auto-play orchestration
-  const playStage1 = useCallback(async () => {
-    console.log('[InvestorDemo] Playing Stage 1: Intent Creation');
-    setCurrentStage(1);
+  // Auto-play orchestration - Stage 3 (defined first to avoid circular deps)
+  const playStage3 = useCallback(async () => {
+    console.log('[InvestorDemo] Playing Stage 3: THE CONSENT BRIDGE');
+    setCurrentStage(3);
 
-    // Navigate to send if not already there
-    if (location.pathname !== '/send') {
-      navigate('/send');
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-
-    // Show stage 1 callout
-    showCallout(1);
-
-    // Wait 4 seconds
-    await new Promise(resolve => setTimeout(resolve, 4000));
-
-    // Auto-select first recipient and click "Send" button
+    // Wait for review screen
     await new Promise(resolve => setTimeout(resolve, 500));
-    const sendButtons = Array.from(document.querySelectorAll('button')).filter(btn =>
-      btn.textContent?.toLowerCase().includes('send')
-    );
-    const firstSendBtn = sendButtons.find(btn => {
-      // Find the "Send" button within recipient cards (not "Send Money" header button)
-      const parent = btn.closest('.vv-choice-card');
-      return parent !== null;
-    });
 
-    if (firstSendBtn) {
-      firstSendBtn.click();
-      await new Promise(resolve => setTimeout(resolve, 800));
-    }
+    // Show THE CONSENT BRIDGE callout
+    showCallout(3);
 
-    // Proceed to stage 2
-    return playStage2();
-  }, [location, navigate, showCallout]);
+    // PAUSE HERE - this is the critical moment
+    setMode('paused');
+
+    // Auto-play stops here. User must manually continue or replay.
+  }, [showCallout]);
 
   const playStage2 = useCallback(async () => {
     console.log('[InvestorDemo] Playing Stage 2: Quoting');
@@ -298,23 +278,43 @@ export function InvestorDemoProvider({ children }: { children: ReactNode }) {
 
     // Proceed to stage 3 - THE CONSENT BRIDGE
     return playStage3();
-  }, [showCallout]);
+  }, [showCallout, playStage3]);
 
-  const playStage3 = useCallback(async () => {
-    console.log('[InvestorDemo] Playing Stage 3: THE CONSENT BRIDGE');
-    setCurrentStage(3);
+  const playStage1 = useCallback(async () => {
+    console.log('[InvestorDemo] Playing Stage 1: Intent Creation');
+    setCurrentStage(1);
 
-    // Wait for review screen
+    // Navigate to send if not already there
+    if (location.pathname !== '/send') {
+      navigate('/send');
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // Show stage 1 callout
+    showCallout(1);
+
+    // Wait 4 seconds
+    await new Promise(resolve => setTimeout(resolve, 4000));
+
+    // Auto-select first recipient and click "Send" button
     await new Promise(resolve => setTimeout(resolve, 500));
+    const sendButtons = Array.from(document.querySelectorAll('button')).filter(btn =>
+      btn.textContent?.toLowerCase().includes('send')
+    );
+    const firstSendBtn = sendButtons.find(btn => {
+      // Find the "Send" button within recipient cards (not "Send Money" header button)
+      const parent = btn.closest('.vv-choice-card');
+      return parent !== null;
+    });
 
-    // Show THE CONSENT BRIDGE callout
-    showCallout(3);
+    if (firstSendBtn) {
+      firstSendBtn.click();
+      await new Promise(resolve => setTimeout(resolve, 800));
+    }
 
-    // PAUSE HERE - this is the critical moment
-    setMode('paused');
-
-    // Auto-play stops here. User must manually continue or replay.
-  }, [showCallout]);
+    // Proceed to stage 2
+    return playStage2();
+  }, [location, navigate, showCallout, playStage2]);
 
   const playStages4to8 = useCallback(async () => {
     console.log('[InvestorDemo] Playing Stages 4-8: Execution');
@@ -400,10 +400,11 @@ export function InvestorDemoProvider({ children }: { children: ReactNode }) {
     showCallout(stage);
   }, [showCallout]);
 
-  const showCalloutForElement = useCallback((element: HTMLElement) => {
+  const showCalloutForElement = useCallback((_element: HTMLElement) => {
     // Determine which stage this element belongs to
     // This is for manual mode - show contextual callouts
     // TODO: Implement element-to-stage mapping
+    console.log('[InvestorDemo] Manual mode element selection - not yet implemented');
   }, []);
 
   return (

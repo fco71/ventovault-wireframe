@@ -2,13 +2,13 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { InvestorDemoProvider } from './contexts/InvestorDemoContext';
+import { OperationalInspectorProvider } from './contexts/OperationalInspectorContext';
 import ToastProvider from './components/ui/Toast';
 import PageTransition from './components/animations/PageTransition';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import RouteFallback from './components/common/RouteFallback';
-import InvestorDemoCallout from './components/demo/InvestorDemoCallout';
-import InvestorDemoToggle from './components/demo/InvestorDemoToggle';
+import OperationalInspector from './components/operational/OperationalInspector';
+import OperationalInspectorToggle from './components/operational/OperationalInspectorToggle';
 
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
@@ -118,12 +118,12 @@ function App() {
     <Router>
       <ErrorBoundary>
         <AuthProvider>
-          <InvestorDemoProvider>
+          <OperationalInspectorProvider>
             <ToastProvider />
             <AppRoutes />
-            <InvestorDemoCallout />
-            <InvestorDemoToggle />
-          </InvestorDemoProvider>
+            <OperationalInspector />
+            <OperationalInspectorToggle />
+          </OperationalInspectorProvider>
         </AuthProvider>
       </ErrorBoundary>
     </Router>
