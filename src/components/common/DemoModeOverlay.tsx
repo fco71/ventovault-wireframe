@@ -1,4 +1,4 @@
-import { X, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { X, Info } from 'lucide-react';
 import { useDemoMode } from '../../contexts/DemoModeContext';
 import { useLocation } from 'react-router-dom';
 

@@ -1,4 +1,4 @@
 // DISABLED - Not currently in use
-export default function OperationalInspector() {
+export default function ContextualAnnotation() {
   return null;
 }

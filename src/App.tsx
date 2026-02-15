@@ -7,8 +7,9 @@ import ToastProvider from './components/ui/Toast';
 import PageTransition from './components/animations/PageTransition';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import RouteFallback from './components/common/RouteFallback';
-import OperationalInspector from './components/operational/OperationalInspector';
 import OperationalInspectorToggle from './components/operational/OperationalInspectorToggle';
+import StageProgressTracker from './components/operational/StageProgressTracker';
+import BubbleManager from './components/demo/BubbleManager';
 
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
@@ -121,7 +122,8 @@ function App() {
           <OperationalInspectorProvider>
             <ToastProvider />
             <AppRoutes />
-            <OperationalInspector />
+            <StageProgressTracker />
+            <BubbleManager />
             <OperationalInspectorToggle />
           </OperationalInspectorProvider>
         </AuthProvider>

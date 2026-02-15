@@ -3,8 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CircleCheck, Loader2, Lock, UserPlus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useOperationalInspector } from '../contexts/OperationalInspectorContext';
 import Layout from '../components/common/Layout';
-import Toggle from '../components/ui/Toggle';
 import FxTicker from '../components/ui/FxTicker';
 import { Quote, Recipient, TransferMode, VerificationTier, FundingMethod } from '../types';
 import { autoAdvanceTransfer, quoteService, recipientService, transferService } from '../services';
@@ -39,7 +39,6 @@ export default function Send() {
   const [targetAmount, setTargetAmount] = useState('');
   const [note, setNote] = useState('');
   const [sending, setSending] = useState(false);
-  const [fxShield, setFxShield] = useState(true);
   const [mode, setMode] = useState<TransferMode>('send_exact');
   const [fundingMethod, setFundingMethod] = useState<FundingMethod>('ach');
   const [quote, setQuote] = useState<Quote | null>(null);
@@ -53,6 +52,7 @@ export default function Send() {
   const [lastIntentId, setLastIntentId] = useState<string | null>(null);
 
   const { currentUser } = useAuth();
+  const { reportStage } = useOperationalInspector();
   const navigate = useNavigate();
   const location = useLocation();
   const tier: VerificationTier = currentUser?.verificationTier || 'L30';
@@ -219,6 +219,11 @@ export default function Send() {
 
     setActiveAmount(parsed.toFixed(2));
   };
+
+  // Report current stage to demo system
+  useEffect(() => {
+    reportStage(step);
+  }, [step, reportStage]);
 
   useEffect(() => {
     let mounted = true;
@@ -912,13 +917,6 @@ export default function Send() {
                     </div>
                     <div className="text-xs text-gray-500">Card payment · near instant · +$1.50</div>
                   </button>
-                </div>
-                <div className="mt-4 flex items-center justify-between gap-4">
-                  <div className="text-sm text-gray-600">Lock your exchange rate so it doesn't change while you confirm.</div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">Rate lock</span>
-                    <Toggle checked={fxShield} onChange={setFxShield} />
-                  </div>
                 </div>
               </div>
 

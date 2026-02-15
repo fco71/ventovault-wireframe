@@ -12,7 +12,7 @@ import { useInvestorDemo } from '../../contexts/InvestorDemoContext';
  */
 
 export default function InvestorDemoCallout() {
-  const { isActive, mode, currentCallout, hideCallout, resumeDemo, pauseDemo, currentStage } = useInvestorDemo();
+  const { isActive, mode, currentCallout, hideCallout, resumeDemo, pauseDemo } = useInvestorDemo();
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [calloutPosition, setCalloutPosition] = useState({ top: 0, left: 0 });
   const [isVisible, setIsVisible] = useState(false);
@@ -205,7 +205,7 @@ export default function InvestorDemoCallout() {
                 Live Cost Breakdown
               </div>
               <div className="space-y-1.5">
-                {Object.entries(currentCallout.data).map(([key, value]) => (
+                {currentCallout.data && Object.entries(currentCallout.data).map(([key, value]) => (
                   <div key={key} className="flex justify-between items-center text-xs">
                     <span className="text-slate-600 font-medium">{key}:</span>
                     <span className="font-bold text-slate-900 font-mono">{String(value)}</span>

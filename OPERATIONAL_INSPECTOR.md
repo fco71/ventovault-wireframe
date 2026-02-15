@@ -1,10 +1,15 @@
-# Operational Inspector
+# Interactive Demo System
 
 ## Concept
 
-A **technical deep-dive panel** that shows investors what's happening under the hood at each step of the transaction lifecycle.
+A **presentation-ready interactive demo** that shows investors what's happening under the hood at each step of the transaction lifecycle.
 
-This is NOT a UI demo. This is NOT auto-play. This is a contextual technical inspector - like developer tools - that reveals the operational framework as you navigate.
+Three synchronized components work together:
+1. **Operational Inspector Panel** - Technical details and operational procedures
+2. **Interactive Spotlight** - Visual highlighting of current UI element
+3. **Stage Progress Tracker** - 8-stage lifecycle progress indicator
+
+This is NOT auto-play. You control the navigation. The system highlights and explains contextually.
 
 ## Design Philosophy
 
@@ -28,14 +33,32 @@ This is NOT a UI demo. This is NOT auto-play. This is a contextual technical ins
 
 ## How It Works
 
-1. **User navigates the app normally** - no automation
-2. **Inspector panel detects location** - dashboard, recipient selection, amount entry, review, success
-3. **Panel updates contextually** - shows operational details for current stage
-4. **Color-coded sections**:
-   - **Info** (slate): General operational information
-   - **Critical** (red): Legal moments like THE CONSENT BRIDGE
-   - **Technical** (blue): System architecture and procedures
-   - **Financial** (emerald): Cost breakdowns and economics
+1. **Click "INSPECTOR" button** - Activates demo mode
+2. **Navigate through send flow manually** - You control the pace
+3. **Three synchronized components activate**:
+
+### 1. Interactive Spotlight (InteractiveHighlighter)
+- **Dims the page** with subtle overlay (20% opacity)
+- **Spotlights current UI element** with glowing blue ring
+- **Shows floating label** identifying the element
+- **Animated pulse** draws attention to active element
+- **Connecting line** from element to Inspector panel
+
+### 2. Stage Progress Tracker (top of screen)
+- **8 numbered circles** representing the transaction lifecycle
+- **Active stage** highlighted in blue (or red for Consent Bridge)
+- **Completed stages** shown with checkmark in green
+- **Stage names** below each circle: Intent → Quote → Consent → Fund → Comply → Settle → Payout → Receipt
+- **Connecting lines** show flow progression
+
+### 3. Operational Inspector Panel (right side)
+- **Technical details** for current stage
+- **Color-coded sections**:
+  - **Info** (slate): General operational information
+  - **Critical** (red): Legal moments like THE CONSENT BRIDGE
+  - **Technical** (blue): System architecture and procedures
+  - **Financial** (emerald): Cost breakdowns and economics
+- **Updates automatically** as you navigate
 
 ## Usage
 
