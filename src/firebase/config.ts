@@ -16,6 +16,14 @@ export const missingFirebaseConfigKeys = Object.entries(requiredFirebaseConfig)
 
 export const isFirebaseConfigured = missingFirebaseConfigKeys.length === 0;
 
+// Suppress Firebase warnings in demo mode
+if (!isFirebaseConfigured) {
+  console.info(
+    '📋 Running in DEMO MODE - Firebase not configured. Using mock authentication.\n' +
+    'Missing keys: ' + missingFirebaseConfigKeys.join(', ')
+  );
+}
+
 const firebaseConfig = {
   apiKey: requiredFirebaseConfig.apiKey || 'demo-api-key',
   authDomain: requiredFirebaseConfig.authDomain || 'demo.firebaseapp.com',
@@ -26,10 +34,24 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || undefined,
 };
 
-const app = initializeApp(firebaseConfig);
+let app: any;
+let auth: any;
+let db: any;
+let storage: any;
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  storage = getStorage(app);
+} catch (error) {
+  // Suppress Firebase initialization errors in demo mode
+  if (!isFirebaseConfigured) {
+    console.info('⚠️ Firebase initialization skipped - running in demo mode');
+  } else {
+    console.error('Firebase initialization error:', error);
+  }
+}
 
+export { auth, db, storage };
 export default app;

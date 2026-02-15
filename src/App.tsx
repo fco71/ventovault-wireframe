@@ -3,12 +3,15 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { AnimatePresence } from 'framer-motion';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { OperationalInspectorProvider } from './contexts/OperationalInspectorContext';
+import { DemoModeProvider } from './contexts/DemoModeContext';
 import ToastProvider from './components/ui/Toast';
 import PageTransition from './components/animations/PageTransition';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import RouteFallback from './components/common/RouteFallback';
 import OperationalInspector from './components/operational/OperationalInspector';
 import OperationalInspectorToggle from './components/operational/OperationalInspectorToggle';
+import GuidedTour from './components/common/GuidedTour';
+import DemoModeToggle from './components/common/DemoModeToggle';
 
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
@@ -115,15 +118,19 @@ function AppRoutes() {
 
 function App() {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ErrorBoundary>
         <AuthProvider>
-          <OperationalInspectorProvider>
-            <ToastProvider />
-            <AppRoutes />
-            <OperationalInspector />
-            <OperationalInspectorToggle />
-          </OperationalInspectorProvider>
+          <DemoModeProvider>
+            <OperationalInspectorProvider>
+              <ToastProvider />
+              <AppRoutes />
+              <GuidedTour />
+              <DemoModeToggle />
+              <OperationalInspector />
+              <OperationalInspectorToggle />
+            </OperationalInspectorProvider>
+          </DemoModeProvider>
         </AuthProvider>
       </ErrorBoundary>
     </Router>
