@@ -73,8 +73,9 @@ const DEMO_FLOWS: Record<string, DemoFlow> = {
     steps: [
       {
         id: 'send-welcome',
+        waitFor: 'input[inputMode="decimal"]',
         callout: {
-          target: 'body',
+          target: 'input[inputMode="decimal"]',
           title: '📤 Starting a Transfer',
           content: `
             <p class="mb-3"><strong>🎯 What You'll Do:</strong> Enter amount → Select recipient → Review → Authorize.</p>
@@ -82,8 +83,8 @@ const DEMO_FLOWS: Record<string, DemoFlow> = {
             <p class="mb-3"><strong>🔧 Behind the Scenes:</strong> We log your request with a 128-bit UUID for idempotency. Sanctions pre-screening starts immediately.</p>
             <p class="text-sm text-slate-500">👇 Enter an amount to see real-time cost calculations</p>
           `,
-          placement: 'top',
-          autoAdvanceOn: 'input:amount', // Advance when user types in amount field
+          placement: 'right',
+          autoAdvanceOn: 'input:decimal', // Advance when user types in amount field
         },
         extractData: () => ({
           'Current Page': 'Send Money',
@@ -92,18 +93,18 @@ const DEMO_FLOWS: Record<string, DemoFlow> = {
       },
       {
         id: 'amount-entered',
-        waitFor: 'input[type="number"]',
+        waitFor: 'input[inputMode="decimal"]',
         callout: {
-          target: 'input[type="number"]',
+          target: 'input[inputMode="decimal"]',
           title: '💵 Amount & Cost Calculation',
           content: `
             <p class="mb-3"><strong>🖥️ What You See:</strong> Input field with real-time validation (min/max limits per corridor).</p>
             <p class="mb-3"><strong>🔧 Behind the Scenes:</strong> Intent logged with UUID. Pre-screening starts: OFAC/UN/EU sanctions lists, velocity checks (max 5/day for new users), country risk assessment.</p>
             <p class="mb-3"><strong>💰 Stablecoin Math:</strong> Cost = Amount × 1.7% + $1.50 gas fee. See REAL numbers below updating as you type!</p>
-            <p class="text-sm text-slate-500">👇 Select a recipient or click to next field</p>
+            <p class="text-sm text-slate-500">👇 Click a recipient card to select them</p>
           `,
           placement: 'right',
-          autoAdvanceOn: 'input:recipient', // Advance when user focuses recipient field
+          autoAdvanceOn: 'click:vv-choice-card', // Advance when user clicks recipient card
         },
         extractData: (element) => {
           const input = element as HTMLInputElement;
@@ -124,54 +125,69 @@ const DEMO_FLOWS: Record<string, DemoFlow> = {
       },
       {
         id: 'recipient-select',
-        waitFor: 'input[placeholder*="recipient" i], select',
+        waitFor: '.vv-choice-card',
         callout: {
-          target: 'input[placeholder*="recipient" i], select',
+          target: '.vv-choice-card',
           title: '👤 Recipient Validation',
           content: `
-            <p class="mb-3"><strong>🖥️ What You See:</strong> Recipient selector or input field.</p>
+            <p class="mb-3"><strong>🖥️ What You See:</strong> Recipient cards showing verified recipients.</p>
             <p class="mb-3"><strong>🔧 Behind the Scenes:</strong> Fuzzy name matching (85%+ threshold) against sanctions lists. IBAN/account format validation. Recipient country risk assessment using FATF grey/blacklists.</p>
             <p class="mb-3"><strong>🛡️ Layer 1 Screening:</strong> VentoVault Safety Net checks sender + recipient against OFAC/UN/EU lists BEFORE showing quote.</p>
             <p class="mb-3"><strong>📋 FATF Travel Rule:</strong> Full sender/recipient data prepared for transmission (Recommendation 16 compliance).</p>
-            <p class="text-sm text-slate-500">👇 Click Review/Continue to generate quote</p>
+            <p class="text-sm text-slate-500">👇 Enter an amount and click "Review transfer"</p>
           `,
-          placement: 'right',
-          autoAdvanceOn: 'click:review', // Advance when user clicks Review/Continue button
+          placement: 'left',
+          autoAdvanceOn: 'click:btn-primary', // Advance when user clicks Review transfer button
         },
       },
       {
         id: 'review-quote',
-        waitFor: 'button:contains("Review"), button:contains("Continue"), button:contains("Next")',
         callout: {
-          target: 'button:contains("Review"), button:contains("Continue"), button:contains("Next")',
+          target: 'body',
           title: '💱 Quote Generation & Rate Lock',
           content: `
-            <p class="mb-3"><strong>🖥️ What You'll See:</strong> Final quote showing exact amounts, FX rate, fees breakdown, total delivery amount.</p>
+            <p class="mb-3"><strong>🖥️ What You See:</strong> Final quote showing exact amounts, FX rate, fees breakdown, total delivery amount.</p>
             <p class="mb-3"><strong>🔧 Behind the Scenes:</strong> We query all 5 partners simultaneously: Collection Partner ($2.50 fee), On-Ramp Provider ($1.00), Blockchain Gas ($1.50), Off-Ramp Provider ($2.00), Payout Partner ($1.50), Compliance Layer ($1.50). We pick the cheapest path.</p>
             <p class="mb-3"><strong>⏱️ Rate Lock:</strong> FX rate locked for 90 seconds. Rate is guaranteed ceiling - if we find better rate during execution, you get savings.</p>
             <p class="mb-3"><strong>🎯 Quote = Contract:</strong> Time-bounded agreement. Pessimistic by design (we overestimate costs slightly for safety).</p>
-            <p class="text-sm text-slate-500">👇 Click Confirm/Authorize to reach the Consent Bridge</p>
+            <p class="text-sm text-slate-500">👇 Review the quote and check the disclosure checkbox</p>
           `,
           placement: 'top',
-          autoAdvanceOn: 'click:confirm', // Advance when user clicks Confirm/Authorize
+          autoAdvanceOn: 'input:checkbox', // Advance when user checks disclosure
         },
       },
       {
         id: 'consent-bridge',
-        waitFor: 'button:contains("Confirm"), button:contains("Authorize"), button:contains("Send")',
+        waitFor: 'input[type="checkbox"]',
         callout: {
-          target: 'button:contains("Confirm"), button:contains("Authorize"), button:contains("Send")',
+          target: 'input[type="checkbox"]',
           title: '⚖️ THE CONSENT BRIDGE - Legal Firewall',
           content: `
             <p class="mb-3 text-red-600 font-bold text-base">🔥 CRITICAL LEGAL MOMENT - THIS IS OUR MOAT</p>
-            <p class="mb-3"><strong>🖥️ What You See:</strong> Consent/authorization button. Clicking confirms your independent authorization of our partners.</p>
+            <p class="mb-3"><strong>🖥️ What You See:</strong> Disclosure checkbox and Send button. Checking confirms your independent authorization of our partners.</p>
             <p class="mb-3"><strong>⚖️ Legal Architecture (FinCEN FIN-2019-G001):</strong> You are independently authorizing PARTNERS (Collection Partner, Settlement Partner, Payout Partner) - NOT VentoVault. We are software orchestration only. This is the legal disengagement point.</p>
             <p class="mb-3"><strong>🛡️ Why This Matters:</strong> Control-Not-Custody = No Money Transmitter License required in 50 states. We never have custody or control of funds. Saves us millions in licensing costs and state-by-state compliance burden.</p>
             <p class="mb-3"><strong>📝 What Gets Logged:</strong> UTC timestamp, IP address, consent version (v1.2.3), device fingerprint. Transmitted IMMEDIATELY to ALL partners via ISO 20022 messaging (Collection, Settlement, Payout, Compliance layers).</p>
             <p class="mb-3"><strong>⏱️ Next Step:</strong> 30-second temporal independence window. Partners verify consent independently. This delay proves VentoVault doesn't have immediate control over fund movement.</p>
-            <p class="text-sm text-slate-500 mt-3">Click to authorize and watch the transaction execute through our audit trail</p>
+            <p class="text-sm text-slate-500 mt-3">👇 Click the Send button to execute the transfer</p>
           `,
-          placement: 'top',
+          placement: 'left',
+          autoAdvanceOn: 'click:btn-primary', // Advance when user clicks Send button
+        },
+      },
+      {
+        id: 'transfer-success',
+        callout: {
+          target: '.vv-hero',
+          title: '✅ Transfer Executed - Audit Trail Created',
+          content: `
+            <p class="mb-3"><strong>🖥️ What You See:</strong> Success confirmation with transfer ID and amount details.</p>
+            <p class="mb-3"><strong>🔧 Behind the Scenes - The 10-Step Process:</strong> Your transfer just executed through: Intent → Consent Bridge → Double Validation → Regulated Entry → Layer 2 Compliance → Stablecoin Conversion → Blockchain Transfer → Off-Ramp → Regulated Exit → Executed Truth.</p>
+            <p class="mb-3"><strong>📋 Compliance Trail:</strong> Immutable receipt generated with ISO 20022 messaging, FATF Travel Rule compliance, partner confirmations, and 5-year retention.</p>
+            <p class="mb-3"><strong>⚖️ Legal Proof:</strong> VentoVault orchestrated, partners executed. You authorized partners directly - we never touched your funds.</p>
+            <p class="text-sm text-slate-500 mt-3">View the transaction history to see the complete audit trail</p>
+          `,
+          placement: 'bottom',
         },
       },
     ],

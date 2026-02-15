@@ -10,7 +10,7 @@ import ErrorBoundary from './components/common/ErrorBoundary';
 import RouteFallback from './components/common/RouteFallback';
 import OperationalInspector from './components/operational/OperationalInspector';
 import OperationalInspectorToggle from './components/operational/OperationalInspectorToggle';
-import DemoModeOverlay from './components/common/DemoModeOverlay';
+import GuidedTour from './components/common/GuidedTour';
 import DemoModeToggle from './components/common/DemoModeToggle';
 
 const Login = lazy(() => import('./pages/Login'));
@@ -125,7 +125,7 @@ function App() {
             <OperationalInspectorProvider>
               <ToastProvider />
               <AppRoutes />
-              <DemoModeOverlay />
+              <GuidedTour />
               <DemoModeToggle />
               <OperationalInspector />
               <OperationalInspectorToggle />
