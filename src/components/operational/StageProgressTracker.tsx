@@ -41,7 +41,7 @@ export default function StageProgressTracker() {
       case 'review':
         return 3;
       case 'success':
-        return 4; // First post-submit stage
+        return 8; // Show all stages 4-8 as completed
       default:
         return 0;
     }

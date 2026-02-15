@@ -117,8 +117,14 @@ function prettifyState(state: TransactionState): string {
 
 export function validateModeForTier(
   tier: VerificationTier,
-  mode: TransferMode
+  mode: TransferMode,
+  isDemoMode?: boolean
 ): TransferMachineError | null {
+  // Bypass validation in demo mode
+  if (isDemoMode) {
+    return null;
+  }
+
   const limits = getTierLimits(tier);
   if (mode === 'receive_exact' && !limits.allowReceiveExact) {
     return {
@@ -131,8 +137,14 @@ export function validateModeForTier(
 
 export function validateFundingMethodForTier(
   tier: VerificationTier,
-  fundingMethod: FundingMethod
+  fundingMethod: FundingMethod,
+  isDemoMode?: boolean
 ): TransferMachineError | null {
+  // Bypass validation in demo mode
+  if (isDemoMode) {
+    return null;
+  }
+
   const limits = getTierLimits(tier);
   if (fundingMethod === 'debit_card' && !limits.allowDebitCard) {
     return {
@@ -147,8 +159,14 @@ export function validateAmountForTier(
   tier: VerificationTier,
   amount: number,
   usedDaily: number,
-  usedMonthly: number
+  usedMonthly: number,
+  isDemoMode?: boolean
 ): TransferMachineError | null {
+  // Bypass validation in demo mode
+  if (isDemoMode) {
+    return null;
+  }
+
   const limits = getTierLimits(tier);
 
   if (amount < minTransferAmountUsd) {
@@ -182,7 +200,12 @@ export function validateAmountForTier(
   return null;
 }
 
-export function canSendToRecipient(recipient: Recipient): TransferMachineError | null {
+export function canSendToRecipient(recipient: Recipient, isDemoMode?: boolean): TransferMachineError | null {
+  // Bypass validation in demo mode
+  if (isDemoMode) {
+    return null;
+  }
+
   if (recipient.state === 'flagged') {
     return {
       code: 'RECIPIENT_FLAGGED',
