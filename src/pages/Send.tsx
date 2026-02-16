@@ -19,6 +19,10 @@ import { toast } from '../components/ui/Toast';
 import { toCountryCode } from '../utils/country';
 import { getAccountLevel } from '../utils/accountLevel';
 
+// --- NEW IMPORTS FOR SIMULATOR MODE ---
+import { useOperationalIntel } from '../hooks/useOperationalIntel';
+import { OpsInspectorPanel } from '../components/operational/OpsInspectorPanel';
+
 type Step = 'recipient' | 'amount' | 'review' | 'success';
 
 interface LocationState {
@@ -76,6 +80,19 @@ export default function Send() {
     () => recipients.find((item) => item.id === recipientId) || null,
     [recipientId, recipients]
   );
+  
+  // --- NEW: INTELLIGENCE LAYER INTEGRATION ---
+  // This hook calculates the "Truth" based on the current form state
+  const operationalIntel = useOperationalIntel({
+    currentRecipient: selectedRecipient,
+    amount: Number(mode === 'send_exact' ? sourceAmount : quote?.sourceAmount || 0),
+    mode,
+    fundingMethod,
+    quote,
+    userTier: tier,
+    usageStats: { daily: dailySent, monthly: monthlySent }
+  });
+
   const selectedRecipientCountryCode = toCountryCode(selectedRecipient?.country);
   const hasRecipients = recipients.length > 0;
 
@@ -559,6 +576,10 @@ export default function Send() {
 
   return (
     <Layout>
+      {/* --- NEW: RENDER THE INSPECTOR PANEL --- */}
+      {/* This component manages its own visibility/animation based on the isOpen prop */}
+      <OpsInspectorPanel intel={operationalIntel} isOpen={isDemoMode} />
+
       <div className="max-w-3xl mx-auto pb-20 md:pb-6 space-y-6">
         <motion.div
           initial={{ opacity: 0, y: 6 }}
