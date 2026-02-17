@@ -7,7 +7,7 @@ import ToastProvider from './components/ui/Toast';
 import PageTransition from './components/animations/PageTransition';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import RouteFallback from './components/common/RouteFallback';
-import OperationalInspectorToggle from './components/operational/OperationalInspectorToggle';
+// --- REMOVED: OperationalInspectorToggle import ---
 import StageProgressTracker from './components/operational/StageProgressTracker';
 import BubbleManager from './components/demo/BubbleManager';
 
@@ -124,7 +124,7 @@ function App() {
             <AppRoutes />
             <StageProgressTracker />
             <BubbleManager />
-            <OperationalInspectorToggle />
+            {/* --- REMOVED: <OperationalInspectorToggle /> --- */}
           </OperationalInspectorProvider>
         </AuthProvider>
       </ErrorBoundary>

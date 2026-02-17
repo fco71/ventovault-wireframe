@@ -10,6 +10,9 @@ import {
   Settings,
 } from 'lucide-react';
 
+// --- NEW IMPORT: The Simulator Button ---
+import { SimulatorToggle } from '../demo/SimulatorToggle';
+
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -191,6 +194,9 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </div>
       </nav>
+
+      {/* --- THE SIMULATOR TOGGLE --- */}
+      <SimulatorToggle />
     </div>
   );
 }

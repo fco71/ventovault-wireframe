@@ -3,13 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   AlertTriangle, 
   CheckCircle, 
-  Info, 
   ShieldAlert, 
   FileText, 
   Server, 
-  Activity 
+  Activity,
+  X 
 } from 'lucide-react';
 import { IntelPacket } from '../../logic/operationalRules';
+import { useOperationalInspector } from '../../contexts/OperationalInspectorContext';
 
 interface Props {
   intel: IntelPacket | null;
@@ -17,27 +18,39 @@ interface Props {
 }
 
 export const OpsInspectorPanel: React.FC<Props> = ({ intel, isOpen }) => {
+  const { close } = useOperationalInspector();
+
   if (!isOpen) return null;
 
   return (
     <motion.div
-      initial={{ x: 320, opacity: 0 }}
+      initial={{ x: 340, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      exit={{ x: 320, opacity: 0 }}
-      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className="fixed right-4 top-24 bottom-4 w-80 bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col font-sans"
+      exit={{ x: 340, opacity: 0 }}
+      transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+      className="fixed right-6 top-24 bottom-6 w-80 bg-slate-900/95 backdrop-blur-2xl border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden z-[90] flex flex-col font-sans"
     >
       {/* Header */}
-      <div className="bg-slate-950/50 p-4 border-b border-slate-800 flex items-center gap-2">
-        <div className="relative flex h-3 w-3">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+      <div className="bg-slate-950/50 p-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+          </div>
+          <span className="text-xs font-bold tracking-widest text-slate-400 uppercase">Ops Inspector</span>
         </div>
-        <span className="text-xs font-bold tracking-widest text-slate-400 uppercase">Ops Inspector</span>
+        
+        {/* Close Button */}
+        <button 
+          onClick={close}
+          className="text-slate-500 hover:text-white transition-colors p-1 rounded-md hover:bg-slate-800"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
         <AnimatePresence mode="wait">
           {intel ? (
             <motion.div
@@ -45,13 +58,14 @@ export const OpsInspectorPanel: React.FC<Props> = ({ intel, isOpen }) => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
               className="space-y-4"
             >
               {/* Main Card */}
-              <div className={`p-4 rounded-xl border ${
-                intel.severity === 'critical' ? 'bg-red-950/30 border-red-500/30' :
-                intel.severity === 'warning' ? 'bg-amber-950/30 border-amber-500/30' :
-                'bg-slate-800/50 border-slate-700'
+              <div className={`p-4 rounded-xl border shadow-lg ${
+                intel.severity === 'critical' ? 'bg-red-950/20 border-red-500/30' :
+                intel.severity === 'warning' ? 'bg-amber-950/20 border-amber-500/30' :
+                'bg-slate-800/40 border-slate-700/60'
               }`}>
                 <div className="flex items-start gap-3 mb-2">
                   {intel.severity === 'critical' ? <ShieldAlert className="w-5 h-5 text-red-400 shrink-0" /> :
@@ -67,19 +81,25 @@ export const OpsInspectorPanel: React.FC<Props> = ({ intel, isOpen }) => {
               </div>
 
               {/* Substantiation Checks */}
-              <div className="bg-slate-950/30 rounded-xl p-3 border border-slate-800">
-                <h4 className="text-[10px] uppercase tracking-wider text-slate-500 mb-3 font-bold">Compliance Checks</h4>
+              <div className="bg-slate-950/30 rounded-xl p-3 border border-slate-800/60">
+                <h4 className="text-[10px] uppercase tracking-wider text-slate-500 mb-3 font-bold flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" /> Compliance Checks
+                </h4>
                 <div className="space-y-2">
                   {intel.checks.map((check, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-xs">
+                    <div key={idx} className="flex items-center justify-between text-xs group">
                       <div className="flex items-center gap-2 text-slate-300">
-                        {check.status === 'pass' && <CheckCircle className="w-3 h-3 text-emerald-500" />}
-                        {check.status === 'warn' && <AlertTriangle className="w-3 h-3 text-amber-500" />}
-                        {check.status === 'fail' && <ShieldAlert className="w-3 h-3 text-red-500" />}
-                        {check.status === 'info' && <Info className="w-3 h-3 text-blue-500" />}
-                        <span>{check.label}</span>
+                        {check.status === 'pass' && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />}
+                        {check.status === 'warn' && <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />}
+                        {check.status === 'fail' && <div className="w-1.5 h-1.5 rounded-full bg-red-500" />}
+                        {check.status === 'info' && <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
+                        <span className="group-hover:text-white transition-colors">{check.label}</span>
                       </div>
-                      <span className="font-mono text-slate-500 text-[10px]">{check.detail}</span>
+                      <span className={`font-mono text-[10px] ${
+                        check.status === 'pass' ? 'text-emerald-500/70' :
+                        check.status === 'fail' ? 'text-red-400' :
+                        'text-slate-500'
+                      }`}>{check.detail}</span>
                     </div>
                   ))}
                 </div>
@@ -87,37 +107,42 @@ export const OpsInspectorPanel: React.FC<Props> = ({ intel, isOpen }) => {
 
               {/* Backend Process Trace */}
               <div className="bg-black/20 rounded-lg p-3 border border-slate-800/50">
-                <div className="flex items-center gap-2 text-[10px] text-slate-500 mb-1">
+                <div className="flex items-center gap-2 text-[10px] text-slate-500 mb-1.5">
                   <Server className="w-3 h-3" />
-                  <span>SYSTEM PROCESS</span>
+                  <span>SYSTEM PROCESS TRACE</span>
                 </div>
-                <code className="text-[10px] text-purple-300 font-mono block break-words">
+                <code className="text-[10px] text-purple-300 font-mono block break-words bg-purple-900/10 p-2 rounded border border-purple-500/10">
                   {intel.backendProcess}
                 </code>
               </div>
 
               {/* Manual Reference */}
-              <div className="bg-slate-800/30 rounded-lg p-3 border border-slate-700/30">
-                 <div className="flex items-center gap-2 text-[10px] text-slate-500 mb-1">
-                  <FileText className="w-3 h-3" />
-                  <span>SUBSTANTIATION</span>
-                </div>
-                <p className="text-xs text-slate-300 italic">"{intel.manualRef}"</p>
+              <div className="bg-slate-800/30 rounded-lg p-3 border border-slate-700/30 flex gap-3">
+                 <FileText className="w-4 h-4 text-slate-600 shrink-0 mt-0.5" />
+                 <div>
+                   <span className="block text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">Substantiation Source</span>
+                   <p className="text-xs text-slate-300 italic">"{intel.manualRef}"</p>
+                 </div>
               </div>
 
             </motion.div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-48 text-slate-600">
-              <Activity className="w-8 h-8 mb-2 opacity-50" />
-              <p className="text-xs">System Idle</p>
+            <div className="flex flex-col items-center justify-center h-64 text-slate-600/50">
+              <div className="w-16 h-16 rounded-full bg-slate-800/30 flex items-center justify-center mb-4 border border-slate-800">
+                <Activity className="w-8 h-8" />
+              </div>
+              <p className="text-xs font-medium text-slate-500">System Idle</p>
+              <p className="text-[10px] text-slate-600 mt-1">Awaiting Transaction Input</p>
             </div>
           )}
         </AnimatePresence>
       </div>
 
       {/* Footer */}
-      <div className="p-2 border-t border-slate-800 bg-slate-950/30 text-center">
-        <p className="text-[9px] text-slate-600 uppercase">Simulated Compliance Environment</p>
+      <div className="p-3 border-t border-slate-800 bg-slate-950/30 text-center">
+        <p className="text-[9px] text-slate-600 uppercase tracking-wider">
+          Simulated Environment • VentoVault Ops
+        </p>
       </div>
     </motion.div>
   );
