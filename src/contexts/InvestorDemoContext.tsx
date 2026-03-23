@@ -400,11 +400,8 @@ export function InvestorDemoProvider({ children }: { children: ReactNode }) {
     showCallout(stage);
   }, [showCallout]);
 
-  const showCalloutForElement = useCallback((_element: HTMLElement) => {
-    // Determine which stage this element belongs to
-    // This is for manual mode - show contextual callouts
-    // TODO: Implement element-to-stage mapping
-    console.log('[InvestorDemo] Manual mode element selection - not yet implemented');
+  const showCalloutForElement = useCallback(() => {
+    // Manual mode element selection — not yet implemented
   }, []);
 
   return (

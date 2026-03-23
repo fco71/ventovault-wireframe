@@ -353,6 +353,7 @@ export default function Send() {
         mode,
         sourceAmount: numericSource,
         targetAmount: numericTarget,
+        fundingMethod,
       });
 
       if (cancelled) {
@@ -442,6 +443,7 @@ export default function Send() {
       mode,
       sourceAmount: Number(sourceAmount || 0),
       targetAmount: Number(targetAmount || 0),
+      fundingMethod,
     });
 
     if (!result.ok || !result.data) {
@@ -1171,19 +1173,44 @@ export default function Send() {
             </div>
 
             {/* Fee Breakdown */}
-            <div className="vv-surface-soft space-y-2 mb-4 text-left text-sm">
-              <div className="font-semibold text-sm text-gray-500 mb-2">Fee Breakdown</div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">VentoVault Fee</span>
-                <span className="font-mono text-xs text-gray-900">${quote.feeAmount.toFixed(2)}</span>
+            <div className="vv-surface-soft space-y-3 mb-4 text-left text-sm">
+              <div className="font-semibold text-sm text-gray-500">Fee Breakdown</div>
+
+              <div className="flex justify-between items-start">
+                <span className="text-gray-700">You send</span>
+                <span className="font-mono text-gray-900">${quote.sourceAmount.toFixed(2)} USD</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Partner Network Costs</span>
-                <span className="font-mono text-xs text-gray-900">${quote.networkCost.toFixed(2)}</span>
+
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="text-gray-700">VentoVault fee</div>
+                  <div className="text-[10px] text-gray-400 mt-0.5">2.5% of send amount · min $2.50, max $10.00</div>
+                </div>
+                <span className="font-mono text-gray-900">+ ${quote.feeAmount.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-gray-200 font-semibold">
-                <span className="text-gray-900">Total Cost</span>
-                <span className="text-gray-900">${quote.totalDebitAmount.toFixed(2)}</span>
+
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="text-gray-700">Collection cost</div>
+                  <div className="text-[10px] text-gray-400 mt-0.5">
+                    {fundingMethod === 'debit_card'
+                      ? 'Debit card — pass-through from collection partner'
+                      : 'ACH bank transfer — no charge to sender'}
+                  </div>
+                </div>
+                <span className="font-mono text-gray-900">
+                  {quote.networkCost === 0 ? '$0.00' : `+ $${quote.networkCost.toFixed(2)}`}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                <span className="font-semibold text-gray-900">Total debited</span>
+                <span className="font-semibold text-gray-900">${quote.totalDebitAmount.toFixed(2)} USD</span>
+              </div>
+
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>Recipient receives</span>
+                <span className="font-mono">{quote.destinationAmount.toFixed(2)} {quote.destinationCurrency}</span>
               </div>
             </div>
 

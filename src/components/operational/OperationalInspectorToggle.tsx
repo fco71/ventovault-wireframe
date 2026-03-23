@@ -25,11 +25,11 @@ export default function OperationalInspectorToggle() {
             : 'bg-slate-100 text-slate-900 border-slate-300 hover:bg-slate-200'
         }
       `}
-      aria-label={isOpen ? 'Close Operational Inspector' : 'Open Operational Inspector'}
+      aria-label={isOpen ? 'Close Demo Mode' : 'Open Demo Mode'}
     >
       <div className="flex items-center gap-2">
         <div className={`w-1.5 h-1.5 rounded-full ${isOpen ? 'bg-emerald-400' : 'bg-slate-400'}`} />
-        <span>{isOpen ? 'HIDE' : 'INSPECTOR'}</span>
+        <span>{isOpen ? 'HIDE DEMO' : 'DEMO MODE'}</span>
       </div>
     </button>
   );

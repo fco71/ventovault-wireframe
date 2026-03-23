@@ -40,6 +40,7 @@ export interface CreateQuoteInput {
   sourceAmount: number;
   mode: TransferMode;
   targetAmount?: number;
+  fundingMethod?: FundingMethod;  // Determines user-facing network cost
 }
 
 export interface CreateTransferInput {
