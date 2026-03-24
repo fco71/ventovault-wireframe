@@ -3,6 +3,7 @@ import { Quote } from '../../types';
 import { CreateQuoteInput, QuoteService, ServiceResult } from '../contracts';
 import { featureFlags } from '../../config/flags';
 import { makeId, waitForSeed } from './utils';
+import { getRateForCurrency } from '../liveRateService';
 
 // ─── Fee structure — sourced from technical spec Section 3.3 ──────────────────
 // VentoVault fee: percentage-based, 2.5%, with a floor and ceiling.
@@ -18,23 +19,30 @@ const VV_FEE_MAX  = 10.00;   // $10   (spec: corridor.pricing.vvFeeMax)
 const NETWORK_COST_ACH   = 0.00;  // ACH  — spec: fundingMethod.costPerTransaction
 const NETWORK_COST_DEBIT = 1.50;  // Debit — spec: fundingMethod.costPerTransaction
 
-function buildQuote(input: CreateQuoteInput): Quote {
+async function buildQuote(input: CreateQuoteInput): Promise<Quote> {
   const corridor = getCorridorByCountry(input.recipientCountry);
 
+  // Fetch live mid-market rate; falls back to hardcoded if network unavailable
+  const liveRate = await getRateForCurrency(corridor.destinationCurrency);
+
+  // Apply spread (spec § 3.4): reduce rate by spreadBps to capture margin.
+  // Using 10 bps (0.10%) — the example from the technical spec.
+  const spreadDecimal = 0.0010;
+  const quotedRate = Number((liveRate * (1 - spreadDecimal)).toFixed(4));
+
   const sourceAmount = input.mode === 'receive_exact'
-    ? Number((Number(input.targetAmount ?? 0) / corridor.rate).toFixed(2))
+    ? Number((Number(input.targetAmount ?? 0) / quotedRate).toFixed(2))
     : Number(input.sourceAmount.toFixed(2));
 
   const destinationAmount = input.mode === 'receive_exact'
     ? Number((input.targetAmount ?? 0).toFixed(2))
-    : Number((sourceAmount * corridor.rate).toFixed(2));
+    : Number((sourceAmount * quotedRate).toFixed(2));
 
   // VentoVault fee: 2.5% with $2.50 floor and $10 ceiling (spec § 3.3)
-  const rawFee   = sourceAmount * VV_FEE_RATE;
+  const rawFee = sourceAmount * VV_FEE_RATE;
   const feeAmount = Number(Math.min(Math.max(rawFee, VV_FEE_MIN), VV_FEE_MAX).toFixed(2));
 
-  // Network cost shown to user — default to ACH ($0.00) for demo
-  // In production this comes from the user's chosen fundingMethod.
+  // Network cost shown to user — based on chosen funding method (spec § 3.3)
   const networkCost = input.fundingMethod === 'debit_card'
     ? NETWORK_COST_DEBIT
     : NETWORK_COST_ACH;
@@ -52,8 +60,8 @@ function buildQuote(input: CreateQuoteInput): Quote {
     feeAmount,
     networkCost,
     totalDebitAmount,
-    rate: corridor.rate,
-    midMarketRate: Number((corridor.rate + 0.1).toFixed(4)),
+    rate: quotedRate,
+    midMarketRate: Number(liveRate.toFixed(4)),
     expiresAt: new Date(Date.now() + 45 * 1000),
     quoteMatched: true,
   };
@@ -87,7 +95,7 @@ class MockQuoteService implements QuoteService {
 
     return {
       ok: true,
-      data: buildQuote(input),
+      data: await buildQuote(input),
     };
   }
 

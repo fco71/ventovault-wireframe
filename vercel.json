@@ -1,0 +1,6 @@
+{
+  "name": "ventovault-preview",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite"
+}

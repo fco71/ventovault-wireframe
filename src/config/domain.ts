@@ -8,34 +8,37 @@ export interface Corridor {
   rate: number;
 }
 
+// Fallback rates used only if the live rate fetch fails at runtime.
+// These are overridden by liveRateService.ts in normal operation.
+// Reference: Q1 2025 mid-market approximations.
 export const corridors: Corridor[] = [
   {
     code: 'DR',
     name: 'Dominican Republic',
     flag: 'DO',
     destinationCurrency: 'DOP',
-    rate: 58.5,
+    rate: 60.15,   // USD/DOP — Q1 2025 reference
   },
   {
     code: 'MX',
     name: 'Mexico',
     flag: 'MX',
     destinationCurrency: 'MXN',
-    rate: 17.2,
+    rate: 20.10,   // USD/MXN — Q1 2025 reference
   },
   {
     code: 'GT',
     name: 'Guatemala',
     flag: 'GT',
     destinationCurrency: 'GTQ',
-    rate: 7.8,
+    rate: 7.76,    // USD/GTQ — Q1 2025 reference
   },
   {
     code: 'HN',
     name: 'Honduras',
     flag: 'HN',
     destinationCurrency: 'HNL',
-    rate: 24.7,
+    rate: 25.30,   // USD/HNL — Q1 2025 reference
   },
 ];
 

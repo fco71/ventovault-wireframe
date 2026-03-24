@@ -378,7 +378,7 @@ export default function Send() {
       cancelled = true;
       clearTimeout(timeoutId);
     };
-  }, [mode, selectedRecipient, sourceAmount, targetAmount]);
+  }, [fundingMethod, mode, selectedRecipient, sourceAmount, targetAmount]);
 
   useEffect(() => {
     if (!quote) {
@@ -426,7 +426,7 @@ export default function Send() {
       return amountError.message;
     }
 
-    if (quote && quote.totalDebitAmount > (currentUser?.balance || 0)) {
+    if (!isDemoMode && quote && quote.totalDebitAmount > (currentUser?.balance || 0)) {
       return 'Insufficient balance for this transfer.';
     }
 

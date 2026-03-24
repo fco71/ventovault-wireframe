@@ -192,7 +192,6 @@ export function analyzeAmountStage(
  * STAGE 3: QUOTE & REVIEW
  * Explains the FX rate construction and fees.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function analyzeReviewStage(quote: any): IntelPacket | null {
   if (!quote) return null;
 
